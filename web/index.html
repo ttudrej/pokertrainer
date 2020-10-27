@@ -1,0 +1,524 @@
+{{ define "index_template" }}
+
+<!DOCTYPE html>
+<html>
+
+  <title>Table : {{ .TableID }}</title>
+
+  <style>
+
+    :root {
+      --player_seat_color: orange;
+      --player_seat_border_color: rgb(71, 47, 1);
+      --table_color: green;
+      --card_width_px: 40px;
+      --card_height_px: 60px;
+      --card_bg_color_face_up: white;     
+      --card_bg_color_face_up_h: red;     
+      --card_bg_color_face_up_d: blue;     
+      --card_bg_color_face_up_c: green;
+      --card_bg_color_face_up_s: gray;
+      --card_bg_color_face_down: purple;
+      --border_temporary: 2px blue dotted;
+    }
+
+    .wrapper{
+      display:grid;
+      /* grid-template-columns:1fr 1fr 1fr;*/
+      grid-template-columns:repeat(5, 1fr);
+      grid-gap:0.5em;
+      /* grid-auto-rows:100px; */
+      /* grid-auto-rows: minmax(100px, auto); */
+      background-color: #eee;
+      border: var(--border_temporary); 
+      width: 800px;
+    }
+
+    .wrapper > div{
+      padding: 0.1em;
+    }
+
+    .table{
+      display:grid;
+      grid-template-columns:repeat(5, 1fr);
+      /*align-self:start;*/
+      grid-column:2/5;
+      grid-row:2/4;
+      border-radius: 30px;
+      grid-gap: 0.1em;
+
+      background-color: green;
+      border: 3px red solid;
+    }
+
+    .table_section{
+      border: var(--border_temporary); 
+      text-align: center;
+    }
+
+    .seat_section{
+      border: var(--border_temporary); 
+      text-align: center;
+    }
+
+    .table_flop_area{
+      display:grid;
+      grid-template-columns:repeat(5, 1fr);
+      border: var(--border_temporary); 
+    }
+
+    .seat{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      grid-gap: 0.1em;
+      
+      background-color: var(--player_seat_color);
+      border: 2px var(--player_seat_border_color) solid;
+      border-radius: 10px;
+    }
+
+    .player_username{
+      background-color: bisque;
+      border: var(--border_temporary);
+      padding: 2px;
+    }
+
+    .stack{
+      background-color:cornflowerblue;
+      border: var(--border_temporary);
+      padding: 2px;
+    }
+
+    .suit_color_red{
+      color: red;
+    }
+
+    .suit_color_black{
+      color: black;
+    }
+
+    /* text color A-T-2  */
+    .suit_color_4cd_h{
+      color: white;
+    }
+    .suit_color_4cd_d{
+      color:white;
+    }
+    .suit_color_4cd_c{
+      color:white;
+    }
+    .suit_color_4cd_s{
+      color:white;
+    }
+
+
+    .card_bg_face_up{
+      background-color: var(--card_bg_color_face_up);
+    }
+      .card_bg_face_up_4cd_h{
+      background-color: var(--card_bg_color_face_up_h);
+    }
+    .card_bg_face_up_4cd_d{
+      background-color: var(--card_bg_color_face_up_d);
+    }
+    .card_bg_face_up_4cd_s{
+      background-color: var(--card_bg_color_face_up_s);
+    }
+    .card_bg_face_up_4cd_c{
+      background-color: var(--card_bg_color_face_up_c);
+    }
+
+    .card_bg_face_down{
+      background-color: var(--card_bg_color_face_down);
+    }
+    
+    .card{
+      display:grid;
+      grid-template-columns:repeat(1, 1fr);
+      border: 1px black solid;
+      border-radius: 10px;
+      width: var(--card_width_px);
+      height: var(--card_height_px)
+    }  
+
+    /* targets the A-T-2 card text  */
+    .card_r{
+      font-size: 30px;
+      font-weight: 800;
+      border: none;
+      text-align: center;
+    }
+
+    /* targets the  card text  */
+    .card_s{
+      font-size: 20px;
+      border: none;
+      text-align: left;
+      padding: 1px;
+    }
+
+    .text_border_black{
+      text-shadow: 
+      1px   0   0   #000, 
+     -1px   0   0   #000, 
+      0     1px 0   #000, 
+      0    -1px 0   #000, 
+      1px   1px 0   #000, 
+     -1px  -1px 0   #000, 
+      1px  -1px 0   #000, 
+     -1px   1px 0   #000,
+      1px   1px 1px #000;
+    }
+
+    /* Symbol color / text color  */
+    .suit_symbol_color_4cd_h{
+      color:darkorange;
+    }
+    .suit_symbol_color_4cd_d{
+      color: lightblue;
+    }
+    .suit_symbol_color_4cd_c{
+      color:lightgreen;
+    }
+    .suit_symbol_color_4cd_s{
+      color: black;
+    }
+
+    .pot{     
+      text-align: center;
+      border: 1px orange dotted;
+    }
+
+/* Dealer button */
+    .button{ 
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+/* HTML, clicable buttons on page */
+    .button_clickable_table{
+      float:left;
+      box-sizing:border-box;
+      background-color: grey;
+      color: black;
+      font-size: 22px;
+    }
+
+    .button_clickable_seat{
+      background-color: grey;
+      color: black;
+      font-size: 16px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="wrapper">
+
+    <div>upper left</div>
+
+    <div class="seat">
+      <div>
+        <div class="player_username">{{          index .PUserNameList          9 }}</div>
+        <div class="stack"          >{{          index .StackList              9 }}</div>
+      </div>
+      <div class="  card                      {{ index .C1ColorClass           9 }}  {{ index .C1BackgroundColorClassList 9 }}">
+        <div class="card_s                    {{ index .C1ColorClassSuitSymbol 9 }}">{{ index .C1sSymbolList              9 }}</div>
+        <div class="card_r text_border_black">{{ index .C1rList                9 }}</div>
+      </div>
+      <div class="  card                      {{ index .C2ColorClass           9 }}  {{ index .C2BackgroundColorClassList 9 }}">
+        <div class="card_s                    {{ index .C2ColorClassSuitSymbol 9 }}">{{ index .C2sSymbolList              9 }}</div>
+        <div class="card_r text_border_black">{{ index .C2rList                9 }}</div>
+      </div>
+    </div>
+
+
+    <div>Seat: DEALER box</div>
+    
+
+    <div class="seat">
+      <div>
+        <div class="player_username">{{          index .PUserNameList          1 }}</div>
+        <div class="stack"          >{{          index .StackList              1 }}</div>
+      </div>
+      <div class="  card                      {{ index .C1ColorClass           1 }}  {{ index .C1BackgroundColorClassList 1 }}">
+        <div class="card_s                    {{ index .C1ColorClassSuitSymbol 1 }}">{{ index .C1sSymbolList              1 }}</div>
+        <div class="card_r text_border_black">{{ index .C1rList                1 }}</div>
+      </div>
+      <div class="  card                      {{ index .C2ColorClass           1 }}  {{ index .C2BackgroundColorClassList 1 }}">
+        <div class="card_s                    {{ index .C2ColorClassSuitSymbol 1 }}">{{ index .C2sSymbolList              1 }}</div>
+        <div class="card_r text_border_black">{{ index .C2rList                1 }}</div>
+      </div>
+    </div>
+
+
+    <div>Upper right</div>
+
+    <div class="seat">
+      <div>
+        <div class="player_username">{{          index .PUserNameList          8 }}</div>
+        <div class="stack"          >{{          index .StackList              8 }}</div>
+      </div>
+      <div class="  card                      {{ index .C1ColorClass           8 }}  {{ index .C1BackgroundColorClassList 8 }}">
+        <div class="card_s                    {{ index .C1ColorClassSuitSymbol 8 }}">{{ index .C1sSymbolList              8 }}</div>
+        <div class="card_r text_border_black">{{ index .C1rList                8 }}</div>
+      </div>
+      <div class="  card                      {{ index .C2ColorClass           8 }}  {{ index .C2BackgroundColorClassList 8 }}">
+        <div class="card_s                    {{ index .C2ColorClassSuitSymbol 8 }}">{{ index .C2sSymbolList              8 }}</div>
+        <div class="card_r text_border_black">{{ index .C2rList                8 }}</div>
+      </div>
+    </div>
+
+    <div class="seat">
+      <div>
+        <div class="player_username">{{          index .PUserNameList          2 }}</div>
+        <div class="stack"          >{{          index .StackList              2 }}</div>
+      </div>
+      <div class="  card                      {{ index .C1ColorClass           2 }}  {{ index .C1BackgroundColorClassList 2 }}">
+        <div class="card_s                    {{ index .C1ColorClassSuitSymbol 2 }}">{{ index .C1sSymbolList              2 }}</div>
+        <div class="card_r text_border_black">{{ index .C1rList                2 }}</div>
+      </div>
+      <div class="  card                      {{ index .C2ColorClass           2 }}  {{ index .C2BackgroundColorClassList 2 }}">
+        <div class="card_s                    {{ index .C2ColorClassSuitSymbol 2 }}">{{ index .C2sSymbolList              2 }}</div>
+        <div class="card_r text_border_black">{{ index .C2rList                2 }}</div>
+      </div>
+    </div>
+    
+    <div class="table">
+
+      <div class="table_section">&nbsp;</div>
+      <div class="table_section">{{ index .BetAmount 9 }}</div>
+      <div class="table_section">&nbsp;</div>
+      <div class="table_section">{{ index .BetAmount 1 }}</div>
+      <div class="table_section">&nbsp;</div>
+
+      <div class="table_section">&nbsp;</div>
+
+      <div class="table_section button" align="center">{{ index .ButtonMarkerList 9 }}</div>
+      <div class="table_section">&nbsp;</div>
+      <div class="table_section button" align="center">{{ index .ButtonMarkerList 1 }}</div>
+
+      <div class="table_section">&nbsp;</div>
+
+      <div class="table_section">{{ index .BetAmount 8 }}</div>
+
+      <div class="table_section button" align="left">{{ index .ButtonMarkerList 8 }}</div>
+      <div class="table_section">&nbsp;</div>
+      <div class="table_section button" align="right">{{ index .ButtonMarkerList 2 }}</div>
+
+      <div class="table_section">{{ index .BetAmount 2 }}</div>
+
+      <div class="table_section">&nbsp;</div>
+      <div class="table_section">&nbsp;</div>
+
+      <div class="table_flop_area">
+
+        <div class="card                        {{ index .ComCColorClass           1 }}  {{ index .ComCardsBackgroundColorClassList 1 }}">
+          <div class="card_s                    {{ index .ComCColorClassSuitSymbol 1 }}">{{ index .ComCs                            1 }}</div>
+          <div class="card_r text_border_black">{{ index .ComCr                    1 }}</div>
+        </div>
+
+        <div class="card                        {{ index .ComCColorClass           2 }}  {{ index .ComCardsBackgroundColorClassList 2 }}">
+          <div class="card_s                    {{ index .ComCColorClassSuitSymbol 2 }}">{{ index .ComCs                            2 }}</div>
+          <div class="card_r text_border_black">{{ index .ComCr                    2 }}</div>
+        </div>
+
+        <div class="card                        {{ index .ComCColorClass           3 }}  {{ index .ComCardsBackgroundColorClassList 3 }}">
+          <div class="card_s                    {{ index .ComCColorClassSuitSymbol 3 }}">{{ index .ComCs                            3 }}</div>
+          <div class="card_r text_border_black">{{ index .ComCr                    3 }}</div>
+        </div>
+
+        <div class="card                        {{ index .ComCColorClass           4 }}  {{ index .ComCardsBackgroundColorClassList 4 }}">
+          <div class="card_s                    {{ index .ComCColorClassSuitSymbol 4 }}">{{ index .ComCs                            4 }}</div>
+          <div class="card_r text_border_black">{{ index .ComCr                    4 }}</div>
+        </div>
+
+        <div class="card                        {{ index .ComCColorClass           5 }}  {{ index .ComCardsBackgroundColorClassList 5 }}">
+          <div class="card_s                    {{ index .ComCColorClassSuitSymbol 5 }}">{{ index .ComCs                            5 }}</div>
+          <div class="card_r text_border_black">{{ index .ComCr                    5 }}</div>
+        </div>
+
+      </div>   
+
+      <div class="table_section">&nbsp;</div>
+      <div class="table_section">&nbsp;</div>
+
+      <div class="table_section">{{ index .BetAmount 7 }}</div>
+      <div class="table_section button" align="left">{{ index .ButtonMarkerList 7 }}</div>
+      <div class="pot">{{ .PotTotal }}</div>
+      <div class="table_section button" align="right">{{ index .ButtonMarkerList 3 }}</div>
+      <div class="table_section">{{ index .BetAmount 3 }}</div> 
+      
+      <div class="table_section">&nbsp;</div>
+      <div class="table_section button" align="center">{{ index .ButtonMarkerList 6 }}</div>
+      <div class="table_section button" align="center">{{ index .ButtonMarkerList 5 }}</div>
+      <div class="table_section button" align="center">{{ index .ButtonMarkerList 4 }}</div>
+      <div class="table_section">&nbsp;</div>
+
+      <div class="table_section">&nbsp;</div>
+      <div class="table_section">{{ index .BetAmount 6 }}</div>
+      <div class="table_section">{{ index .BetAmount 5 }}</div>
+      <div class="table_section">{{ index .BetAmount 4 }}</div>
+      <div class="table_section">&nbsp;</div>
+
+    </div>      
+
+    <div class="seat">
+      <div>
+        <div class="player_username">{{          index .PUserNameList          7 }}</div>
+        <div class="stack"          >{{          index .StackList              7 }}</div>
+      </div>
+      <div class="  card                      {{ index .C1ColorClass           7 }}  {{ index .C1BackgroundColorClassList 7 }}">
+        <div class="card_s                    {{ index .C1ColorClassSuitSymbol 7 }}">{{ index .C1sSymbolList              7 }}</div>
+        <div class="card_r text_border_black">{{ index .C1rList                7 }}</div>
+      </div>
+      <div class="  card                      {{ index .C2ColorClass           7 }}  {{ index .C2BackgroundColorClassList 7 }}">
+        <div class="card_s                    {{ index .C2ColorClassSuitSymbol 7 }}">{{ index .C2sSymbolList              7 }}</div>
+        <div class="card_r text_border_black">{{ index .C2rList                7 }}</div>
+      </div>
+    </div>
+    
+    <div class="seat">
+      <div>
+        <div class="player_username">{{          index .PUserNameList          3 }}</div>
+        <div class="stack"          >{{          index .StackList              3 }}</div>
+      </div>
+      <div class="  card                      {{ index .C1ColorClass           3 }}  {{ index .C1BackgroundColorClassList 3 }}">
+        <div class="card_s                    {{ index .C1ColorClassSuitSymbol 3 }}">{{ index .C1sSymbolList              3 }}</div>
+        <div class="card_r text_border_black">{{ index .C1rList                3 }}</div>
+      </div>
+      <div class="  card                      {{ index .C2ColorClass           3 }}  {{ index .C2BackgroundColorClassList 3 }}">
+        <div class="card_s                    {{ index .C2ColorClassSuitSymbol 3 }}">{{ index .C2sSymbolList              3 }}</div>
+        <div class="card_r text_border_black">{{ index .C2rList                3 }}</div>
+      </div>
+    </div>
+
+    <div>3.1</div>
+
+    <div class="seat">
+      <div>
+        <div class="player_username">{{          index .PUserNameList          6 }}</div>
+        <div class="stack"          >{{          index .StackList              6 }}</div>
+      </div>
+      <div class="  card                      {{ index .C1ColorClass           6 }}  {{ index .C1BackgroundColorClassList 6 }}">
+        <div class="card_s                    {{ index .C1ColorClassSuitSymbol 6 }}">{{ index .C1sSymbolList              6 }}</div>
+        <div class="card_r text_border_black">{{ index .C1rList                6 }}</div>
+      </div>
+      <div class="  card                      {{ index .C2ColorClass           6 }}  {{ index .C2BackgroundColorClassList 6 }}">
+        <div class="card_s                    {{ index .C2ColorClassSuitSymbol 6 }}">{{ index .C2sSymbolList              6 }}</div>
+        <div class="card_r text_border_black">{{ index .C2rList                6 }}</div>
+      </div>
+    </div>
+
+    <div class="seat">
+      <div>
+        <div class="player_username">{{          index .PUserNameList          5 }}</div>
+        <div class="stack"          >{{          index .StackList              5 }}</div>
+      </div>
+      <div class="  card                      {{ index .C1ColorClass           5 }}  {{ index .C1BackgroundColorClassList 5 }}">
+        <div class="card_s                    {{ index .C1ColorClassSuitSymbol 5 }}">{{ index .C1sSymbolList              5 }}</div>
+        <div class="card_r text_border_black">{{ index .C1rList                5 }}</div>
+      </div>
+      <div class="  card                      {{ index .C2ColorClass           5 }}  {{ index .C2BackgroundColorClassList 5 }}">
+        <div class="card_s                    {{ index .C2ColorClassSuitSymbol 5 }}">{{ index .C2sSymbolList              5 }}</div>
+        <div class="card_r text_border_black">{{ index .C2rList                5 }}</div>
+      </div>
+
+        <!-- The bet size buttons shoudl show up ONLY after there is an active player in the seat,
+        otherwise having them does not make sense
+        This will translate to not assigning any button face text,  
+        OR
+        making it type="hidden" -->
+      <div class="seat_section">
+        <form method="POST" action="postBet">
+          <div>
+            <input type="hidden" id="id_tableID"       name="name_tableID"       value="{{ .TableID }}">
+            <input type="hidden" id="id_playerID"      name="name_playerID"      value="{{ index .PidList 5 }}">
+            <input type="hidden" id="id_postBet"       name="name_postBet"       value="1">
+            <input type="hidden" id="id_fractionOfPot" name="name_fractionOfPot" value="0.5">
+            <input class="button_clickable_seat"       type="submit"             value="1/2x">
+          </div>
+        </form>
+      </div>
+      <div class="seat_section">
+        <form method="POST" action="postBet">
+            <div>
+              <input type="hidden" id="id_tableID" name="name_tableID" value="{{ .TableID }}">
+              <input type="hidden" id="id_playerID" name="name_playerID" value="{{ index .PidList 5 }}">
+              <input type="hidden" id="id_postBet" name="name_postBet" value="1">
+              <input type="hidden" id="id_fractionOfPot" name="name_fractionOfPot" value="0.66666">
+              <input class="button_clickable_seat" type="submit" value="2/3x">
+            </div>
+        </form>
+      </div>
+      <div class="seat_section">
+        <form method="POST" action="postBet">
+          <div>
+            <input type="hidden" id="id_tableID" name="name_tableID" value="{{ .TableID }}">
+            <input type="hidden" id="id_playerID" name="name_playerID" value="{{ index .PidList 5 }}">
+            <input type="hidden" id="id_postBet" name="name_postBet" value="1">
+            <input type="hidden" id="id_fractionOfPot" name="name_fractionOfPot" value="1.0">
+            <input class="button_clickable_seat" type="submit" value="1x">
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="seat">
+      <div>
+        <div class="player_username">{{          index .PUserNameList          4 }}</div>
+        <div class="stack"          >{{          index .StackList              4 }}</div>
+      </div>
+      <div class="  card                      {{ index .C1ColorClass           4 }}  {{ index .C1BackgroundColorClassList 4 }}">
+        <div class="card_s                    {{ index .C1ColorClassSuitSymbol 4 }}">{{ index .C1sSymbolList              4 }}</div>
+        <div class="card_r text_border_black">{{ index .C1rList                4 }}</div>
+      </div>
+      <div class="  card                      {{ index .C2ColorClass           4 }}  {{ index .C2BackgroundColorClassList 4 }}">
+        <div class="card_s                    {{ index .C2ColorClassSuitSymbol 4 }}">{{ index .C2sSymbolList              4 }}</div>
+        <div class="card_r text_border_black">{{ index .C2rList                4 }}</div>
+      </div>
+    </div>
+    
+    <div>3.5</div>
+    <div>bottom left</div>
+    <div>bottom 2</div>
+    <div>bottom mid</div>
+    <div>bottom 4</div>
+    <div>bottom right</div>
+
+  </div>
+
+    
+  <div class="block">
+
+    <form method="POST" action="dealNewHand">
+        <input type="hidden" id="id_deal_new_hand" name="name_deal_new_hand" value="1">
+        <input class="button_clickable_table" type="submit" value="Deal New Hand">
+    </form>
+
+    <form method="POST" action="fullReset">
+        <input type="hidden" id="id_full_reset" name="name_full_reset" value="1">
+        <input type="hidden" id="id_tableID" name="name_tableID" value="{{ .TableID }}">
+        <input class="button_clickable_table" type="submit" value="Full Reset">
+    </form>
+
+    <form method="POST" action="NextStep">
+        <input type="hidden" id="id_next_step" name="name_next_step" value="1">
+        <input class="button_clickable_table" type="submit" value="Next Step">
+    </form>
+
+  </div>    
+
+TableID value = {{ .TableID }}
+<br>
+PidList 5 value = {{ index .PidList 5 }}
+
+
+{{ .RangeTable }}
+
+</body>
+</html>
+
+{{end}}
