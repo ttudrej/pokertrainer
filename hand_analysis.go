@@ -336,7 +336,7 @@ func prepareHandAnalysisTools() error {
 
 	_ = printSOEH(sOfEqHandsAllPtr)
 
-	os.Exit(0)
+	// os.Exit(0)
 
 	return nil
 }
@@ -555,8 +555,8 @@ func genSCLfromSSI(ssiPtr *[][]int, dPtr *cardDeck) (sfclPtr *[]fiveCardList, er
 // CreateFiveCardHandKindRankings maps a major hand type to an integer, representing
 // the relative strength of that type, 1 being the best/highest.
 // This will allow us to split the comparison and sorting of 5 card hands into 2 sub-tasks,
-// 1) figure out the type of hand 1 and hand 2. This will be enough, most often, to know which and is better.
-// 2) If hand 1 and 2 are of the same type, then we must compare/sort within just that one type.
+// 1) figure out the type of hand 1 and hand 2. This will be enough, most often, to know which hand is better.
+// 2) If hand 1 and 2 are of the same type, then we must compare/sort within that type.
 func CreateFiveCardHandKindRankings() (fchkrFL FiveCardHandKindRankingFullList, err error) {
 
 	// Info.Printf("%s\n\n", thisFunc())

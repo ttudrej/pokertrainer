@@ -138,28 +138,25 @@ func main() {
 	// ####################
 	// set up table 2
 
-	/*
-		_ = seatPlayer(p1Ptr, prPtr.tableList[1], 1, 300)
-		_ = seatPlayer(p2Ptr, prPtr.tableList[1], 2, 300)
-		_ = seatPlayer(p3Ptr, prPtr.tableList[1], 9, 300)
-		_ = seatPlayer(p4Ptr, prPtr.tableList[1], 8, 300)
-		_ = seatPlayer(p5Ptr, prPtr.tableList[1], 7, 300)
-		_ = seatPlayer(p6Ptr, prPtr.tableList[1], 6, 300)
-		_ = seatPlayer(p7Ptr, prPtr.tableList[1], 5, 300)
-		_ = seatPlayer(p8Ptr, prPtr.tableList[1], 4, 300)
-		_ = seatPlayer(p9Ptr, prPtr.tableList[1], 3, 300)
+	// _ = seatPlayer(p1Ptr, prPtr.tableList[1], 1, 300)
+	// _ = seatPlayer(p2Ptr, prPtr.tableList[1], 2, 300)
+	// _ = seatPlayer(p3Ptr, prPtr.tableList[1], 9, 300)
+	// _ = seatPlayer(p4Ptr, prPtr.tableList[1], 8, 300)
+	// _ = seatPlayer(p5Ptr, prPtr.tableList[1], 7, 300)
+	// _ = seatPlayer(p6Ptr, prPtr.tableList[1], 6, 300)
+	// _ = seatPlayer(p7Ptr, prPtr.tableList[1], 5, 300)
+	// _ = seatPlayer(p8Ptr, prPtr.tableList[1], 4, 300)
+	// _ = seatPlayer(p9Ptr, prPtr.tableList[1], 3, 300)
 
-		_ = announceIntentionToPlay(prPtr.tableList[1], 1)
-		_ = announceIntentionToPlay(prPtr.tableList[1], 2)
-		_ = announceIntentionToPlay(prPtr.tableList[1], 3)
-		_ = announceIntentionToPlay(prPtr.tableList[1], 4)
-		_ = announceIntentionToPlay(prPtr.tableList[1], 5)
-		_ = announceIntentionToPlay(prPtr.tableList[1], 6)
-		_ = announceIntentionToPlay(prPtr.tableList[1], 7)
-		_ = announceIntentionToPlay(prPtr.tableList[1], 8)
-		_ = announceIntentionToPlay(prPtr.tableList[1], 9)
-
-	*/
+	// _ = announceIntentionToPlay(prPtr.tableList[1], 1)
+	// _ = announceIntentionToPlay(prPtr.tableList[1], 2)
+	// _ = announceIntentionToPlay(prPtr.tableList[1], 3)
+	// _ = announceIntentionToPlay(prPtr.tableList[1], 4)
+	// _ = announceIntentionToPlay(prPtr.tableList[1], 5)
+	// _ = announceIntentionToPlay(prPtr.tableList[1], 6)
+	// _ = announceIntentionToPlay(prPtr.tableList[1], 7)
+	// _ = announceIntentionToPlay(prPtr.tableList[1], 8)
+	// _ = announceIntentionToPlay(prPtr.tableList[1], 9)
 
 	// ####################
 
