@@ -1,5 +1,7 @@
 package main
 
+import "github.com/ttudrej/pokertrainer/v2/debugging"
+
 type cdmKey struct {
 	cr cardRank
 	cs cardSuit
@@ -51,7 +53,7 @@ and not cards individually.
 */
 // func createDeck() (cdmPtr *cardDeckMap, olPtr *listOfPtrsToCards, olfPtr *listFullOfPtrsToCards, err error) {
 func createDeck() (cdPtr *cardDeck, err error) {
-	Info.Println(thisFunc())
+	Info.Println(debugging.ThisFunc())
 	// Info.Println("### Starting createDeck ###")
 	cdm := make(cardDeckMap)
 	cdmPtr := &cdm
@@ -109,7 +111,7 @@ func createDeck() (cdPtr *cardDeck, err error) {
 // #########################################################################################
 // print the cards in order they appear in the list of cards (currtnt order of the deck)
 func displayCardsInList(clPtr *listOfPtrsToCards) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	cl := *clPtr
 
 	for index := range cl {

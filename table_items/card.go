@@ -1,4 +1,16 @@
-package main
+package card
+
+import (
+	"log"
+	"pokertrainer/debugging"
+)
+
+var (
+	// Trace *log.Logger
+	Info *log.Logger
+	// Warning *log.Logger
+	// Error   *log.Logger
+)
 
 // cardRank comment
 type cardRank string
@@ -6,12 +18,12 @@ type cardRank string
 // cardSuit comment
 type cardSuit string
 
-// cardString comment
-type cardString string
+// CardString comment
+type CardString string
 
 // card struct is meant for representing a physical card in a deck of cards,
 // adn all it's properties, that will be used in a hand of a card game.
-type card struct {
+type Card struct {
 	rank          cardRank
 	suit          cardSuit
 	community     bool // seen by all players
@@ -49,61 +61,61 @@ const (
 	rK cardRank = "K"
 	rA cardRank = "A"
 
-	s2 cardString = "2s"
-	s3 cardString = "3s"
-	s4 cardString = "4s"
-	s5 cardString = "5s"
-	s6 cardString = "6s"
-	s7 cardString = "7s"
-	s8 cardString = "8s"
-	s9 cardString = "9s"
-	sT cardString = "Ts"
-	sJ cardString = "Js"
-	sQ cardString = "Qs"
-	sK cardString = "Ks"
-	sA cardString = "As"
+	s2 CardString = "2s"
+	s3 CardString = "3s"
+	s4 CardString = "4s"
+	s5 CardString = "5s"
+	s6 CardString = "6s"
+	s7 CardString = "7s"
+	s8 CardString = "8s"
+	s9 CardString = "9s"
+	sT CardString = "Ts"
+	sJ CardString = "Js"
+	sQ CardString = "Qs"
+	sK CardString = "Ks"
+	sA CardString = "As"
 
-	c2 cardString = "2c"
-	c3 cardString = "3c"
-	c4 cardString = "4c"
-	c5 cardString = "5c"
-	c6 cardString = "6c"
-	c7 cardString = "7c"
-	c8 cardString = "8c"
-	c9 cardString = "9c"
-	cT cardString = "Tc"
-	cJ cardString = "Jc"
-	cQ cardString = "Qc"
-	cK cardString = "Kc"
-	cA cardString = "Ac"
+	c2 CardString = "2c"
+	c3 CardString = "3c"
+	c4 CardString = "4c"
+	c5 CardString = "5c"
+	c6 CardString = "6c"
+	c7 CardString = "7c"
+	c8 CardString = "8c"
+	c9 CardString = "9c"
+	cT CardString = "Tc"
+	cJ CardString = "Jc"
+	cQ CardString = "Qc"
+	cK CardString = "Kc"
+	cA CardString = "Ac"
 
-	h2 cardString = "2h"
-	h3 cardString = "3h"
-	h4 cardString = "4h"
-	h5 cardString = "5h"
-	h6 cardString = "6h"
-	h7 cardString = "7h"
-	h8 cardString = "8h"
-	h9 cardString = "9h"
-	hT cardString = "Th"
-	hJ cardString = "Jh"
-	hQ cardString = "Qh"
-	hK cardString = "Kh"
-	hA cardString = "Ah"
+	h2 CardString = "2h"
+	h3 CardString = "3h"
+	h4 CardString = "4h"
+	h5 CardString = "5h"
+	h6 CardString = "6h"
+	h7 CardString = "7h"
+	h8 CardString = "8h"
+	h9 CardString = "9h"
+	hT CardString = "Th"
+	hJ CardString = "Jh"
+	hQ CardString = "Qh"
+	hK CardString = "Kh"
+	hA CardString = "Ah"
 
-	d2 cardString = "2d"
-	d3 cardString = "3d"
-	d4 cardString = "4d"
-	d5 cardString = "5d"
-	d6 cardString = "6d"
-	d7 cardString = "7d"
-	d8 cardString = "8d"
-	d9 cardString = "9d"
-	dT cardString = "Td"
-	dJ cardString = "Jd"
-	dQ cardString = "Qd"
-	dK cardString = "Kd"
-	dA cardString = "Ad"
+	d2 CardString = "2d"
+	d3 CardString = "3d"
+	d4 CardString = "4d"
+	d5 CardString = "5d"
+	d6 CardString = "6d"
+	d7 CardString = "7d"
+	d8 CardString = "8d"
+	d9 CardString = "9d"
+	dT CardString = "Td"
+	dJ CardString = "Jd"
+	dQ CardString = "Qd"
+	dK CardString = "Kd"
+	dA CardString = "Ad"
 )
 
 var rankList = cardRankList{rA, rK, rQ, rJ, rT, r9, r8, r7, r6, r5, r4, r3, r2}
@@ -114,7 +126,7 @@ var suitList = cardSuitList{s, c, h, d}
 // Used to indicate the absence of a card, instead of using an undefined or null pointer
 // By convention, we number cards in the deck from 1 to 52
 // So, there is no card 0, hence our noCard has the "sequnce" nuber assibned to 0.
-var noCardPtr = &card{rank: rX, suit: x, community: false, dealtToPlayer: false, seenByHero: false, seenByVillain: false, sequence: 0}
+var noCardPtr = &Card{rank: rX, suit: x, community: false, dealtToPlayer: false, seenByHero: false, seenByVillain: false, sequence: 0}
 
 /*
 #########################################################################
@@ -138,7 +150,7 @@ var noCardPtr = &card{rank: rX, suit: x, community: false, dealtToPlayer: false,
 // Useful in carda and hand ranking comparision.
 func createCardRankMap() (crm cardRankMap) {
 
-	Info.Println(thisFunc())
+	Info.Println(debugging.ThisFunc())
 	// Info.Println("### Starting createCardRankMap ###")
 	crm = make(cardRankMap)
 

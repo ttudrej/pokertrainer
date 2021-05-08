@@ -30,7 +30,7 @@ import (
 // drawComleteRange_HTML create an HTML table representing a full "range cart",
 // a 13x13 grid for use in range representation.
 func drawCompleteRangeHTML() string {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	var html string
 	// html = `<table class="range">`
 	html = `<table>`

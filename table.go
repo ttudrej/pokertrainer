@@ -169,14 +169,14 @@ func(a, b int, z float64, opt ...interface{}) (success bool)
 
 // #####################################################################
 func (sPtr *seat) printSeatPID() (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	Info.Println(sPtr.assignedToPID)
 	return nil
 }
 
 // #####################################################################
 func (sPtr *seat) getSeatPID() (playerID, error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	return sPtr.assignedToPID, nil
 }
 
@@ -187,7 +187,7 @@ func (sPtr *seat) getSeatPID() (playerID, error) {
 // func createTable(numSeats int, tID tableId, gt gameType, gs gameSize) (tPtr *table, err error) {
 // func createTable(gPtr *game) (tPtr *table, err error) {
 func createTable(prPtr *pokerRoom, numSeats int, tID int, gt gameType) (tPtr *table, err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	var t table
 	tPtr = &t
@@ -238,7 +238,7 @@ func createTable(prPtr *pokerRoom, numSeats int, tID int, gt gameType) (tPtr *ta
 // prepTableForNextHand "cleans" the table after the last hand, "gathers" cards, ie.
 // initializes each players card display area, and the community card area.
 func prepTableForNextHand(tPtr *table) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	Info.Println("Preparing table for next hand, table ID: ", tPtr.tableID)
 
 	for i := range tPtr.communityCardsList {
@@ -265,7 +265,7 @@ func prepTableForNextHand(tPtr *table) (err error) {
 
 // #####################################################################
 func displayTable(tPtr *table) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	// Trace.Println("I have something standard to say")
 	Info.Println("Your log message here")
 	// Warning.Println("There is something you need to know about")
@@ -322,7 +322,7 @@ func displayTable(tPtr *table) (err error) {
 // #################################################################
 // createTableStateStruct creates and initializes a tableStateForTemplateAccess struct.
 func createTableStateStruct(tPtr *table) (*tableStateForTemplateAccess, error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	var tss tableStateForTemplateAccess
 	tssPtr := &tss
 
@@ -371,7 +371,7 @@ func createTableStateStruct(tPtr *table) (*tableStateForTemplateAccess, error) {
 // package in the corresponding html files.
 // De-referencing inside html files gets hairy quickly.
 func updateTableStateStruct(tPtr *table) error {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	tPtr.tableStatePtr.PotTotal = tPtr.potTotal
 
@@ -542,7 +542,7 @@ func updateTableStateStruct(tPtr *table) error {
 // #################################################################
 // clearTableStateStruct sets all values to blank/nil/default
 func clearTableStateStruct(tPtr *table) error {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	tPtr.tableStatePtr.PotTotal = 0
 
@@ -602,7 +602,7 @@ func clearTableStateStruct(tPtr *table) error {
 // resetTable resets the table struct to an "initial" state, so that we can "start over"
 // with a pres of a button on the page, and won't have to stop/start the application.
 func resetTable(tPtr *table) error {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	Info.Println("Resetting table: ", tPtr.tableID)
 
@@ -633,7 +633,7 @@ func resetTable(tPtr *table) error {
 
 // ##################################################
 func getTablePtrFromTIDStr(tIDStr string) (*table, error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	// tID, _ := strconv.ParseInt(tIDStr, 10, 8)
 	tID, _ := getIntFromNumValStr(tIDStr)
 

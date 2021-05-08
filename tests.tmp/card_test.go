@@ -9,7 +9,7 @@ package main
 import "testing"
 
 func TestCreateCardRankMap(t *testing.T) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	crm := createCardRankMap()
 

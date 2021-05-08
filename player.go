@@ -171,7 +171,7 @@ type playerInstanceState struct {
 
 // ##################################################
 func createPlayer(un userName, pid playerID) (pPtr *player, err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	var p player
 	pPtr = &p
 
@@ -184,7 +184,7 @@ func createPlayer(un userName, pid playerID) (pPtr *player, err error) {
 // ##################################################
 // Indicate to the table that we want to participate in the game, ie. gimme some cards to play with.
 func announceIntentionToPlay(tPtr *table, seatNum int) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	tPtr.seatList[seatNum-1].sittingIn = true
 	// Info.Println("player id wants to play: ", tPtr.seatList[seatNum-1].pPtr.userName)
 	return err
@@ -193,7 +193,7 @@ func announceIntentionToPlay(tPtr *table, seatNum int) (err error) {
 // ##################################################
 // Indicate to the table that we want to participate in the game, ie. gimme some cards to play with.
 func announceIntentionToSitOut(tPtr *table, seatNum int) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	tPtr.seatList[seatNum-1].sittingIn = false
 	Info.Println("player is sitting out: ", tPtr.seatList[seatNum-1].pPtr.userName)
 	return err
@@ -202,7 +202,7 @@ func announceIntentionToSitOut(tPtr *table, seatNum int) (err error) {
 // ##################################################
 func postBet(tIDStr, pIDStr, fractionStr string) (err error) {
 	// the values passed to us come in as string, so we need to deal with that first.
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	tID, _ := getIntFromNumValStr(tIDStr)
 	tPtr, _ := getTablePtrFromTIDStr(tIDStr)

@@ -25,7 +25,7 @@ import (
 
 // #####################################################################
 func advanceButton(tPtr *table) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	if tPtr.buttonPos == 0 {
 		err = errors.New("Button at seat 0, have the dealer start the have first?")
 		// err := Info.Errorf("user %q (id %d) not found", name, id)
@@ -48,7 +48,7 @@ func advanceButton(tPtr *table) (err error) {
 // so it we should package the "pitch card" function to always pitch two... future work.
 
 func pitchOneCardToAll(tPtr *table) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	if tPtr.deckPtr.topCardIndex_shuffledLoptc >= 52 {
 		err = errors.New("Error, We ran out of cards to deal")
@@ -272,7 +272,7 @@ func drawForButton(tPtr *table) (int, error) {
 // Shuffles and distributes hole cards to all participating
 func startHand(tPtr *table) (err error) {
 
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	Info.Println("#############################################")
 	Info.Println("#############################################")
 	Info.Println("#############################################")
@@ -339,7 +339,7 @@ func dealFlop(tPtr *table) (err error) {
 
 // #####################################################################
 func dealTurn(tPtr *table) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	_ = dealCommunityCard(tPtr, 3)
 	return err
@@ -347,7 +347,7 @@ func dealTurn(tPtr *table) (err error) {
 
 // #####################################################################
 func dealRiver(tPtr *table) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	_ = dealCommunityCard(tPtr, 4)
 	return err
@@ -356,7 +356,7 @@ func dealRiver(tPtr *table) (err error) {
 // #####################################################################
 // updateBlindPtrs figures out which seats will take the SB and the BB in the next hand.
 func updateBlindPtrs(tPtr *table) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	// Doing the simplest method first. Assuming full table, always (wrong)
 	// It will need to be refined !!!
@@ -418,7 +418,7 @@ func postBlinds(tPtr *table) (err error) {
 
 // #####################################################################
 func postSB(tPtr *table) error {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	// Assuming that SB is at buttonPos + 1, in the seatNumbersToBeDealtIn list
 	// Decrease seat stack by amount up to sbAmount
@@ -447,7 +447,7 @@ func postSB(tPtr *table) error {
 
 // #####################################################################
 func postBB(tPtr *table) error {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	// Assuming that BB is at buttonPos + 2, in the seatNumbersToBeDealtIn list
 	// Decrease seat stack by amount up to sbAmount
@@ -475,7 +475,7 @@ func postBB(tPtr *table) error {
 // executeHand just runs through a mock hand start to finish
 // Test
 func executeHand(tPtr *table) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	_ = prepTableForNextHand(tPtr)
 
@@ -514,7 +514,7 @@ func executeHand(tPtr *table) (err error) {
 // conductBettingRound makes each player take their action, when it's their
 // turn, until all the action closes on the current betting round.
 func conductBettingRound(tPtr *table, br bettingRound) error {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	// betSize := 2
 
@@ -643,7 +643,7 @@ L01:
 // #####################################################################
 // findFirstSeatToAct determines who the first player to do sometning is, on given betting round.
 func findFirstSeatToAct(tPtr *table, br bettingRound) (rPtr *ring.Ring, err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	rPtr = tPtr.remainingActiveSeatsRingPtr
 
@@ -687,7 +687,7 @@ func findFirstSeatToAct(tPtr *table, br bettingRound) (rPtr *ring.Ring, err erro
 func executeNextStep(tPtr *table) error {
 
 	Info.Println("")
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	Info.Println("")
 
 	switch tPtr.hand.currentBettingRound {

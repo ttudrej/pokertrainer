@@ -20,7 +20,7 @@ package main
 
 // #####################################################################
 func seatPlayer(pPtr *player, tPtr *table, seatNum int, buyinAmount int) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	// Info.Println("Seating player: ", pPtr.userName, " at a ", tPtr.gameType, " table number: ", tPtr.tableID, " seat: ", seatNum)
 
 	i := seatNum - 1

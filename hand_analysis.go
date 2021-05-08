@@ -184,7 +184,7 @@ var fchkrFL FiveCardHandKindRankingFullList
 // prepareHandAnalysisTools doc line
 func prepareHandAnalysisTools() error {
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 	// Give ourselves a private deck to work with
 	deckPtr, _ := createDeck()
 
@@ -346,7 +346,7 @@ func prepareHandAnalysisTools() error {
 // generateAll5CardIntegerCombos doc line
 func generateAll5CardIntegerCombos(cardSetSize, chooseThisMany int) (ssiPtr *[][]int, numOfEl int, err error) {
 
-	// Info.Println(thisFunc())
+	// Info.Println(ThisFunc())
 
 	n := cardSetSize
 	k := chooseThisMany
@@ -370,7 +370,7 @@ func generateAll5CardIntegerCombos(cardSetSize, chooseThisMany int) (ssiPtr *[][
 
 // getCardStringByIndex returns the card value as string, like "As", based on index in an ordered deck. The Ascdh are 0,1,2,3 respectively.
 func getCardStringByIndex(i int) (card cardString, err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	if i >= 0 && i <= 51 {
 		return cardIndexFull[i], nil
@@ -385,7 +385,7 @@ func getCardStringByIndex(i int) (card cardString, err error) {
 // in the provided Slice of Slices of ints
 func printSSIAsCardStrings(ssiPtr *[][]int) error {
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	ssi := *ssiPtr
 
@@ -403,7 +403,7 @@ func printSSIAsCardStrings(ssiPtr *[][]int) error {
 // printFclAsStringByIndex prints out the cards in a five card hand pinted to by index number
 // func printFclAsStringBySCLIndex(i int) error {
 
-// 	Info.Printf("%s\n\n", thisFunc())
+// 	Info.Printf("%s\n\n", ThisFunc())
 
 // 	for _, cPtr := range scl[i] {
 // 		fmt.Printf("%v  ", cPtr)
@@ -418,7 +418,7 @@ func printSSIAsCardStrings(ssiPtr *[][]int) error {
 // list of cards in that hand as strings.
 func printFclAsStringBySCLIndex(i int) error {
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 	// scl := *sOfAllFCLs
 	// fcl := sOfAllFCLs[i]
 
@@ -439,7 +439,7 @@ func printSIAsCardStrings(siPtr *[]int, printUpTo int) error {
 
 	// printUpTo: if 0, print all
 	// if > 0, print all entries up to that number entry in the list.
-	Info.Printf("%s\n\n", thisFunc())
+	Info.Printf("%s\n\n", ThisFunc())
 
 	for i, fclIndex := range *siPtr {
 
@@ -464,7 +464,7 @@ func printSIAsCardStringsNot3x(siPtr *[]int) error {
 
 	// printUpTo: if 0, print all
 	// if > 0, print all entries up to that number entry in the list.
-	Info.Printf("%s\n\n", thisFunc())
+	Info.Printf("%s\n\n", ThisFunc())
 
 	var handName string
 	handNamePtr := &handName
@@ -494,7 +494,7 @@ func printSIAsCardStringsNot3x(siPtr *[]int) error {
 // func printAllHandsInList(sOfAllFCLs *[]fiveCardList) error {
 func printAllHandsInList() error {
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// scl := *sOfAllFCLs
 
@@ -517,7 +517,7 @@ func printAllHandsInList() error {
 // Map integrs in 5 integer slices, to cards, in 5 card slices.
 func genSCLfromSSI(ssiPtr *[][]int, dPtr *cardDeck) (sfclPtr *[]fiveCardList, err error) {
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 	// fmt.Println("len of ssi: ", len(*ssiPtr))
 	// fmt.Println()
 
@@ -559,7 +559,7 @@ func genSCLfromSSI(ssiPtr *[][]int, dPtr *cardDeck) (sfclPtr *[]fiveCardList, er
 // 2) If hand 1 and 2 are of the same type, then we must compare/sort within that type.
 func CreateFiveCardHandKindRankings() (fchkrFL FiveCardHandKindRankingFullList, err error) {
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// Give ourselves a way to compare 5 card hands, with just integer values for type.
 	fchkrFL.sfInfo = fiveCardHandKindRanking{sf, 1}
@@ -581,7 +581,7 @@ func CreateFiveCardHandKindRankings() (fchkrFL FiveCardHandKindRankingFullList, 
 // of all the possible 5 card hands
 func genOrderedListOfHands() (listPtr *[2598960]fiveCardHandMetadata, err error) {
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	var list [2598960]fiveCardHandMetadata
 	listPtr = &list
@@ -594,7 +594,7 @@ func genOrderedListOfHands() (listPtr *[2598960]fiveCardHandMetadata, err error)
 //identifyAllSFs doc line
 func identifyAllSFs() error {
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	var handName string
 	handNamePtr := &handName
@@ -740,7 +740,7 @@ func genListsOfHandType() (
 	sOf2x2IndexesPtr,
 	sOf2xIndexesPtr,
 	sOfHCIndexesPtr *[]int, err error) {
-	Info.Printf("%s\n\n", thisFunc())
+	Info.Printf("%s\n\n", ThisFunc())
 
 	// XXXX
 
@@ -980,7 +980,7 @@ sfclPtr             :  2,598,960
 
 // writeHandsAndIndexesToFile takes a slice of indexes of hands, and writes the corresponding hands to a file ./tmp
 func writeHandsAndIndexesToFile(sOfIndexesPtr *[]int, fileName string) error {
-	Info.Printf("%s\n\n", thisFunc())
+	Info.Printf("%s\n\n", ThisFunc())
 
 	fPath := "./tmp/" + fileName
 
@@ -1188,7 +1188,7 @@ func percentOfTotal(value, total int) (f float64) {
 // In this release / for now, we'll ONLY consider card lists up to 7 cards long, 2 hole cards and 5 community cards
 // In each case, we're looking for the best/top hand of it's type.
 func findBestHandInfiveCardList(clPtr *fiveCardList) (handName string) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	var handNamePtr *string
 	handNamePtr = &handName
@@ -1232,7 +1232,7 @@ func findBestHandInfiveCardList(clPtr *fiveCardList) (handName string) {
 
 // getfiveCardListLength doc line
 func getfiveCardListLength(clPtr *fiveCardList) (l int) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	cl := *clPtr
 
@@ -1251,7 +1251,7 @@ func getfiveCardListLength(clPtr *fiveCardList) (l int) {
 
 // countRanksInfiveCardList updates the rcm with the number of cards of each rank in the card list.
 func countRanksInfiveCardList(clPtr *fiveCardList) (rcPtr *rankCounter) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// fmt.Println("clPtr0: ", clPtr[0])
 
@@ -1314,7 +1314,7 @@ func countRanksInfiveCardList(clPtr *fiveCardList) (rcPtr *rankCounter) {
 
 // countSuitsInfiveCardList counts the cards in the 4 souits
 func countSuitsInfiveCardList(clPtr *fiveCardList) (scPtr *suitCounter) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// fmt.Println("clPtr0: ", clPtr[0])
 
@@ -1370,7 +1370,7 @@ func createClPtr() (clPtr *fiveCardList) {
 // 5 or more cards of any one suit in it, and the list of cards of that suit.
 // Otherwise assigns creates an error.
 func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *suitCounter) (resultingFclPtr *fiveCardList, topSuit cardSuit, err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	fcl := *fclPtr
 	// fmt.Println("in find5OrMoreOfSameSuitInfiveCardList; cl[...]: ", cl[0], cl[1])
@@ -1390,7 +1390,7 @@ func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *s
 	topSuit = x
 	for _, cs := range suitList {
 		// fmt.Println("in find5OrMoreOfSameSuitInfiveCardList; cs: ", cs)
-		// Info.Printf("%s; cs: %v\n\n", thisFunc(), cs)
+		// Info.Printf("%s; cs: %v\n\n", ThisFunc(), cs)
 		if scPtr.scm[cs] > 4 {
 			topSuit = cs
 		}
@@ -1427,7 +1427,7 @@ func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *s
 //  Checks for a 5 high straight as well,
 // to differentiate between an arbitrary A high flush and a 5 high Straight Flush, in which case it will return the A as the last card, not first.
 func orderCardsOfSameSuit(clPtr *fiveCardList, cs cardSuit) (cardRank, cardRank, cardRank, cardRank, cardRank) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	cl := *clPtr
 
@@ -1593,7 +1593,7 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs cardSuit) (cardRank, cardRank,
 // to differentiate between an arbitrary A high flush and a 5 high Straight Flush, in which case it will return the
 // A as the last card, not first.
 func orderCardsOfSameSuit2(clPtr *fiveCardList, cs cardSuit) (resultingClPtr *fiveCardList, err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	cl := *clPtr
 
@@ -2005,7 +2005,7 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 // findSFsInList - doc line
 // Scans a list of hands, a slice of five card hands, and finds the SFs within
 func findSFsInList(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suitCounter, handNamePtr *string, sSfFclPtr *[]fiveCardList) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// sSfFcl := *sSfFclPtr
 
@@ -2019,7 +2019,7 @@ func findSFsInList(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 		err = errors.New("Failed prelim SF checks, exiting findSFsInList")
 		return err
 	} else {
-		// Info.Printf("%s got past first screen \n\n", thisFunc())
+		// Info.Printf("%s got past first screen \n\n", ThisFunc())
 	}
 
 	flushClPtr, topSuit, err01 := find5OrMoreOfSameSuitInfiveCardList(clPtr, cll, scPtr)
@@ -2078,7 +2078,7 @@ func findSFsInList(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 // find4xInList looks for quads - doc line
 func find4xInList(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suitCounter, handNamePtr *string, sSfFclPtr *[]fiveCardList) (err error) {
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// fmt.Println("card list len, cll: ", cll)
 	// fmt.Println("rcPtrmax: ", rcPtr.max)
@@ -2122,7 +2122,7 @@ L01:
 // Looks for 5+ cards of same suit, then orders them, then looks for a straight
 func checkForSF_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suitCounter, handNamePtr *string) (err error) {
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// os.Exit(0)
 
@@ -2180,7 +2180,7 @@ func checkForSF_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 
 // checkFo4x looks for quads - doc line
 func checkFor4x_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suitCounter, handNamePtr *string) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// fmt.Println("card list len, cll: ", cll)
 	// fmt.Println("rcPtrmax: ", rcPtr.max)
@@ -2222,7 +2222,7 @@ L01:
 
 // checkFor3x_5c looks for 3 of a kind - doc line
 func checkFor3x_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePtr *string) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// fmt.Println("card list len, cll: ", cll)
 	// fmt.Println("rcPtrmax: ", rcPtr.max)
@@ -2263,7 +2263,7 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 	// We start the process with a couple of assumptions:
 	// 1) This hand is definitely NOT a SF of 4x, since we checked for those already. This allow us to simplify the match conditions.
 
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// printFiveCardListAsString(fclPtr, 0)
 
@@ -2390,7 +2390,7 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 
 // checkForFl_5c identifies the flush, and determines the the best 5 ranks that make it up. This allows us to compare flushes later.
 func checkForFl_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suitCounter, handNamePtr *string) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	var mySuit cardSuit
 
@@ -2449,7 +2449,7 @@ func checkForFl_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 
 // checkForSt_5c looks for straights - doc line
 func checkForSt_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suitCounter, handNamePtr *string) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	cl := *clPtr
 	/*
@@ -2470,10 +2470,10 @@ func checkForSt_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 	// if cll < 5 || rcPtr.uniqeRankCt < 5 || scPtr.max > 4 {
 	if cll < 5 || rcPtr.uniqeRankCt < 5 {
 		err = errors.New("Failed prelim St checks, exiting checkForSt_5c")
-		// Info.Printf("%s; FAILED prelim check.\n\n", thisFunc())
+		// Info.Printf("%s; FAILED prelim check.\n\n", ThisFunc())
 		return err
 	} else {
-		// Info.Printf("%s; Got past prelim check.\n\n", thisFunc())
+		// Info.Printf("%s; Got past prelim check.\n\n", ThisFunc())
 		// os.Exit(0)
 	}
 
@@ -2515,7 +2515,7 @@ L02:
 
 // checkFor2x2_5c looks for two pair hands - doc line
 func checkFor2x2_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePtr *string) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// We need a local copy of rc, just so we can do a range operation.
 	// All assignements will be done with rcPtr that was passed to us.
@@ -2570,7 +2570,7 @@ func checkFor2x2_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePt
 
 // findPairs examines the card list and if it finds pairs, assigns appropriate ranks to rcCouter.topXXXX vars.
 func findPairs(clPtr *fiveCardList, cll int, rcPtr *rankCounter) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	cl := *clPtr
 
@@ -2624,7 +2624,7 @@ func findPairs(clPtr *fiveCardList, cll int, rcPtr *rankCounter) (err error) {
 // So, checkFor2x2_5c ran the findPairs, which set up the rcPtr to the end. We can just use that info here
 // and do not need to figure anything out.
 func checkFor2x1_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePtr *string) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// fmt.Println("card list len, cll: ", cll)
 	// fmt.Println("rcPtrmax: ", rcPtr.max)
@@ -2654,7 +2654,7 @@ func checkFor2x1_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePt
 // So, checkFor2x2_5c ran the findPairs, which set up the rcPtr to the end. We can just use that info here
 // and do not need to figure anything out.
 func checkForHc_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePtr *string) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// fmt.Println("card list len, cll: ", cll)
 	// fmt.Println("rcPtrmax: ", rcPtr.max)
@@ -2896,7 +2896,7 @@ func sortCardsInEach5CList() (err error) {
 // #####################################################################
 // orderSFIndexesAsc orders the indexes according to hand strength, low to high
 func orderSFIndexesAsc(siPtr *[]int) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -2920,7 +2920,7 @@ func orderSFIndexesAsc(siPtr *[]int) (err error) {
 // #####################################################################
 // orderSFIndexesDes orders the indexes according to hand strength, high to low.
 func orderSFIndexesDes(siPtr *[]int) (err error) {
-	Info.Printf("%s\n\n", thisFunc())
+	Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -2944,7 +2944,7 @@ func orderSFIndexesDes(siPtr *[]int) (err error) {
 // #####################################################################
 // orderSorder4xIndexesAsc orders the indexes according to hand strength, low to high.
 func order4xIndexesAsc(siPtr *[]int) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -3029,7 +3029,7 @@ func order4xIndexesAsc(siPtr *[]int) (err error) {
 
 		default:
 			err = errors.New("default case reached: ")
-			Info.Printf("%s\n\n", thisFunc())
+			Info.Printf("%s\n\n", ThisFunc())
 		}
 
 		return iltj
@@ -3040,7 +3040,7 @@ func order4xIndexesAsc(siPtr *[]int) (err error) {
 
 // #####################################################################
 func orderFHIndexesAsc(siPtr *[]int) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -3123,7 +3123,7 @@ func orderFHIndexesAsc(siPtr *[]int) (err error) {
 
 		default:
 			err = errors.New("default case reached: ")
-			Info.Printf("%s\n\n", thisFunc())
+			Info.Printf("%s\n\n", ThisFunc())
 		}
 
 		return iltj
@@ -3134,7 +3134,7 @@ func orderFHIndexesAsc(siPtr *[]int) (err error) {
 
 // #####################################################################
 func orderFlIndexesAsc(siPtr *[]int) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -3170,7 +3170,7 @@ func orderFlIndexesAsc(siPtr *[]int) (err error) {
 // #####################################################################
 // orderStIndexesAsc is the same as order SF
 func orderStIndexesAsc(siPtr *[]int) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	_ = orderSFIndexesAsc(siPtr)
 	return nil
@@ -3179,7 +3179,7 @@ func orderStIndexesAsc(siPtr *[]int) (err error) {
 // #####################################################################
 // See if hand at index i is LESS than hand at index j
 func cmpare3xHandsWithKickers(siPtr *[]int, iIdx, jIdx, ikHi, ikLi, jkHi, jkLi int) bool {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -3212,7 +3212,7 @@ func cmpare3xHandsWithKickers(siPtr *[]int, iIdx, jIdx, ikHi, ikLi, jkHi, jkLi i
 
 // #####################################################################
 func order3xIndexesAsc(siPtr *[]int) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	var iKickerHighIndex, iKickerLowIndex, jKickerHighIndex, jKickerLowIndex int
 
@@ -3322,7 +3322,7 @@ func order3xIndexesAsc(siPtr *[]int) (err error) {
 		// #################
 		default:
 			err = errors.New("default case reached: ")
-			Info.Printf("%s\n\n", thisFunc())
+			Info.Printf("%s\n\n", ThisFunc())
 		}
 
 		return iltj
@@ -3333,7 +3333,7 @@ func order3xIndexesAsc(siPtr *[]int) (err error) {
 
 // #####################################################################
 func order2x2IndexesAsc(siPtr *[]int) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -3456,7 +3456,7 @@ func order2x2IndexesAsc(siPtr *[]int) (err error) {
 		// #################
 		default:
 			err = errors.New("default case reached: ")
-			// Info.Printf("%s\n\n", thisFunc())
+			// Info.Printf("%s\n\n", ThisFunc())
 		}
 
 		return iltj
@@ -3468,7 +3468,7 @@ func order2x2IndexesAsc(siPtr *[]int) (err error) {
 // #####################################################################
 
 func cmpare2x2HandsWithKickers(siPtr *[]int, iIdx, jIdx, iA2xIdx, iB2xIdx, jA2xIdx, jB2xIdx, iKIdx, jKIdx int) bool {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -3494,7 +3494,7 @@ func cmpare2x2HandsWithKickers(siPtr *[]int, iIdx, jIdx, iA2xIdx, iB2xIdx, jA2xI
 
 // #####################################################################
 func order2xIndexesAsc(siPtr *[]int) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -3573,7 +3573,7 @@ func order2xIndexesAsc(siPtr *[]int) (err error) {
 // #####################################################################
 // cmpare2xHandsWithKickers info line
 func cmpare2xHandsWithKickers(siPtr *[]int, iIdx, jIdx, i2x_idx, j2x_idx, iK1_idx, jK1_idx, iK2_idx, jK2_idx, iK3_idx, jK3_idx int) bool {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -3603,7 +3603,7 @@ func cmpare2xHandsWithKickers(siPtr *[]int, iIdx, jIdx, i2x_idx, j2x_idx, iK1_id
 
 // #####################################################################
 func orderHCIndexesAsc(siPtr *[]int) (err error) {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -3622,7 +3622,7 @@ func orderHCIndexesAsc(siPtr *[]int) (err error) {
 // #####################################################################
 // cmpare2xHandsWithKickers info line
 func cmpareHCHands(siPtr *[]int, iIdx, jIdx, iK1_idx, jK1_idx, iK2_idx, jK2_idx, iK3_idx, jK3_idx, iK4_idx, jK4_idx, iK5_idx, jK5_idx int) bool {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -3717,7 +3717,7 @@ func genEquivalentSFHandList(siPtr *[]int) (efchlPtr *equivalentFCHList) {
 // #########################################################################
 // printSOEH info line
 func printSOEH(soehPtr *equivalentFCHList) error {
-	// Info.Printf("%s\n\n", thisFunc())
+	// Info.Printf("%s\n\n", ThisFunc())
 
 	// ssi := *ssiPtr
 	// soeh := *soehPtr

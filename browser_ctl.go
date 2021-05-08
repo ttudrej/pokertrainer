@@ -8,7 +8,7 @@ import (
 // #################################################################
 // open opens the specified URL in the default browser of the user.
 func myOpenURI(url string) error {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	var cmd string
 	var args []string
 

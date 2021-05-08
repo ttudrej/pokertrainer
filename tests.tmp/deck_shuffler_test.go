@@ -12,7 +12,7 @@ import "testing"
 // This test works most of the time. It will fail "wrongly", in case when the new index is
 // rndomly picked to be the same as the old.
 func TestShuffleDeck_cardIndexMatching(t *testing.T) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	// Create a new deck of cards.
 	// We will only need the ordered list of pointers for this test, so we discard the deck map and the "full" list.

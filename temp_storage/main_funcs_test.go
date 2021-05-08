@@ -4,7 +4,7 @@ v0.1	2018/08/15	Tomasz Tudrej
 
 */
 
-package main
+// package main
 
 import "testing"
 

@@ -37,7 +37,7 @@ type pokerRoom struct {
 
 // #####################################################################
 func createPokerRoom() (prPtr *pokerRoom, err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	var pr pokerRoom
 	prPtr = &pr
 
@@ -55,7 +55,7 @@ func createPokerRoom() (prPtr *pokerRoom, err error) {
 
 // #####################################################################
 func showPokerRoomTables(prPtr *pokerRoom) (err error) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	for i := range prPtr.tableList {
 		err = displayTable(prPtr.tableList[i])
 	}

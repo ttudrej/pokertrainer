@@ -26,7 +26,7 @@ func init() {
 
 // #################################################################
 func indexGetHandler(w http.ResponseWriter, r *http.Request) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	// With this fucntion I can check if my filepath is working for serving static files such as CSS or Templates etc
 	// IMPORTANT:I failed to add static files because Go will use the current Directory you are in as the App's ROOT.
 	// If I run main.go from GolangBlog, the root is/Users/jorn/Documents/Golang/src/github.com/jschalkwijk/GolangBlog
@@ -49,7 +49,7 @@ func indexGetHandler(w http.ResponseWriter, r *http.Request) {
 
 // #################################################################
 func indexPostHandler(w http.ResponseWriter, r *http.Request) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	r.ParseForm()
 	r.PostForm.Get("deal_new")
@@ -63,7 +63,7 @@ func indexPostHandler(w http.ResponseWriter, r *http.Request) {
 
 // #################################################################
 func dealNewHandPostHandler(w http.ResponseWriter, r *http.Request) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 
 	r.ParseForm()
 	r.PostForm.Get("id_deal_new_hand")
@@ -79,7 +79,7 @@ func dealNewHandPostHandler(w http.ResponseWriter, r *http.Request) {
 
 // #################################################################
 func executeNextStepPostHandler(w http.ResponseWriter, r *http.Request) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	r.ParseForm()
 	r.PostForm.Get("id_next_step")
 
@@ -101,7 +101,7 @@ func executeNextStepPostHandler(w http.ResponseWriter, r *http.Request) {
 
 // #################################################################
 func postBetPostHandler(w http.ResponseWriter, r *http.Request) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	r.ParseForm()
 	// postBet_value := r.PostForm.Get("id_postBet")
 	fractionOfPot_value := r.PostForm.Get("name_fractionOfPot")
@@ -127,7 +127,7 @@ func postBetPostHandler(w http.ResponseWriter, r *http.Request) {
 
 // #################################################################
 func fullResetPostHandler(w http.ResponseWriter, r *http.Request) {
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	r.ParseForm()
 	// postBet_value := r.PostForm.Get("id_postBet")
 
@@ -149,7 +149,7 @@ func startWebServer() {
 	// http.HandleFunc("/", indexHandler)
 	// http.Handle("/favicon.ico", http.NotFoundHandler())
 	// http.ListenAndServe(":8080", nil)
-	Info.Println(thisFunc())
+	Info.Println(ThisFunc())
 	r := mux.NewRouter()
 	r.HandleFunc("/", indexGetHandler).Methods("GET")
 	r.HandleFunc("/", indexPostHandler).Methods("POST")
