@@ -3,12 +3,14 @@ package main
 import (
 	"os/exec"
 	"runtime"
+
+	"github.com/ttudrej/pokertrainer/v2/debugging"
 )
 
 // #################################################################
 // open opens the specified URL in the default browser of the user.
 func myOpenURI(url string) error {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	var cmd string
 	var args []string
 

@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/ttudrej/pokertrainer/v2/debugging"
 )
 
 /*
@@ -30,7 +32,7 @@ import (
 // drawComleteRange_HTML create an HTML table representing a full "range cart",
 // a 13x13 grid for use in range representation.
 func drawCompleteRangeHTML() string {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	var html string
 	// html = `<table class="range">`
 	html = `<table>`

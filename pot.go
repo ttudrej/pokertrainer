@@ -1,5 +1,7 @@
 package main
 
+import "github.com/ttudrej/pokertrainer/v2/debugging"
+
 /*
 #########################################################################
 #########################################################################
@@ -26,7 +28,7 @@ package main
 // the entire table every time anyone puts money in, as opposed to keeping
 // track of raises/re-reaises...
 func updatePot(tPtr *table) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	currentBetsTotal := 0
 
 	for _, seatPtr := range tPtr.seatList {
@@ -43,7 +45,7 @@ func updatePot(tPtr *table) (err error) {
 // Meant for visual representation, rather than for keeping the track of the total amouint in the pot.
 // Another func keeps trck of the total(s).
 func scoopBetsIntoPot(tPtr *table) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	for _, seatPtr := range tPtr.seatList {
 		seatPtr.betAmount = 0
 	}
@@ -55,7 +57,7 @@ func scoopBetsIntoPot(tPtr *table) (err error) {
 
 // #####################################################################
 func pushPotsToWinners(tPtr *table) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	// we gonna start really simple, and for now, just push the POT to the BB, at end of every hand.
 	tPtr.seatPtrBB.stackSize += tPtr.potTotal
 	tPtr.potTotal = 0
@@ -67,7 +69,7 @@ func pushPotsToWinners(tPtr *table) (err error) {
 
 // #####################################################################
 func pushPotToSeat(tPtr *table, sPtr *seat) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	sPtr.stackSize += tPtr.potTotal
 	tPtr.potTotal = 0

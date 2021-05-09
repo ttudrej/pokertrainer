@@ -1,20 +1,23 @@
 package main
 
-import "github.com/ttudrej/pokertrainer/v2/debugging"
+import (
+	"github.com/ttudrej/pokertrainer/v2/debugging"
+	"github.com/ttudrej/pokertrainer/v2/tableitems"
+)
 
 type cdmKey struct {
-	cr cardRank
-	cs cardSuit
+	cr tableitems.CardRank
+	cs tableitems.CardSuit
 }
 
-type cardDeckMap map[cdmKey]*card
+type cardDeckMap map[cdmKey]*tableitems.Card
 
 // orderedListOfPtrsToCard
-type listOfPtrsToCards [52]*card
+type listOfPtrsToCards [52]*tableitems.Card
 
 // orderedListOfPtrsToCard uses 56 not 52 slots, to accomodate for the Aces in 5-A straights
 // Used for hand rank checks ONLY
-type listFullOfPtrsToCards [56]*card
+type listFullOfPtrsToCards [56]*tableitems.Card
 
 type cardDeck struct {
 	cdmPtr                     *cardDeckMap
@@ -83,9 +86,9 @@ func createDeck() (cdPtr *cardDeck, err error) {
 
 	sequence := 1 // bottom card in the deck, card 52 is the top of the deck.
 
-	for _, rank := range rankList {
-		for _, suit := range suitList {
-			var c = card{rank, suit, false, false, false, false, sequence}
+	for _, rank := range tableitems.RankList {
+		for _, suit := range tableitems.SuitList {
+			var c = tableitems.Card{rank, suit, false, false, false, false, sequence}
 			cPtr := &c
 
 			cdm[cdmKey{rank, suit}] = cPtr
@@ -97,7 +100,7 @@ func createDeck() (cdPtr *cardDeck, err error) {
 
 			// Also point add Aces that fit below the duces.
 			// Needed for working out Straigh relative ranking.
-			if rank == rA {
+			if rank == tableitems.RA {
 				olf[sequence-1+52] = cPtr
 			}
 			sequence++
@@ -111,11 +114,11 @@ func createDeck() (cdPtr *cardDeck, err error) {
 // #########################################################################################
 // print the cards in order they appear in the list of cards (currtnt order of the deck)
 func displayCardsInList(clPtr *listOfPtrsToCards) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	cl := *clPtr
 
 	for index := range cl {
-		Info.Printf("index: %v, card: %v %v\n", index, cl[index].rank, cl[index].suit)
+		Info.Printf("index: %v, card: %v %v\n", index, cl[index].Rank, cl[index].Suit)
 	}
 
 	return err

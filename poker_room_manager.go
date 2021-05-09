@@ -1,5 +1,10 @@
 package main
 
+import (
+	"github.com/ttudrej/pokertrainer/v2/debugging"
+	"github.com/ttudrej/pokertrainer/v2/tableitems"
+)
+
 /*
 #########################################################################
 #########################################################################
@@ -20,13 +25,13 @@ package main
 
 // #####################################################################
 func seatPlayer(pPtr *player, tPtr *table, seatNum int, buyinAmount int) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	// Info.Println("Seating player: ", pPtr.userName, " at a ", tPtr.gameType, " table number: ", tPtr.tableID, " seat: ", seatNum)
 
 	i := seatNum - 1
 
 	// Change out the global emtySeat for an acutal seat
-	// var sPtr = &seat{pPtr.id, true, 300, noCardPtr, noCardPtr}
+	// var sPtr = &seat{pPtr.id, true, 300, tableitems.NoCardPtr, tableitems.NoCardPtr}
 
 	var s seat
 	sPtr := &s
@@ -38,8 +43,8 @@ func seatPlayer(pPtr *player, tPtr *table, seatNum int, buyinAmount int) (err er
 	sPtr.occupied = true
 	sPtr.sittingIn = false // The player need to intentionally request participationin the game, after being seated.
 	sPtr.stackSize = 300
-	sPtr.c1Ptr = noCardPtr
-	sPtr.c2Ptr = noCardPtr
+	sPtr.c1Ptr = tableitems.NoCardPtr
+	sPtr.c2Ptr = tableitems.NoCardPtr
 	sPtr.betAmount = 0
 	sPtr.allIn = false
 	sPtr.folded = false

@@ -7,31 +7,33 @@ import (
 	"sort"
 	"strconv"
 
+	"github.com/ttudrej/pokertrainer/v2/debugging"
+	"github.com/ttudrej/pokertrainer/v2/tableitems"
 	"gonum.org/v1/gonum/stat/combin"
 )
 
 // sliceOfCards will server as the mapping of inetgers to card names
-type cardIndex []cardString
+type cardIndex []tableitems.CardString
 
-var cardIndexS = cardIndex{sA, sK, sQ, sJ, sT, s9, s8, s7, s6, s5, s4, s3, s2}
-var cardIndexC = cardIndex{cA, cK, cQ, cJ, cT, c9, c8, c7, c6, c5, c4, c3, c2}
-var cardIndexH = cardIndex{hA, hK, hQ, hJ, hT, h9, h8, h7, h6, h5, h4, h3, h2}
-var cardIndexD = cardIndex{dA, dK, dQ, dJ, dT, d9, d8, d7, d6, d5, d4, d3, d2}
+var cardIndexS = cardIndex{tableitems.SA, tableitems.SK, tableitems.SQ, tableitems.SJ, tableitems.ST, tableitems.S9, tableitems.S8, tableitems.S7, tableitems.S6, tableitems.S5, tableitems.S4, tableitems.S3, tableitems.S2}
+var cardIndexC = cardIndex{tableitems.CA, tableitems.CK, tableitems.CQ, tableitems.CJ, tableitems.CT, tableitems.C9, tableitems.C8, tableitems.C7, tableitems.C6, tableitems.C5, tableitems.C4, tableitems.C3, tableitems.C2}
+var cardIndexH = cardIndex{tableitems.HA, tableitems.HK, tableitems.HQ, tableitems.HJ, tableitems.HT, tableitems.H9, tableitems.H8, tableitems.H7, tableitems.H6, tableitems.H5, tableitems.H4, tableitems.H3, tableitems.H2}
+var cardIndexD = cardIndex{tableitems.DA, tableitems.DK, tableitems.DQ, tableitems.DJ, tableitems.DT, tableitems.D9, tableitems.D8, tableitems.D7, tableitems.D6, tableitems.D5, tableitems.D4, tableitems.D3, tableitems.D2}
 
 var cardIndexFull = cardIndex{
-	sA, hA, cA, dA,
-	sK, hK, cK, dK,
-	sQ, hQ, cQ, dQ,
-	sJ, hJ, cJ, dJ,
-	sT, hT, cT, dT,
-	s9, h9, c9, d9,
-	s8, h8, c8, d8,
-	s7, h7, c7, d7,
-	s6, h6, c6, d6,
-	s5, h5, c5, d5,
-	s4, h4, c4, d4,
-	s3, h3, c3, d3,
-	s2, h2, c2, d2}
+	tableitems.SA, tableitems.HA, tableitems.CA, tableitems.DA,
+	tableitems.SK, tableitems.HK, tableitems.CK, tableitems.DK,
+	tableitems.SQ, tableitems.HQ, tableitems.CQ, tableitems.DQ,
+	tableitems.SJ, tableitems.HJ, tableitems.CJ, tableitems.DJ,
+	tableitems.ST, tableitems.HT, tableitems.CT, tableitems.DT,
+	tableitems.S9, tableitems.H9, tableitems.C9, tableitems.D9,
+	tableitems.S8, tableitems.H8, tableitems.C8, tableitems.D8,
+	tableitems.S7, tableitems.H7, tableitems.C7, tableitems.D7,
+	tableitems.S6, tableitems.H6, tableitems.C6, tableitems.D6,
+	tableitems.S5, tableitems.H5, tableitems.C5, tableitems.D5,
+	tableitems.S4, tableitems.H4, tableitems.C4, tableitems.D4,
+	tableitems.S3, tableitems.H3, tableitems.C3, tableitems.D3,
+	tableitems.S2, tableitems.H2, tableitems.C2, tableitems.D2}
 
 // fiveCardHandKind, Not using "fiveCardHandType", so as to NOT confuse it with "type" as a declaration directive.
 type fiveCardHandKind string
@@ -83,18 +85,18 @@ type fiveCardHandMetadata struct {
 	handKind fiveCardHandKind
 }
 
-var crm cardRankMap
+var crm tableitems.CardRankMap
 
 // Needs at most the max number of commuity cards + max num of the hole cards, so around 7 for NLH
-type fiveCardList []*card
+type fiveCardList []*tableitems.Card
 
 type equivalentFiveCardHand struct {
 	// This is what we'll be collapsing equivalent hands to
-	c1r   cardRank // card 1 rank
-	c2r   cardRank // card 2 rank
-	c3r   cardRank
-	c4r   cardRank
-	c5r   cardRank
+	c1r   tableitems.CardRank // card 1 rank
+	c2r   tableitems.CardRank // card 2 rank
+	c3r   tableitems.CardRank
+	c4r   tableitems.CardRank
+	c5r   tableitems.CardRank
 	info  fiveCardHandKindRanking
 	count int // Keep track of how many equivalent hands we've found.
 }
@@ -102,27 +104,27 @@ type equivalentFiveCardHand struct {
 // Keep a sorted list, by hand rank, of equivalent hands with some additional info
 type equivalentFCHList []equivalentFiveCardHand
 
-type rankCtrMap map[cardRank]int
-type suitCtrMap map[cardSuit]int
+type rankCtrMap map[tableitems.CardRank]int
+type suitCtrMap map[tableitems.CardSuit]int
 
 // rankCouter keeps track of counts of specific rank in a card list, and track of poker hands.
 type rankCounter struct {
 	max         int
-	uniqeRankCt int      // count of all unique ranks in the list
-	top4x1      cardRank // rank of the top quads
+	uniqeRankCt int                 // count of all unique ranks in the list
+	top4x1      tableitems.CardRank // rank of the top quads
 
-	top3x1 cardRank // rank of the top trips / three of a kind
-	top3x2 cardRank // rank of the 2nd trips / three of a kind
+	top3x1 tableitems.CardRank // rank of the top trips / three of a kind
+	top3x2 tableitems.CardRank // rank of the 2nd trips / three of a kind
 
-	top2x1 cardRank // rank of the top pair
-	top2x2 cardRank // rank of the second pair ...
-	top2x3 cardRank
+	top2x1 tableitems.CardRank // rank of the top pair
+	top2x2 tableitems.CardRank // rank of the second pair ...
+	top2x3 tableitems.CardRank
 
-	top1x1 cardRank
-	top1x2 cardRank
-	top1x3 cardRank
-	top1x4 cardRank
-	top1x5 cardRank
+	top1x1 tableitems.CardRank
+	top1x2 tableitems.CardRank
+	top1x3 tableitems.CardRank
+	top1x4 tableitems.CardRank
+	top1x5 tableitems.CardRank
 
 	rcm rankCtrMap // hold how many of each rank there are in a card list
 }
@@ -133,11 +135,11 @@ type suitCounter struct {
 }
 
 // orderedListOfPtrsToCard
-type orderedListOfPtrsToCards [52]*card
+type orderedListOfPtrsToCards [52]*tableitems.Card
 
 // orderedListOfPtrsToCard uses 56 not 52 slots, to accomodate for the Aces in 5-A straights
 // Used for hand rank checks ONLY
-type orderedListFullOfPtrsToCards [56]*card
+type orderedListFullOfPtrsToCards [56]*tableitems.Card
 
 var orderedList orderedListOfPtrsToCards
 var orderedListFull orderedListFullOfPtrsToCards
@@ -157,7 +159,7 @@ var sOfAllFCLs []fiveCardList
 
 // For use by the sorting fuctions
 // type fclByRank [5]*card
-// type sfIndexByFirstCardRank []int
+// type sfIndexByFirsttableitems.CardRank []int
 
 var fchkrFL FiveCardHandKindRankingFullList
 
@@ -194,7 +196,7 @@ func prepareHandAnalysisTools() error {
 
 	// Create a map for rank value look up, since constant structs are not supported, so we could
 	// not have a rank struct with indexes, as a constant.
-	crm = createCardRankMap()
+	crm = tableitems.CreateCardRankMap()
 
 	// ###############################
 
@@ -369,7 +371,7 @@ func generateAll5CardIntegerCombos(cardSetSize, chooseThisMany int) (ssiPtr *[][
 // #########################################################################
 
 // getCardStringByIndex returns the card value as string, like "As", based on index in an ordered deck. The Ascdh are 0,1,2,3 respectively.
-func getCardStringByIndex(i int) (card cardString, err error) {
+func getCardStringByIndex(i int) (card tableitems.CardString, err error) {
 	// Info.Printf("%s\n\n", ThisFunc())
 
 	if i >= 0 && i <= 51 {
@@ -423,7 +425,7 @@ func printFclAsStringBySCLIndex(i int) error {
 	// fcl := sOfAllFCLs[i]
 
 	for _, cPtr := range sOfAllFCLs[i] {
-		fmt.Printf("%v%v ", cPtr.rank, cPtr.suit)
+		fmt.Printf("%v%v ", cPtr.Rank, cPtr.Suit)
 	}
 
 	return nil
@@ -439,7 +441,7 @@ func printSIAsCardStrings(siPtr *[]int, printUpTo int) error {
 
 	// printUpTo: if 0, print all
 	// if > 0, print all entries up to that number entry in the list.
-	Info.Printf("%s\n\n", ThisFunc())
+	Info.Printf("%s\n\n", debugging.ThisFunc())
 
 	for i, fclIndex := range *siPtr {
 
@@ -447,7 +449,7 @@ func printSIAsCardStrings(siPtr *[]int, printUpTo int) error {
 
 			fclPtr := &sOfAllFCLs[fclIndex]
 			// for _, cPtr := range fcl {
-			// 	fmt.Printf("%v%v ", cPtr.rank, cPtr.suit)
+			// 	fmt.Printf("%v%v ", cPtr.Rank, cPtr.Suit)
 			// }
 			printFiveCardListAsString(fclPtr)
 
@@ -464,7 +466,7 @@ func printSIAsCardStringsNot3x(siPtr *[]int) error {
 
 	// printUpTo: if 0, print all
 	// if > 0, print all entries up to that number entry in the list.
-	Info.Printf("%s\n\n", ThisFunc())
+	Info.Printf("%s\n\n", debugging.ThisFunc())
 
 	var handName string
 	handNamePtr := &handName
@@ -504,7 +506,7 @@ func printAllHandsInList() error {
 		for j := range sOfAllFCLs[i] {
 			// fmt.Println("comboNum : cardIndex    ", i, j)
 
-			fmt.Printf("%v%v ", sOfAllFCLs[i][j].rank, sOfAllFCLs[i][j].suit)
+			fmt.Printf("%v%v ", sOfAllFCLs[i][j].Rank, sOfAllFCLs[i][j].Suit)
 		}
 		fmt.Printf("  : %d\n", i+1)
 	}
@@ -533,7 +535,7 @@ func genSCLfromSSI(ssiPtr *[][]int, dPtr *cardDeck) (sfclPtr *[]fiveCardList, er
 	for comboNum := range ssi {
 		// fmt.Println("comboNum: ", comboNum)
 
-		var cl = fiveCardList{noCardPtr, noCardPtr, noCardPtr, noCardPtr, noCardPtr}
+		var cl = fiveCardList{tableitems.NoCardPtr, tableitems.NoCardPtr, tableitems.NoCardPtr, tableitems.NoCardPtr, tableitems.NoCardPtr}
 		sfcl[comboNum] = cl
 
 		for cardIndex, cNum := range ssi[comboNum] {
@@ -652,7 +654,7 @@ func identifyAllSFs() error {
 
 	for indx, fcl := range sSfFcl {
 		for j := 0; j < 5; j++ {
-			fmt.Printf("%v%v ", fcl[j].rank, fcl[j].suit)
+			fmt.Printf("%v%v ", fcl[j].Rank, fcl[j].Suit)
 		}
 		fmt.Printf("  : %d\n", indx+1)
 	}
@@ -740,7 +742,7 @@ func genListsOfHandType() (
 	sOf2x2IndexesPtr,
 	sOf2xIndexesPtr,
 	sOfHCIndexesPtr *[]int, err error) {
-	Info.Printf("%s\n\n", ThisFunc())
+	Info.Printf("%s\n\n", debugging.ThisFunc())
 
 	// XXXX
 
@@ -980,7 +982,7 @@ sfclPtr             :  2,598,960
 
 // writeHandsAndIndexesToFile takes a slice of indexes of hands, and writes the corresponding hands to a file ./tmp
 func writeHandsAndIndexesToFile(sOfIndexesPtr *[]int, fileName string) error {
-	Info.Printf("%s\n\n", ThisFunc())
+	Info.Printf("%s\n\n", debugging.ThisFunc())
 
 	fPath := "./tmp/" + fileName
 
@@ -1092,17 +1094,17 @@ func searchOut3x(sOfIndexToCPtr *[]int) {
 
 	for _, v := range sOfIndexToC {
 
-		c1r := sOfAllFCLs[v][0].rank
-		c2r := sOfAllFCLs[v][1].rank
-		c3r := sOfAllFCLs[v][2].rank
-		c4r := sOfAllFCLs[v][3].rank
-		c5r := sOfAllFCLs[v][4].rank
+		c1r := sOfAllFCLs[v][0].Rank
+		c2r := sOfAllFCLs[v][1].Rank
+		c3r := sOfAllFCLs[v][2].Rank
+		c4r := sOfAllFCLs[v][3].Rank
+		c5r := sOfAllFCLs[v][4].Rank
 
-		c1s := sOfAllFCLs[v][0].suit
-		c2s := sOfAllFCLs[v][1].suit
-		c3s := sOfAllFCLs[v][2].suit
-		c4s := sOfAllFCLs[v][3].suit
-		c5s := sOfAllFCLs[v][4].suit
+		c1s := sOfAllFCLs[v][0].Suit
+		c2s := sOfAllFCLs[v][1].Suit
+		c3s := sOfAllFCLs[v][2].Suit
+		c4s := sOfAllFCLs[v][3].Suit
+		c5s := sOfAllFCLs[v][4].Suit
 
 		if (c1r == c2r && c1r == c3r) ||
 			(c1r == c2r && c1r == c4r) ||
@@ -1141,7 +1143,7 @@ func printFiveCardListAsString(fclPtr *fiveCardList) (err error) {
 
 	// Show order pre sort
 	for j := 0; j <= 4; j++ {
-		fmt.Print(fcl[j].rank, fcl[j].suit, " ")
+		fmt.Print(fcl[j].Rank, fcl[j].Suit, " ")
 	}
 	// fmt.Println()
 
@@ -1158,7 +1160,7 @@ func sprintFiveCardListAsString(fclPtr *fiveCardList, index1, index2 int) (s str
 
 	// Show order pre sort
 	for j := 0; j <= 4; j++ {
-		s += fmt.Sprint(fcl[j].rank, fcl[j].suit, " ")
+		s += fmt.Sprint(fcl[j].Rank, fcl[j].Suit, " ")
 	}
 	s += ": " + strconv.Itoa(index1) + " : " + strconv.Itoa(index2) + "\n"
 
@@ -1268,36 +1270,36 @@ func countRanksInfiveCardList(clPtr *fiveCardList) (rcPtr *rankCounter) {
 
 	// We don't calculate these values here, as it would be wasteful, since not all will be needed all the time,
 	// but, some will be needed sometimes.
-	rc.top1x1 = rX // give it initial "unset" value
-	rc.top1x2 = rX
-	rc.top1x3 = rX
-	rc.top1x4 = rX
-	rc.top1x5 = rX
-	rc.top2x1 = rX
-	rc.top2x2 = rX
-	rc.top2x3 = rX
-	rc.top3x1 = rX
-	rc.top3x2 = rX
-	rc.top4x1 = rX
+	rc.top1x1 = tableitems.RX // give it initial "unset" value
+	rc.top1x2 = tableitems.RX
+	rc.top1x3 = tableitems.RX
+	rc.top1x4 = tableitems.RX
+	rc.top1x5 = tableitems.RX
+	rc.top2x1 = tableitems.RX
+	rc.top2x2 = tableitems.RX
+	rc.top2x3 = tableitems.RX
+	rc.top3x1 = tableitems.RX
+	rc.top3x2 = tableitems.RX
+	rc.top4x1 = tableitems.RX
 
 	for _, cPtr := range cl {
 
 		// work only on the defined cards in the list
 		if cPtr != nil {
 			// fmt.Printf("%v\n", *cPtr)
-			rcPtr.rcm[cPtr.rank]++
+			rcPtr.rcm[cPtr.Rank]++
 
-			// fmt.Printf("c.rank: %v; count: %v\n", cPtr.rank, rcPtr.rcm[cPtr.rank])
+			// fmt.Printf("c.Rank: %v; count: %v\n", cPtr.Rank, rcPtr.rcm[cPtr.Rank])
 
-			if rcPtr.rcm[cPtr.rank] > rcPtr.max {
-				rcPtr.max = rcPtr.rcm[cPtr.rank]
+			if rcPtr.rcm[cPtr.Rank] > rcPtr.max {
+				rcPtr.max = rcPtr.rcm[cPtr.Rank]
 			}
 		}
 		// fmt.Println("max: ", rcPtr.max)
 	}
 
 	// Count up how many different unique ranks there are in the list
-	for _, rank := range rankList {
+	for _, rank := range tableitems.RankList {
 		if rcPtr.rcm[rank] > 0 {
 			rcPtr.uniqeRankCt++
 		}
@@ -1331,12 +1333,12 @@ func countSuitsInfiveCardList(clPtr *fiveCardList) (scPtr *suitCounter) {
 		// work only on the defined cards in the list
 		if cPtr != nil {
 			// fmt.Printf("%v\n", *cPtr)
-			scPtr.scm[cPtr.suit]++
+			scPtr.scm[cPtr.Suit]++
 
-			// fmt.Printf("cPtr.suit: %v; count: %v\n", cPtr.suit, scPtr.scm[cPtr.suit])
+			// fmt.Printf("cPtr.Suit: %v; count: %v\n", cPtr.Suit, scPtr.scm[cPtr.Suit])
 
-			if scPtr.scm[cPtr.suit] > scPtr.max {
-				scPtr.max = scPtr.scm[cPtr.suit]
+			if scPtr.scm[cPtr.Suit] > scPtr.max {
+				scPtr.max = scPtr.scm[cPtr.Suit]
 			}
 		}
 		// fmt.Println("max: ", scPtr.max)
@@ -1369,7 +1371,7 @@ func createClPtr() (clPtr *fiveCardList) {
 // find5OrMoreOfSameSuitInfiveCardList takes a card list and returns true, if there were
 // 5 or more cards of any one suit in it, and the list of cards of that suit.
 // Otherwise assigns creates an error.
-func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *suitCounter) (resultingFclPtr *fiveCardList, topSuit cardSuit, err error) {
+func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *suitCounter) (resultingFclPtr *fiveCardList, topSuit tableitems.CardSuit, err error) {
 	// Info.Printf("%s\n\n", ThisFunc())
 
 	fcl := *fclPtr
@@ -1383,12 +1385,12 @@ func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *s
 	// Run prelim checks
 	if scPtr.max < 5 || cll < 5 {
 		err = errors.New("Failed prelim checks, returning emtpy resultingFclPtr")
-		return resultingFclPtr, x, err
+		return resultingFclPtr, tableitems.X, err
 	}
 
 	// Figure out which suit is most common in the list.
-	topSuit = x
-	for _, cs := range suitList {
+	topSuit = tableitems.X
+	for _, cs := range tableitems.SuitList {
 		// fmt.Println("in find5OrMoreOfSameSuitInfiveCardList; cs: ", cs)
 		// Info.Printf("%s; cs: %v\n\n", ThisFunc(), cs)
 		if scPtr.scm[cs] > 4 {
@@ -1403,9 +1405,9 @@ func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *s
 	i := 0
 	for _, cPtr := range fcl {
 		// fmt.Println("i: ", i)
-		// fmt.Println("cPtr.suit: ", cPtr.suit)
+		// fmt.Println("cPtr.Suit: ", cPtr.Suit)
 
-		if cPtr.suit == topSuit {
+		if cPtr.Suit == topSuit {
 			// fmt.Println("i inside if: ", i)
 			resultingFcl[i] = cPtr
 			i++
@@ -1426,123 +1428,123 @@ func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *s
 // The significance of "same suit" in this context is that there can be no 2 or more cards of the same rank.
 //  Checks for a 5 high straight as well,
 // to differentiate between an arbitrary A high flush and a 5 high Straight Flush, in which case it will return the A as the last card, not first.
-func orderCardsOfSameSuit(clPtr *fiveCardList, cs cardSuit) (cardRank, cardRank, cardRank, cardRank, cardRank) {
+func orderCardsOfSameSuit(clPtr *fiveCardList, cs tableitems.CardSuit) (tableitems.CardRank, tableitems.CardRank, tableitems.CardRank, tableitems.CardRank, tableitems.CardRank) {
 	// Info.Printf("%s\n\n", ThisFunc())
 
 	cl := *clPtr
 
-	var c card
+	var c tableitems.Card
 
-	var myFlCard1, myFlCard2, myFlCard3, myFlCard4, myFlCard5, myFlCard6, myFlCard7 card
-	myFlCard1 = card{rX, x, false, false, false, false, 0}
-	myFlCard2 = card{rX, x, false, false, false, false, 0}
-	myFlCard3 = card{rX, x, false, false, false, false, 0}
-	myFlCard4 = card{rX, x, false, false, false, false, 0}
-	myFlCard5 = card{rX, x, false, false, false, false, 0}
-	myFlCard6 = card{rX, x, false, false, false, false, 0}
-	myFlCard7 = card{rX, x, false, false, false, false, 0}
+	var myFlCard1, myFlCard2, myFlCard3, myFlCard4, myFlCard5, myFlCard6, myFlCard7 tableitems.Card
+	myFlCard1 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard2 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard3 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard4 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard5 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard6 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard7 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
 
 	for _, cPtr := range cl {
 
 		c = *cPtr
 
-		if c.suit == cs { // if we found a card of requested suit...
+		if c.Suit == cs { // if we found a card of requested suit...
 
-			if myFlCard1.rank == rX { // 1st card in the suit of the Fl
+			if myFlCard1.Rank == tableitems.RX { // 1st card in the suit of the Fl
 				myFlCard1 = *cPtr
 
-			} else if myFlCard2.rank == rX { // 2nd card in the suit of the Fl
-				if crm[c.rank] > crm[myFlCard1.rank] { // if new card is higher than the the first
+			} else if myFlCard2.Rank == tableitems.RX { // 2nd card in the suit of the Fl
+				if crm[c.Rank] > crm[myFlCard1.Rank] { // if new card is higher than the the first
 					myFlCard2 = myFlCard1 // move the first to the second position
 					myFlCard1 = c         // Set the first/top pos to c
 				} else {
 					myFlCard2 = c
 				}
 
-			} else if myFlCard3.rank == rX { // 3rd card in the suit of the Fl
-				if crm[c.rank] > crm[myFlCard1.rank] { // higher than the other 2
+			} else if myFlCard3.Rank == tableitems.RX { // 3rd card in the suit of the Fl
+				if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 2
 					myFlCard3 = myFlCard2
 					myFlCard2 = myFlCard1
 					myFlCard1 = c
-				} else if crm[c.rank] > crm[myFlCard2.rank] {
+				} else if crm[c.Rank] > crm[myFlCard2.Rank] {
 					myFlCard3 = myFlCard2
 					myFlCard2 = c
 				} else {
 					myFlCard3 = c
 				}
 
-			} else if myFlCard4.rank == rX {
-				if crm[c.rank] > crm[myFlCard1.rank] { // higher than the other 3
+			} else if myFlCard4.Rank == tableitems.RX {
+				if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 3
 					myFlCard4 = myFlCard3
 					myFlCard3 = myFlCard2
 					myFlCard2 = myFlCard1
 					myFlCard1 = c
-				} else if crm[c.rank] > crm[myFlCard2.rank] {
+				} else if crm[c.Rank] > crm[myFlCard2.Rank] {
 					myFlCard4 = myFlCard3
 					myFlCard3 = myFlCard2
 					myFlCard2 = c
-				} else if crm[c.rank] > crm[myFlCard3.rank] {
+				} else if crm[c.Rank] > crm[myFlCard3.Rank] {
 					myFlCard4 = myFlCard3
 					myFlCard3 = c
 				} else {
 					myFlCard4 = c
 				}
 
-			} else if myFlCard5.rank == rX {
-				if crm[c.rank] > crm[myFlCard1.rank] { // higher than the other 4
+			} else if myFlCard5.Rank == tableitems.RX {
+				if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 4
 					myFlCard5 = myFlCard4
 					myFlCard4 = myFlCard3
 					myFlCard3 = myFlCard2
 					myFlCard2 = myFlCard1
 					myFlCard1 = c
-				} else if crm[c.rank] > crm[myFlCard2.rank] {
+				} else if crm[c.Rank] > crm[myFlCard2.Rank] {
 					myFlCard5 = myFlCard4
 					myFlCard4 = myFlCard3
 					myFlCard3 = myFlCard2
 					myFlCard2 = c
-				} else if crm[c.rank] > crm[myFlCard3.rank] {
+				} else if crm[c.Rank] > crm[myFlCard3.Rank] {
 					myFlCard5 = myFlCard4
 					myFlCard4 = myFlCard3
 					myFlCard3 = c
-				} else if crm[c.rank] > crm[myFlCard4.rank] {
+				} else if crm[c.Rank] > crm[myFlCard4.Rank] {
 					myFlCard5 = myFlCard4
 					myFlCard4 = c
 				} else {
 					myFlCard5 = c
 				}
 
-			} else if myFlCard6.rank == rX {
-				if crm[c.rank] > crm[myFlCard1.rank] { // higher than the other 5
+			} else if myFlCard6.Rank == tableitems.RX {
+				if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 5
 					myFlCard6 = myFlCard5
 					myFlCard5 = myFlCard4
 					myFlCard4 = myFlCard3
 					myFlCard3 = myFlCard2
 					myFlCard2 = myFlCard1
 					myFlCard1 = c
-				} else if crm[c.rank] > crm[myFlCard2.rank] {
+				} else if crm[c.Rank] > crm[myFlCard2.Rank] {
 					myFlCard6 = myFlCard5
 					myFlCard5 = myFlCard4
 					myFlCard4 = myFlCard3
 					myFlCard3 = myFlCard2
 					myFlCard2 = c
-				} else if crm[c.rank] > crm[myFlCard3.rank] {
+				} else if crm[c.Rank] > crm[myFlCard3.Rank] {
 					myFlCard6 = myFlCard5
 					myFlCard5 = myFlCard4
 					myFlCard4 = myFlCard3
 					myFlCard3 = c
-				} else if crm[c.rank] > crm[myFlCard4.rank] {
+				} else if crm[c.Rank] > crm[myFlCard4.Rank] {
 					myFlCard6 = myFlCard5
 					myFlCard5 = myFlCard4
 					myFlCard4 = c
-				} else if crm[c.rank] > crm[myFlCard5.rank] {
+				} else if crm[c.Rank] > crm[myFlCard5.Rank] {
 					myFlCard6 = myFlCard5
 					myFlCard5 = c
 				} else {
 					myFlCard6 = c
 				}
 
-			} else if myFlCard7.rank == rX {
-				if crm[c.rank] > crm[myFlCard1.rank] { // higher than the other 6
+			} else if myFlCard7.Rank == tableitems.RX {
+				if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 6
 					myFlCard7 = myFlCard6
 					myFlCard6 = myFlCard5
 					myFlCard5 = myFlCard4
@@ -1550,29 +1552,29 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs cardSuit) (cardRank, cardRank,
 					myFlCard3 = myFlCard2
 					myFlCard2 = myFlCard1
 					myFlCard1 = c
-				} else if crm[c.rank] > crm[myFlCard2.rank] {
+				} else if crm[c.Rank] > crm[myFlCard2.Rank] {
 					myFlCard7 = myFlCard6
 					myFlCard6 = myFlCard5
 					myFlCard5 = myFlCard4
 					myFlCard4 = myFlCard3
 					myFlCard3 = myFlCard2
 					myFlCard2 = c
-				} else if crm[c.rank] > crm[myFlCard3.rank] {
+				} else if crm[c.Rank] > crm[myFlCard3.Rank] {
 					myFlCard7 = myFlCard6
 					myFlCard6 = myFlCard5
 					myFlCard5 = myFlCard4
 					myFlCard4 = myFlCard3
 					myFlCard3 = c
-				} else if crm[c.rank] > crm[myFlCard4.rank] {
+				} else if crm[c.Rank] > crm[myFlCard4.Rank] {
 					myFlCard7 = myFlCard6
 					myFlCard6 = myFlCard5
 					myFlCard5 = myFlCard4
 					myFlCard4 = c
-				} else if crm[c.rank] > crm[myFlCard5.rank] {
+				} else if crm[c.Rank] > crm[myFlCard5.Rank] {
 					myFlCard7 = myFlCard6
 					myFlCard6 = myFlCard5
 					myFlCard5 = c
-				} else if crm[c.rank] > crm[myFlCard6.rank] {
+				} else if crm[c.Rank] > crm[myFlCard6.Rank] {
 					myFlCard7 = myFlCard6
 					myFlCard6 = c
 				} else {
@@ -1581,7 +1583,7 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs cardSuit) (cardRank, cardRank,
 			}
 		}
 	}
-	return myFlCard1.rank, myFlCard2.rank, myFlCard3.rank, myFlCard4.rank, myFlCard5.rank
+	return myFlCard1.Rank, myFlCard2.Rank, myFlCard3.Rank, myFlCard4.Rank, myFlCard5.Rank
 }
 
 // #####################################################################
@@ -1591,8 +1593,8 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs cardSuit) (cardRank, cardRank,
 //
 // Checks for a 5 high straight as well,
 // to differentiate between an arbitrary A high flush and a 5 high Straight Flush, in which case it will return the
-// A as the last card, not first.
-func orderCardsOfSameSuit2(clPtr *fiveCardList, cs cardSuit) (resultingClPtr *fiveCardList, err error) {
+// A as the last tableitems.Card, not first.
+func orderCardsOfSameSuit2(clPtr *fiveCardList, cs tableitems.CardSuit) (resultingClPtr *fiveCardList, err error) {
 	// Info.Printf("%s\n\n", ThisFunc())
 
 	cl := *clPtr
@@ -1602,16 +1604,16 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs cardSuit) (resultingClPtr *fi
 	resultingClPtr = createClPtr()
 	resultingCl := *resultingClPtr
 
-	var c card
+	var c tableitems.Card
 
-	var myFlCard1, myFlCard2, myFlCard3, myFlCard4, myFlCard5, myFlCard6, myFlCard7 card
-	myFlCard1 = card{rX, x, false, false, false, false, 0}
-	myFlCard2 = card{rX, x, false, false, false, false, 0}
-	myFlCard3 = card{rX, x, false, false, false, false, 0}
-	myFlCard4 = card{rX, x, false, false, false, false, 0}
-	myFlCard5 = card{rX, x, false, false, false, false, 0}
-	myFlCard6 = card{rX, x, false, false, false, false, 0}
-	myFlCard7 = card{rX, x, false, false, false, false, 0}
+	var myFlCard1, myFlCard2, myFlCard3, myFlCard4, myFlCard5, myFlCard6, myFlCard7 tableitems.Card
+	myFlCard1 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard2 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard3 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard4 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard5 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard6 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myFlCard7 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
 
 	myFlCard1Ptr := &myFlCard1
 	myFlCard2Ptr := &myFlCard2
@@ -1625,105 +1627,105 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs cardSuit) (resultingClPtr *fi
 
 		if cPtr != nil {
 			c = *cPtr
-			// fmt.Println("in orderCardsOfSameSuit2, card from range: ", c)
+			// fmt.Println("in orderCardsOfSameSuit2, tableitems.Card from range: ", c)
 
-			if c.suit == cs { // if we found a card of requested suit...
+			if c.Suit == cs { // if we found a card of requested suit...
 
-				if myFlCard1.rank == rX { // 1st card in the suit of the Fl
+				if myFlCard1.Rank == tableitems.RX { // 1st card in the suit of the Fl
 					myFlCard1 = *cPtr
 
-				} else if myFlCard2.rank == rX { // 2nd card in the suit of the Fl
-					if crm[c.rank] > crm[myFlCard1.rank] { // if new card is higher than the the first
+				} else if myFlCard2.Rank == tableitems.RX { // 2nd card in the suit of the Fl
+					if crm[c.Rank] > crm[myFlCard1.Rank] { // if new card is higher than the the first
 						myFlCard2 = myFlCard1 // move the first to the second position
 						myFlCard1 = c         // Set the first/top pos to c
 					} else {
 						myFlCard2 = c
 					}
 
-				} else if myFlCard3.rank == rX { // 3rd card in the suit of the Fl
-					if crm[c.rank] > crm[myFlCard1.rank] { // higher than the other 2
+				} else if myFlCard3.Rank == tableitems.RX { // 3rd card in the suit of the Fl
+					if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 2
 						myFlCard3 = myFlCard2
 						myFlCard2 = myFlCard1
 						myFlCard1 = c
-					} else if crm[c.rank] > crm[myFlCard2.rank] {
+					} else if crm[c.Rank] > crm[myFlCard2.Rank] {
 						myFlCard3 = myFlCard2
 						myFlCard2 = c
 					} else {
 						myFlCard3 = c
 					}
 
-				} else if myFlCard4.rank == rX {
-					if crm[c.rank] > crm[myFlCard1.rank] { // higher than the other 3
+				} else if myFlCard4.Rank == tableitems.RX {
+					if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 3
 						myFlCard4 = myFlCard3
 						myFlCard3 = myFlCard2
 						myFlCard2 = myFlCard1
 						myFlCard1 = c
-					} else if crm[c.rank] > crm[myFlCard2.rank] {
+					} else if crm[c.Rank] > crm[myFlCard2.Rank] {
 						myFlCard4 = myFlCard3
 						myFlCard3 = myFlCard2
 						myFlCard2 = c
-					} else if crm[c.rank] > crm[myFlCard3.rank] {
+					} else if crm[c.Rank] > crm[myFlCard3.Rank] {
 						myFlCard4 = myFlCard3
 						myFlCard3 = c
 					} else {
 						myFlCard4 = c
 					}
 
-				} else if myFlCard5.rank == rX {
-					if crm[c.rank] > crm[myFlCard1.rank] { // higher than the other 4
+				} else if myFlCard5.Rank == tableitems.RX {
+					if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 4
 						myFlCard5 = myFlCard4
 						myFlCard4 = myFlCard3
 						myFlCard3 = myFlCard2
 						myFlCard2 = myFlCard1
 						myFlCard1 = c
-					} else if crm[c.rank] > crm[myFlCard2.rank] {
+					} else if crm[c.Rank] > crm[myFlCard2.Rank] {
 						myFlCard5 = myFlCard4
 						myFlCard4 = myFlCard3
 						myFlCard3 = myFlCard2
 						myFlCard2 = c
-					} else if crm[c.rank] > crm[myFlCard3.rank] {
+					} else if crm[c.Rank] > crm[myFlCard3.Rank] {
 						myFlCard5 = myFlCard4
 						myFlCard4 = myFlCard3
 						myFlCard3 = c
-					} else if crm[c.rank] > crm[myFlCard4.rank] {
+					} else if crm[c.Rank] > crm[myFlCard4.Rank] {
 						myFlCard5 = myFlCard4
 						myFlCard4 = c
 					} else {
 						myFlCard5 = c
 					}
 
-				} else if myFlCard6.rank == rX {
-					if crm[c.rank] > crm[myFlCard1.rank] { // higher than the other 5
+				} else if myFlCard6.Rank == tableitems.RX {
+					if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 5
 						myFlCard6 = myFlCard5
 						myFlCard5 = myFlCard4
 						myFlCard4 = myFlCard3
 						myFlCard3 = myFlCard2
 						myFlCard2 = myFlCard1
 						myFlCard1 = c
-					} else if crm[c.rank] > crm[myFlCard2.rank] {
+					} else if crm[c.Rank] > crm[myFlCard2.Rank] {
 						myFlCard6 = myFlCard5
 						myFlCard5 = myFlCard4
 						myFlCard4 = myFlCard3
 						myFlCard3 = myFlCard2
 						myFlCard2 = c
-					} else if crm[c.rank] > crm[myFlCard3.rank] {
+					} else if crm[c.Rank] > crm[myFlCard3.Rank] {
 						myFlCard6 = myFlCard5
 						myFlCard5 = myFlCard4
 						myFlCard4 = myFlCard3
 						myFlCard3 = c
-					} else if crm[c.rank] > crm[myFlCard4.rank] {
+					} else if crm[c.Rank] > crm[myFlCard4.Rank] {
 						myFlCard6 = myFlCard5
 						myFlCard5 = myFlCard4
 						myFlCard4 = c
-					} else if crm[c.rank] > crm[myFlCard5.rank] {
+					} else if crm[c.Rank] > crm[myFlCard5.Rank] {
 						myFlCard6 = myFlCard5
 						myFlCard5 = c
 					} else {
 						myFlCard6 = c
 					}
 
-				} else if myFlCard7.rank == rX {
-					if crm[c.rank] > crm[myFlCard1.rank] { // higher than the other 6
+				} else if myFlCard7.Rank == tableitems.RX {
+					if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 6
 						myFlCard7 = myFlCard6
 						myFlCard6 = myFlCard5
 						myFlCard5 = myFlCard4
@@ -1731,29 +1733,29 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs cardSuit) (resultingClPtr *fi
 						myFlCard3 = myFlCard2
 						myFlCard2 = myFlCard1
 						myFlCard1 = c
-					} else if crm[c.rank] > crm[myFlCard2.rank] {
+					} else if crm[c.Rank] > crm[myFlCard2.Rank] {
 						myFlCard7 = myFlCard6
 						myFlCard6 = myFlCard5
 						myFlCard5 = myFlCard4
 						myFlCard4 = myFlCard3
 						myFlCard3 = myFlCard2
 						myFlCard2 = c
-					} else if crm[c.rank] > crm[myFlCard3.rank] {
+					} else if crm[c.Rank] > crm[myFlCard3.Rank] {
 						myFlCard7 = myFlCard6
 						myFlCard6 = myFlCard5
 						myFlCard5 = myFlCard4
 						myFlCard4 = myFlCard3
 						myFlCard3 = c
-					} else if crm[c.rank] > crm[myFlCard4.rank] {
+					} else if crm[c.Rank] > crm[myFlCard4.Rank] {
 						myFlCard7 = myFlCard6
 						myFlCard6 = myFlCard5
 						myFlCard5 = myFlCard4
 						myFlCard4 = c
-					} else if crm[c.rank] > crm[myFlCard5.rank] {
+					} else if crm[c.Rank] > crm[myFlCard5.Rank] {
 						myFlCard7 = myFlCard6
 						myFlCard6 = myFlCard5
 						myFlCard5 = c
-					} else if crm[c.rank] > crm[myFlCard6.rank] {
+					} else if crm[c.Rank] > crm[myFlCard6.Rank] {
 						myFlCard7 = myFlCard6
 						myFlCard6 = c
 					} else {
@@ -1771,9 +1773,9 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs cardSuit) (resultingClPtr *fi
 	resultingCl[4] = myFlCard5Ptr
 
 	// switch {
-	// case myFlCard6.rank != rX:
+	// case myFlCard6.Rank != tableitems.RX:
 	// 	resultingClPtr[5] = myFlCard6Ptr
-	// case myFlCard7.rank != rX:
+	// case myFlCard7.Rank != tableitems.RX:
 	// 	resultingClPtr[6] = myFlCard7Ptr
 	// }
 
@@ -1782,7 +1784,7 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs cardSuit) (resultingClPtr *fi
 
 	/*
 		for i, _ := range resultingClPtr {
-			fmt.Printf("%v%v ", resultingClPtr[i].rank, resultingClPtr[i].suit)
+			fmt.Printf("%v%v ", resultingClPtr[i].Rank, resultingClPtr[i].Suit)
 		}
 		fmt.Printf("\n")
 	*/
@@ -1804,17 +1806,17 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 	resultingClPtr = createClPtr()
 	resultingCl := *resultingClPtr
 
-	var c card
+	var c tableitems.Card
 
-	// var myCard1, myCard2, myCard3, myCard4, myCard5, myCard6, myCard7 card
-	var myCard1, myCard2, myCard3, myCard4, myCard5 card
-	myCard1 = card{rX, x, false, false, false, false, 0}
-	myCard2 = card{rX, x, false, false, false, false, 0}
-	myCard3 = card{rX, x, false, false, false, false, 0}
-	myCard4 = card{rX, x, false, false, false, false, 0}
-	myCard5 = card{rX, x, false, false, false, false, 0}
-	// myCard6 = card{rX, x, false, false, false, false, 0}
-	// myCard7 = card{rX, x, false, false, false, false, 0}
+	// var myCard1, myCard2, myCard3, myCard4, myCard5, myCard6, myCard7 tableitems.Card
+	var myCard1, myCard2, myCard3, myCard4, myCard5 tableitems.Card
+	myCard1 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myCard2 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myCard3 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myCard4 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	myCard5 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	// myCard6 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	// myCard7 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
 
 	myCard1Ptr := &myCard1
 	myCard2Ptr := &myCard2
@@ -1828,65 +1830,65 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 
 		if cPtr != nil {
 			c = *cPtr
-			// fmt.Println("in orderCardsOfMixedSuit, card from range: ", c)
+			// fmt.Println("in orderCardsOfMixedSuit, tableitems.Card from range: ", c)
 
-			if myCard1.rank == rX { // 1st card in the suit of the Fl
+			if myCard1.Rank == tableitems.RX { // 1st card in the suit of the Fl
 				myCard1 = *cPtr
 
-			} else if myCard2.rank == rX { // 2nd card in the suit of the Fl
-				if crm[c.rank] > crm[myCard1.rank] { // if new card is higher than the the first
+			} else if myCard2.Rank == tableitems.RX { // 2nd card in the suit of the Fl
+				if crm[c.Rank] > crm[myCard1.Rank] { // if new card is higher than the the first
 					myCard2 = myCard1 // move the first to the second position
 					myCard1 = c       // Set the first/top pos to c
 				} else {
 					myCard2 = c
 				}
 
-			} else if myCard3.rank == rX { // 3rd card in the suit of the Fl
-				if crm[c.rank] > crm[myCard1.rank] { // higher than the other 2
+			} else if myCard3.Rank == tableitems.RX { // 3rd card in the suit of the Fl
+				if crm[c.Rank] > crm[myCard1.Rank] { // higher than the other 2
 					myCard3 = myCard2
 					myCard2 = myCard1
 					myCard1 = c
-				} else if crm[c.rank] > crm[myCard2.rank] {
+				} else if crm[c.Rank] > crm[myCard2.Rank] {
 					myCard3 = myCard2
 					myCard2 = c
 				} else {
 					myCard3 = c
 				}
 
-			} else if myCard4.rank == rX {
-				if crm[c.rank] > crm[myCard1.rank] { // higher than the other 3
+			} else if myCard4.Rank == tableitems.RX {
+				if crm[c.Rank] > crm[myCard1.Rank] { // higher than the other 3
 					myCard4 = myCard3
 					myCard3 = myCard2
 					myCard2 = myCard1
 					myCard1 = c
-				} else if crm[c.rank] > crm[myCard2.rank] {
+				} else if crm[c.Rank] > crm[myCard2.Rank] {
 					myCard4 = myCard3
 					myCard3 = myCard2
 					myCard2 = c
-				} else if crm[c.rank] > crm[myCard3.rank] {
+				} else if crm[c.Rank] > crm[myCard3.Rank] {
 					myCard4 = myCard3
 					myCard3 = c
 				} else {
 					myCard4 = c
 				}
 
-			} else if myCard5.rank == rX {
-				if crm[c.rank] > crm[myCard1.rank] { // higher than the other 4
+			} else if myCard5.Rank == tableitems.RX {
+				if crm[c.Rank] > crm[myCard1.Rank] { // higher than the other 4
 					myCard5 = myCard4
 					myCard4 = myCard3
 					myCard3 = myCard2
 					myCard2 = myCard1
 					myCard1 = c
-				} else if crm[c.rank] > crm[myCard2.rank] {
+				} else if crm[c.Rank] > crm[myCard2.Rank] {
 					myCard5 = myCard4
 					myCard4 = myCard3
 					myCard3 = myCard2
 					myCard2 = c
-				} else if crm[c.rank] > crm[myCard3.rank] {
+				} else if crm[c.Rank] > crm[myCard3.Rank] {
 					myCard5 = myCard4
 					myCard4 = myCard3
 					myCard3 = c
-				} else if crm[c.rank] > crm[myCard4.rank] {
+				} else if crm[c.Rank] > crm[myCard4.Rank] {
 					myCard5 = myCard4
 					myCard4 = c
 				} else {
@@ -1894,38 +1896,38 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 				}
 
 				/*
-					} else if myCard6.rank == rX {
-						if crm[c.rank] > crm[myCard1.rank] { // higher than the other 5
+					} else if myCard6.Rank == tableitems.RX {
+						if crm[c.Rank] > crm[myCard1.Rank] { // higher than the other 5
 							myCard6 = myCard5
 							myCard5 = myCard4
 							myCard4 = myCard3
 							myCard3 = myCard2
 							myCard2 = myCard1
 							myCard1 = c
-						} else if crm[c.rank] > crm[myCard2.rank] {
+						} else if crm[c.Rank] > crm[myCard2.Rank] {
 							myCard6 = myCard5
 							myCard5 = myCard4
 							myCard4 = myCard3
 							myCard3 = myCard2
 							myCard2 = c
-						} else if crm[c.rank] > crm[myCard3.rank] {
+						} else if crm[c.Rank] > crm[myCard3.Rank] {
 							myCard6 = myCard5
 							myCard5 = myCard4
 							myCard4 = myCard3
 							myCard3 = c
-						} else if crm[c.rank] > crm[myCard4.rank] {
+						} else if crm[c.Rank] > crm[myCard4.Rank] {
 							myCard6 = myCard5
 							myCard5 = myCard4
 							myCard4 = c
-						} else if crm[c.rank] > crm[myCard5.rank] {
+						} else if crm[c.Rank] > crm[myCard5.Rank] {
 							myCard6 = myCard5
 							myCard5 = c
 						} else {
 							myCard6 = c
 						}
 
-					} else if myCard7.rank == rX {
-						if crm[c.rank] > crm[myCard1.rank] { // higher than the other 6
+					} else if myCard7.Rank == tableitems.RX {
+						if crm[c.Rank] > crm[myCard1.Rank] { // higher than the other 6
 							myCard7 = myCard6
 							myCard6 = myCard5
 							myCard5 = myCard4
@@ -1933,29 +1935,29 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 							myCard3 = myCard2
 							myCard2 = myCard1
 							myCard1 = c
-						} else if crm[c.rank] > crm[myCard2.rank] {
+						} else if crm[c.Rank] > crm[myCard2.Rank] {
 							myCard7 = myCard6
 							myCard6 = myCard5
 							myCard5 = myCard4
 							myCard4 = myCard3
 							myCard3 = myCard2
 							myCard2 = c
-						} else if crm[c.rank] > crm[myCard3.rank] {
+						} else if crm[c.Rank] > crm[myCard3.Rank] {
 							myCard7 = myCard6
 							myCard6 = myCard5
 							myCard5 = myCard4
 							myCard4 = myCard3
 							myCard3 = c
-						} else if crm[c.rank] > crm[myCard4.rank] {
+						} else if crm[c.Rank] > crm[myCard4.Rank] {
 							myCard7 = myCard6
 							myCard6 = myCard5
 							myCard5 = myCard4
 							myCard4 = c
-						} else if crm[c.rank] > crm[myCard5.rank] {
+						} else if crm[c.Rank] > crm[myCard5.Rank] {
 							myCard7 = myCard6
 							myCard6 = myCard5
 							myCard5 = c
-						} else if crm[c.rank] > crm[myCard6.rank] {
+						} else if crm[c.Rank] > crm[myCard6.Rank] {
 							myCard7 = myCard6
 							myCard6 = c
 						} else {
@@ -1974,9 +1976,9 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 	resultingCl[4] = myCard5Ptr
 
 	// switch {
-	// case myCard6.rank != rX:
+	// case myCard6.Rank != tableitems.RX:
 	// 	resultingClPtr[5] = myCard6Ptr
-	// case myCard7.rank != rX:
+	// case myCard7.Rank != tableitems.RX:
 	// 	resultingClPtr[6] = myCard7Ptr
 	// }
 
@@ -2053,7 +2055,7 @@ func findSFsInList(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 		fmt.Println("flushClOrdered: ")
 
 		for i, _ := range flushClOrdered {
-			fmt.Printf("%v%v ", flushClOrdered[i].rank, flushClOrdered[i].suit)
+			fmt.Printf("%v%v ", flushClOrdered[i].Rank, flushClOrdered[i].Suit)
 		}
 
 		fmt.Printf("\n")
@@ -2068,7 +2070,7 @@ func findSFsInList(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 		// fmt.Println("Appended another SF: ")
 		// fmt.Println(*sSfFclPtr)
 
-		*handNamePtr = string(flushClOrdered[0].rank) + " high Straight Flush"
+		*handNamePtr = string(flushClOrdered[0].Rank) + " high Straight Flush"
 	}
 	return err
 }
@@ -2093,7 +2095,7 @@ func find4xInList(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suitC
 	}
 
 L01:
-	for _, rank := range rankList {
+	for _, rank := range tableitems.RankList {
 		if rcPtr.rcm[rank] == 4 {
 			rcPtr.top4x1 = rank
 			break L01
@@ -2170,7 +2172,7 @@ func checkForSF_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 		err = errors.New("Did not find SF")
 	} else {
 		// fmt.Println("Found SF XXXXXXXX")
-		*handNamePtr = string(flushClOrdered[0].rank) + " high Straight Flush"
+		*handNamePtr = string(flushClOrdered[0].Rank) + " high Straight Flush"
 	}
 
 	return err
@@ -2197,7 +2199,7 @@ func checkFor4x_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 	}
 
 L01:
-	for _, rank := range rankList {
+	for _, rank := range tableitems.RankList {
 		if rcPtr.rcm[rank] == 4 {
 			rcPtr.top4x1 = rank
 			break L01
@@ -2235,7 +2237,7 @@ func checkFor3x_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePtr
 	}
 
 L03:
-	for _, rank := range rankList {
+	for _, rank := range tableitems.RankList {
 		if rcPtr.rcm[rank] == 3 {
 			rcPtr.top3x1 = rank
 			break L03
@@ -2301,7 +2303,7 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 		ct3x := 0
 		ct2x := 0
 
-		for _, rank := range rankList {
+		for _, rank := range tableitems.RankList {
 
 			switch {
 			case rcPtr.rcm[rank] == 3: // found a 3x
@@ -2329,7 +2331,7 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 			default:
 			} // End switch
 
-		} // Since rankList is arranged from highest to lowest rank, the top3x1 and top3x2, ..., are properly set.
+		} // Since tableitems.RankList is arranged from highest to lowest rank, the top3x1 and top3x2, ..., are properly set.
 
 		/*
 			fmt.Println()
@@ -2346,17 +2348,17 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 			switch { // Considering 5 card hands only !!!
 			// Only for 6+ cards:
 			// case 3x, 3x, with 7 cards, there can't be a 2x here
-			// case rcPtr.top3x2 != rX:
+			// case rcPtr.top3x2 != tableitems.RX:
 			// 	*handNamePtr = "FH, " + string(rcPtr.top3x1) + "s full of " + string(rcPtr.top3x2) + "s."
 			// 	// case 3x, 2x, 2x OR 3x, 2x, 1x, 1x
 			// 	fmt.Println("Found FH ############## A")
 
-			case rcPtr.top3x1 != rX:
+			case rcPtr.top3x1 != tableitems.RX:
 				*handNamePtr = "FH, " + string(rcPtr.top3x1) + "s full of " + string(rcPtr.top3x2) + "s."
 				// case 3x, 2x
 				fmt.Println("Found FH ############## A")
 
-			case rcPtr.top2x1 != rX:
+			case rcPtr.top2x1 != tableitems.RX:
 				*handNamePtr = "FH, " + string(rcPtr.top3x1) + "s full of " + string(rcPtr.top2x1) + "s."
 				fmt.Println("Found FH ############## B")
 
@@ -2367,7 +2369,7 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 
 		*/
 
-		if rcPtr.top2x1 != rX {
+		if rcPtr.top2x1 != tableitems.RX {
 			*handNamePtr = "FH, " + string(rcPtr.top3x1) + "s full of " + string(rcPtr.top2x1) + "s."
 			// case 3x, 2x
 			// fmt.Println("Found FH ############## A")
@@ -2392,14 +2394,14 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 func checkForFl_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suitCounter, handNamePtr *string) (err error) {
 	// Info.Printf("%s\n\n", ThisFunc())
 
-	var mySuit cardSuit
+	var mySuit tableitems.CardSuit
 
-	var cr1, cr2, cr3, cr4, cr5 cardRank
-	cr1 = rX
-	cr2 = rX
-	cr3 = rX
-	cr4 = rX
-	cr5 = rX
+	var cr1, cr2, cr3, cr4, cr5 tableitems.CardRank
+	cr1 = tableitems.RX
+	cr2 = tableitems.RX
+	cr3 = tableitems.RX
+	cr4 = tableitems.RX
+	cr5 = tableitems.RX
 
 	// fmt.Println("### Looking for a Flush #######")
 	// fmt.Println("card list len, cll: ", cll)
@@ -2413,14 +2415,14 @@ func checkForFl_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 	}
 
 	switch {
-	case scPtr.scm[s] >= 5:
-		mySuit = s
-	case scPtr.scm[c] >= 5:
-		mySuit = c
-	case scPtr.scm[h] >= 5:
-		mySuit = h
-	case scPtr.scm[d] >= 5:
-		mySuit = d
+	case scPtr.scm[tableitems.S] >= 5:
+		mySuit = tableitems.S
+	case scPtr.scm[tableitems.C] >= 5:
+		mySuit = tableitems.C
+	case scPtr.scm[tableitems.H] >= 5:
+		mySuit = tableitems.H
+	case scPtr.scm[tableitems.D] >= 5:
+		mySuit = tableitems.D
 	default:
 		*handNamePtr = "did not find a Flush"
 		err = errors.New("Did not find a Fl")
@@ -2480,25 +2482,25 @@ func checkForSt_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 L02:
 	for i := 0; i <= 9; i++ {
 		// fmt.Println("i: ", i)
-		// fmt.Printf("in checkForSt_5c rankListFull of i is: %v\n\n", rankListFull[i])
-		// fmt.Printf("clPtr 0 : %v; 1: %v; 2: %v; 3: %v; 4: %v; 5: %v; 6: %v\n", clPtr[0].rank, clPtr[1], clPtr[2], clPtr[3], clPtr[4], clPtr[5], clPtr[6])
-		// fmt.Printf("rankLFi : %v;+1: %v;+2: %v;+3: %v;+4: %v\n\n", rankListFull[i], rankListFull[i+1], rankListFull[i+2], rankListFull[i+3], rankListFull[i+4])
+		// fmt.Printf("in checkForSt_5c tableitems.RankListFull of i is: %v\n\n", tableitems.RankListFull[i])
+		// fmt.Printf("clPtr 0 : %v; 1: %v; 2: %v; 3: %v; 4: %v; 5: %v; 6: %v\n", clPtr[0].Rank, clPtr[1], clPtr[2], clPtr[3], clPtr[4], clPtr[5], clPtr[6])
+		// fmt.Printf("rankLFi : %v;+1: %v;+2: %v;+3: %v;+4: %v\n\n", tableitems.RankListFull[i], tableitems.RankListFull[i+1], tableitems.RankListFull[i+2], tableitems.RankListFull[i+3], tableitems.RankListFull[i+4])
 
-		// if (clPtr[0].rank == rankListFull[i] || clPtr[1].rank == rankListFull[i] || clPtr[2].rank == rankListFull[i] || clPtr[3].rank == rankListFull[i] || clPtr[4].rank == rankListFull[i] || clPtr[5].rank == rankListFull[i] || clPtr[6].rank == rankListFull[i]) &&
-		// 	(clPtr[0].rank == rankListFull[i+1] || clPtr[1].rank == rankListFull[i+1] || clPtr[2].rank == rankListFull[i+1] || clPtr[3].rank == rankListFull[i+1] || clPtr[4].rank == rankListFull[i+1] || clPtr[5].rank == rankListFull[i+1] || clPtr[6].rank == rankListFull[i+1]) &&
-		// 	(clPtr[0].rank == rankListFull[i+2] || clPtr[1].rank == rankListFull[i+2] || clPtr[2].rank == rankListFull[i+2] || clPtr[3].rank == rankListFull[i+2] || clPtr[4].rank == rankListFull[i+2] || clPtr[5].rank == rankListFull[i+2] || clPtr[6].rank == rankListFull[i+2]) &&
-		// 	(clPtr[0].rank == rankListFull[i+3] || clPtr[1].rank == rankListFull[i+3] || clPtr[2].rank == rankListFull[i+3] || clPtr[3].rank == rankListFull[i+3] || clPtr[4].rank == rankListFull[i+3] || clPtr[5].rank == rankListFull[i+3] || clPtr[6].rank == rankListFull[i+3]) &&
-		// 	(clPtr[0].rank == rankListFull[i+4] || clPtr[1].rank == rankListFull[i+4] || clPtr[2].rank == rankListFull[i+4] || clPtr[3].rank == rankListFull[i+4] || clPtr[4].rank == rankListFull[i+4] || clPtr[5].rank == rankListFull[i+4] || clPtr[6].rank == rankListFull[i+4]) {
+		// if (clPtr[0].Rank == tableitems.RankListFull[i] || clPtr[1].Rank == tableitems.RankListFull[i] || clPtr[2].Rank == tableitems.RankListFull[i] || clPtr[3].Rank == tableitems.RankListFull[i] || clPtr[4].Rank == tableitems.RankListFull[i] || clPtr[5].Rank == tableitems.RankListFull[i] || clPtr[6].Rank == tableitems.RankListFull[i]) &&
+		// 	(clPtr[0].Rank == tableitems.RankListFull[i+1] || clPtr[1].Rank == tableitems.RankListFull[i+1] || clPtr[2].Rank == tableitems.RankListFull[i+1] || clPtr[3].Rank == tableitems.RankListFull[i+1] || clPtr[4].Rank == tableitems.RankListFull[i+1] || clPtr[5].Rank == tableitems.RankListFull[i+1] || clPtr[6].Rank == tableitems.RankListFull[i+1]) &&
+		// 	(clPtr[0].Rank == tableitems.RankListFull[i+2] || clPtr[1].Rank == tableitems.RankListFull[i+2] || clPtr[2].Rank == tableitems.RankListFull[i+2] || clPtr[3].Rank == tableitems.RankListFull[i+2] || clPtr[4].Rank == tableitems.RankListFull[i+2] || clPtr[5].Rank == tableitems.RankListFull[i+2] || clPtr[6].Rank == tableitems.RankListFull[i+2]) &&
+		// 	(clPtr[0].Rank == tableitems.RankListFull[i+3] || clPtr[1].Rank == tableitems.RankListFull[i+3] || clPtr[2].Rank == tableitems.RankListFull[i+3] || clPtr[3].Rank == tableitems.RankListFull[i+3] || clPtr[4].Rank == tableitems.RankListFull[i+3] || clPtr[5].Rank == tableitems.RankListFull[i+3] || clPtr[6].Rank == tableitems.RankListFull[i+3]) &&
+		// 	(clPtr[0].Rank == tableitems.RankListFull[i+4] || clPtr[1].Rank == tableitems.RankListFull[i+4] || clPtr[2].Rank == tableitems.RankListFull[i+4] || clPtr[3].Rank == tableitems.RankListFull[i+4] || clPtr[4].Rank == tableitems.RankListFull[i+4] || clPtr[5].Rank == tableitems.RankListFull[i+4] || clPtr[6].Rank == tableitems.RankListFull[i+4]) {
 
-		if (cl[0].rank == rankListFull[i] || cl[1].rank == rankListFull[i] || cl[2].rank == rankListFull[i] || cl[3].rank == rankListFull[i] || cl[4].rank == rankListFull[i]) &&
-			(cl[0].rank == rankListFull[i+1] || cl[1].rank == rankListFull[i+1] || cl[2].rank == rankListFull[i+1] || cl[3].rank == rankListFull[i+1] || cl[4].rank == rankListFull[i+1]) &&
-			(cl[0].rank == rankListFull[i+2] || cl[1].rank == rankListFull[i+2] || cl[2].rank == rankListFull[i+2] || cl[3].rank == rankListFull[i+2] || cl[4].rank == rankListFull[i+2]) &&
-			(cl[0].rank == rankListFull[i+3] || cl[1].rank == rankListFull[i+3] || cl[2].rank == rankListFull[i+3] || cl[3].rank == rankListFull[i+3] || cl[4].rank == rankListFull[i+3]) &&
-			(cl[0].rank == rankListFull[i+4] || cl[1].rank == rankListFull[i+4] || cl[2].rank == rankListFull[i+4] || cl[3].rank == rankListFull[i+4] || cl[4].rank == rankListFull[i+4]) {
+		if (cl[0].Rank == tableitems.RankListFull[i] || cl[1].Rank == tableitems.RankListFull[i] || cl[2].Rank == tableitems.RankListFull[i] || cl[3].Rank == tableitems.RankListFull[i] || cl[4].Rank == tableitems.RankListFull[i]) &&
+			(cl[0].Rank == tableitems.RankListFull[i+1] || cl[1].Rank == tableitems.RankListFull[i+1] || cl[2].Rank == tableitems.RankListFull[i+1] || cl[3].Rank == tableitems.RankListFull[i+1] || cl[4].Rank == tableitems.RankListFull[i+1]) &&
+			(cl[0].Rank == tableitems.RankListFull[i+2] || cl[1].Rank == tableitems.RankListFull[i+2] || cl[2].Rank == tableitems.RankListFull[i+2] || cl[3].Rank == tableitems.RankListFull[i+2] || cl[4].Rank == tableitems.RankListFull[i+2]) &&
+			(cl[0].Rank == tableitems.RankListFull[i+3] || cl[1].Rank == tableitems.RankListFull[i+3] || cl[2].Rank == tableitems.RankListFull[i+3] || cl[3].Rank == tableitems.RankListFull[i+3] || cl[4].Rank == tableitems.RankListFull[i+3]) &&
+			(cl[0].Rank == tableitems.RankListFull[i+4] || cl[1].Rank == tableitems.RankListFull[i+4] || cl[2].Rank == tableitems.RankListFull[i+4] || cl[3].Rank == tableitems.RankListFull[i+4] || cl[4].Rank == tableitems.RankListFull[i+4]) {
 
-			// fmt.Printf("in checkForSt_5c inside IF\n%v %v %v %v %v\n", rankListFull[i], rankListFull[i+1], rankListFull[i+2], rankListFull[i+3], rankListFull[i+4])
+			// fmt.Printf("in checkForSt_5c inside IF\n%v %v %v %v %v\n", tableitems.RankListFull[i], tableitems.RankListFull[i+1], tableitems.RankListFull[i+2], tableitems.RankListFull[i+3], tableitems.RankListFull[i+4])
 
-			*handNamePtr = string(rankListFull[i]) + " high Straight"
+			*handNamePtr = string(tableitems.RankListFull[i]) + " high Straight"
 			err = nil // since it could have been set to "not nil"
 			break L02
 		}
@@ -2532,7 +2534,7 @@ func checkFor2x2_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePt
 
 			pair_count++
 
-			if rcPtr.top2x1 == rX {
+			if rcPtr.top2x1 == tableitems.RX {
 				rcPtr.top2x1 = cr
 			} else {
 				if crm[cr] > crm[rcPtr.top2x1] {
@@ -2550,7 +2552,7 @@ func checkFor2x2_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePt
 	// orderedClPtr, err := orderCardsOfMixedSuit(clPtr)
 	// err04 := findPairs(orderedClPtr, cll, rcPtr) // Assigns the 2x var values in the rcPtr
 
-	// if err04 == nil && rcPtr.top2x2 != rX {
+	// if err04 == nil && rcPtr.top2x2 != tableitems.RX {
 	if pair_count == 2 {
 		*handNamePtr = "Two pair, " + string(rcPtr.top2x1) + "s and " + string(rcPtr.top2x2) + "s, " + string(rcPtr.top1x1) + " kicker"
 	} else {
@@ -2581,34 +2583,34 @@ func findPairs(clPtr *fiveCardList, cll int, rcPtr *rankCounter) (err error) {
 		// fmt.Println("i: ", i)
 		// fmt.Println("clPtr[i]: ", clPtr[i], "clPtr[i+1]: ", clPtr[i+1], "rcPtr.top2x1: ", rcPtr.top2x1)
 
-		if cl[i].rank == cl[i+1].rank {
-			if rcPtr.top2x1 == rX {
+		if cl[i].Rank == cl[i+1].Rank {
+			if rcPtr.top2x1 == tableitems.RX {
 				// fmt.Println("in findPairs, inside IF, found a pair")
-				rcPtr.top2x1 = cl[i].rank
-			} else if rcPtr.top2x2 == rX {
+				rcPtr.top2x1 = cl[i].Rank
+			} else if rcPtr.top2x2 == tableitems.RX {
 				// fmt.Println("in findPairs, inside IF, found 2nd pair")
-				rcPtr.top2x2 = cl[i].rank
+				rcPtr.top2x2 = cl[i].Rank
 			}
 			i = i + 1 // if we encountered the first card in a pair, then skip the second
 		} else {
 			switch {
-			case rcPtr.top1x1 == rX:
-				rcPtr.top1x1 = cl[i].rank
-			case rcPtr.top1x2 == rX:
-				rcPtr.top1x2 = cl[i].rank
-			case rcPtr.top1x3 == rX:
-				rcPtr.top1x3 = cl[i].rank
-			case rcPtr.top1x4 == rX:
-				rcPtr.top1x4 = cl[i].rank
-			case rcPtr.top1x5 == rX:
-				rcPtr.top1x5 = cl[i].rank
+			case rcPtr.top1x1 == tableitems.RX:
+				rcPtr.top1x1 = cl[i].Rank
+			case rcPtr.top1x2 == tableitems.RX:
+				rcPtr.top1x2 = cl[i].Rank
+			case rcPtr.top1x3 == tableitems.RX:
+				rcPtr.top1x3 = cl[i].Rank
+			case rcPtr.top1x4 == tableitems.RX:
+				rcPtr.top1x4 = cl[i].Rank
+			case rcPtr.top1x5 == tableitems.RX:
+				rcPtr.top1x5 = cl[i].Rank
 			default:
 				fmt.Println("reached default case in findPairs; i: ", i)
 			}
 		}
 	}
 
-	if rcPtr.top2x1 == rX {
+	if rcPtr.top2x1 == tableitems.RX {
 		err = errors.New("did not find any pairs")
 		// fmt.Println("did not find any pairs; err: ", err)
 	}
@@ -2632,7 +2634,7 @@ func checkFor2x1_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePt
 	// orderedClPtr, err := orderCardsOfMixedSuit(clPtr)
 	// err05 := findPairs(orderedClPtr, cll, rcPtr) // Assigns the 2x var values in the rcPtr
 
-	if rcPtr.top2x1 != rX {
+	if rcPtr.top2x1 != tableitems.RX {
 		*handNamePtr = "Pair, " + string(rcPtr.top2x1) + "s, " + string(rcPtr.top1x1) + string(rcPtr.top1x2) + string(rcPtr.top1x3) + " kicker."
 	} else {
 		err = errors.New("did not find any pairs")
@@ -2659,7 +2661,7 @@ func checkForHc_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePtr
 	// fmt.Println("card list len, cll: ", cll)
 	// fmt.Println("rcPtrmax: ", rcPtr.max)
 
-	if rcPtr.top2x1 == rX {
+	if rcPtr.top2x1 == tableitems.RX {
 		*handNamePtr = "High card: " + string(rcPtr.top1x1) + ", " + string(rcPtr.top1x2) + string(rcPtr.top1x3) + string(rcPtr.top1x4) + string(rcPtr.top1x5) + " kicker."
 	} else {
 		err = errors.New("did not find any pairs")
@@ -2873,11 +2875,11 @@ func createHcCL() (clPtr *fiveCardList) {
 }
 
 // #####################################################################
-func getRankOfNthCardForGivenIndexOfscl(i int, n int) cardRank {
+func getRankOfNthCardForGivenIndexOfscl(i int, n int) tableitems.CardRank {
 	// func getRankOfNthCardForGivenIndexOfscl(i int, n int) int {
 
-	return sOfAllFCLs[i][n].rank
-	// return crm[sOfAllFCLs[i][n].rank]
+	return sOfAllFCLs[i][n].Rank
+	// return crm[sOfAllFCLs[i][n].Rank]
 }
 
 // #####################################################################
@@ -2887,7 +2889,7 @@ func sortCardsInEach5CList() (err error) {
 	for _, fcl := range sOfAllFCLs {
 
 		sort.SliceStable(fcl, func(i, j int) bool {
-			return crm[fcl[i].rank] > crm[fcl[j].rank]
+			return crm[fcl[i].Rank] > crm[fcl[j].Rank]
 		})
 	}
 	return nil
@@ -2905,11 +2907,11 @@ func orderSFIndexesAsc(siPtr *[]int) (err error) {
 		iltj := false
 		// If our fcl starts with A5, then we have a wheel straight, the lowest straight, so
 		// this index must end up at the opposite end from the AK hands.
-		if sOfAllFCLs[si[i]][0].rank == rA && sOfAllFCLs[si[i]][1].rank == r5 {
+		if sOfAllFCLs[si[i]][0].Rank == tableitems.RA && sOfAllFCLs[si[i]][1].Rank == tableitems.R5 {
 			iltj = true
-		} else if sOfAllFCLs[si[j]][0].rank == rA && sOfAllFCLs[si[j]][1].rank == r5 {
+		} else if sOfAllFCLs[si[j]][0].Rank == tableitems.RA && sOfAllFCLs[si[j]][1].Rank == tableitems.R5 {
 			iltj = false
-		} else if crm[sOfAllFCLs[si[i]][0].rank] < crm[sOfAllFCLs[si[j]][0].rank] {
+		} else if crm[sOfAllFCLs[si[i]][0].Rank] < crm[sOfAllFCLs[si[j]][0].Rank] {
 			iltj = true
 		}
 		return iltj
@@ -2920,7 +2922,7 @@ func orderSFIndexesAsc(siPtr *[]int) (err error) {
 // #####################################################################
 // orderSFIndexesDes orders the indexes according to hand strength, high to low.
 func orderSFIndexesDes(siPtr *[]int) (err error) {
-	Info.Printf("%s\n\n", ThisFunc())
+	Info.Printf("%s\n\n", debugging.ThisFunc())
 
 	si := *siPtr // Slice of Int
 
@@ -2929,11 +2931,11 @@ func orderSFIndexesDes(siPtr *[]int) (err error) {
 		iltj := false
 		// If our fcl starts with A5, then we have a wheel straight, the lowest straight, so
 		// this index must end up at the opposite end from the AK hands.
-		if sOfAllFCLs[si[i]][0].rank == rA && sOfAllFCLs[si[i]][1].rank == r5 {
+		if sOfAllFCLs[si[i]][0].Rank == tableitems.RA && sOfAllFCLs[si[i]][1].Rank == tableitems.R5 {
 			iltj = false
-		} else if sOfAllFCLs[si[j]][0].rank == rA && sOfAllFCLs[si[j]][1].rank == r5 {
+		} else if sOfAllFCLs[si[j]][0].Rank == tableitems.RA && sOfAllFCLs[si[j]][1].Rank == tableitems.R5 {
 			iltj = true
-		} else if crm[sOfAllFCLs[si[i]][0].rank] > crm[sOfAllFCLs[si[j]][0].rank] {
+		} else if crm[sOfAllFCLs[si[i]][0].Rank] > crm[sOfAllFCLs[si[j]][0].Rank] {
 			iltj = true
 		}
 		return iltj
@@ -2955,11 +2957,11 @@ func order4xIndexesAsc(siPtr *[]int) (err error) {
 
 		// First, let's figure out which index, 0 or 4, our kicker sits at.
 		ikickerIndexIsAt0 := false // If it's not 0, it must be 4
-		if crm[sOfAllFCLs[si[i]][0].rank] != crm[sOfAllFCLs[si[i]][1].rank] {
+		if crm[sOfAllFCLs[si[i]][0].Rank] != crm[sOfAllFCLs[si[i]][1].Rank] {
 			ikickerIndexIsAt0 = true
 		}
 		jkickerIndexIsAt0 := false // If it's not 0, it must be 4
-		if crm[sOfAllFCLs[si[j]][0].rank] != crm[sOfAllFCLs[si[j]][1].rank] {
+		if crm[sOfAllFCLs[si[j]][0].Rank] != crm[sOfAllFCLs[si[j]][1].Rank] {
 			jkickerIndexIsAt0 = true
 		}
 
@@ -2968,13 +2970,13 @@ func order4xIndexesAsc(siPtr *[]int) (err error) {
 		// Consider i and j hands with kiker at index 0
 		case ikickerIndexIsAt0 && jkickerIndexIsAt0:
 			// If same rank of 4x, compare kickers
-			if crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[j]][2].rank] {
-				if crm[sOfAllFCLs[si[i]][0].rank] < crm[sOfAllFCLs[si[j]][0].rank] {
+			if crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[j]][2].Rank] {
+				if crm[sOfAllFCLs[si[i]][0].Rank] < crm[sOfAllFCLs[si[j]][0].Rank] {
 					iltj = true
 				}
 				// For different rank of 4x, kicker does not matter
 			} else {
-				if crm[sOfAllFCLs[si[i]][2].rank] < crm[sOfAllFCLs[si[j]][2].rank] {
+				if crm[sOfAllFCLs[si[i]][2].Rank] < crm[sOfAllFCLs[si[j]][2].Rank] {
 					iltj = true
 				}
 			}
@@ -2983,14 +2985,14 @@ func order4xIndexesAsc(siPtr *[]int) (err error) {
 		// 4x rank at index 0123
 		case !ikickerIndexIsAt0 && !jkickerIndexIsAt0:
 			// If same rank of 4x, compare kickers
-			if crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[j]][2].rank] {
-				// if sOfAllFCLs[si[i]][4].rank < sOfAllFCLs[si[j]][4].rank {
-				if crm[sOfAllFCLs[si[i]][4].rank] < crm[sOfAllFCLs[si[j]][4].rank] {
+			if crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[j]][2].Rank] {
+				// if sOfAllFCLs[si[i]][4].Rank < sOfAllFCLs[si[j]][4].Rank {
+				if crm[sOfAllFCLs[si[i]][4].Rank] < crm[sOfAllFCLs[si[j]][4].Rank] {
 					iltj = true
 				}
 				// For different rank of 4x, kicker does not matter
 			} else {
-				if crm[sOfAllFCLs[si[i]][2].rank] < crm[sOfAllFCLs[si[j]][2].rank] {
+				if crm[sOfAllFCLs[si[i]][2].Rank] < crm[sOfAllFCLs[si[j]][2].Rank] {
 					iltj = true
 				}
 			}
@@ -2999,14 +3001,14 @@ func order4xIndexesAsc(siPtr *[]int) (err error) {
 		// => 4x i at 1234 and 4x j at 0123
 		case ikickerIndexIsAt0 && !jkickerIndexIsAt0:
 			// If same rank of 4x, compare kickers
-			if crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[j]][2].rank] {
-				// if sOfAllFCLs[si[i]][0].rank < sOfAllFCLs[si[j]][4].rank {
-				if crm[sOfAllFCLs[si[i]][0].rank] < crm[sOfAllFCLs[si[j]][4].rank] {
+			if crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[j]][2].Rank] {
+				// if sOfAllFCLs[si[i]][0].Rank < sOfAllFCLs[si[j]][4].Rank {
+				if crm[sOfAllFCLs[si[i]][0].Rank] < crm[sOfAllFCLs[si[j]][4].Rank] {
 					iltj = true
 				}
 				// For different rank of 4x, kicker does not matter
 			} else {
-				if crm[sOfAllFCLs[si[i]][2].rank] < crm[sOfAllFCLs[si[j]][2].rank] {
+				if crm[sOfAllFCLs[si[i]][2].Rank] < crm[sOfAllFCLs[si[j]][2].Rank] {
 					iltj = true
 				}
 			}
@@ -3015,21 +3017,21 @@ func order4xIndexesAsc(siPtr *[]int) (err error) {
 		// => 4x i at 0123 and 4x j at 1234
 		case !ikickerIndexIsAt0 && jkickerIndexIsAt0:
 			// If same rank of 4x, compare kickers
-			if crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[j]][2].rank] {
-				// if sOfAllFCLs[si[i]][4].rank < sOfAllFCLs[si[j]][0].rank {
-				if crm[sOfAllFCLs[si[i]][4].rank] < crm[sOfAllFCLs[si[j]][0].rank] {
+			if crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[j]][2].Rank] {
+				// if sOfAllFCLs[si[i]][4].Rank < sOfAllFCLs[si[j]][0].Rank {
+				if crm[sOfAllFCLs[si[i]][4].Rank] < crm[sOfAllFCLs[si[j]][0].Rank] {
 					iltj = true
 				}
 				// For different rank of 4x, kicker does not matter
 			} else {
-				if crm[sOfAllFCLs[si[i]][2].rank] < crm[sOfAllFCLs[si[j]][2].rank] {
+				if crm[sOfAllFCLs[si[i]][2].Rank] < crm[sOfAllFCLs[si[j]][2].Rank] {
 					iltj = true
 				}
 			}
 
 		default:
 			err = errors.New("default case reached: ")
-			Info.Printf("%s\n\n", ThisFunc())
+			Info.Printf("%s\n\n", debugging.ThisFunc())
 		}
 
 		return iltj
@@ -3052,11 +3054,11 @@ func orderFHIndexesAsc(siPtr *[]int) (err error) {
 		// First, let's figure out which side the 2x cards are on.
 		// In either case, card index 2 will always belong to the 3x.
 		i2xAt0and1 := false
-		if crm[sOfAllFCLs[si[i]][0].rank] != crm[sOfAllFCLs[si[i]][2].rank] {
+		if crm[sOfAllFCLs[si[i]][0].Rank] != crm[sOfAllFCLs[si[i]][2].Rank] {
 			i2xAt0and1 = true
 		}
 		j2xAt0and1 := false
-		if crm[sOfAllFCLs[si[j]][0].rank] != crm[sOfAllFCLs[si[j]][2].rank] {
+		if crm[sOfAllFCLs[si[j]][0].Rank] != crm[sOfAllFCLs[si[j]][2].Rank] {
 			j2xAt0and1 = true
 		}
 
@@ -3065,13 +3067,13 @@ func orderFHIndexesAsc(siPtr *[]int) (err error) {
 		// Consider i and j hands with 2x cards at index 0-1
 		case i2xAt0and1 && j2xAt0and1:
 			// If same rank of 3x, compare kickers
-			if crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[j]][2].rank] {
-				if crm[sOfAllFCLs[si[i]][0].rank] < crm[sOfAllFCLs[si[j]][0].rank] {
+			if crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[j]][2].Rank] {
+				if crm[sOfAllFCLs[si[i]][0].Rank] < crm[sOfAllFCLs[si[j]][0].Rank] {
 					iltj = true
 				}
 				// For different rank of 3x, 2x cards ds not matter.
 			} else {
-				if crm[sOfAllFCLs[si[i]][2].rank] < crm[sOfAllFCLs[si[j]][2].rank] {
+				if crm[sOfAllFCLs[si[i]][2].Rank] < crm[sOfAllFCLs[si[j]][2].Rank] {
 					iltj = true
 				}
 			}
@@ -3080,13 +3082,13 @@ func orderFHIndexesAsc(siPtr *[]int) (err error) {
 		// 3x rank at index 0,1,2
 		case !i2xAt0and1 && !j2xAt0and1:
 			// If same rank of 3x, compare 2x cards
-			if crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[j]][2].rank] {
-				if crm[sOfAllFCLs[si[i]][4].rank] < crm[sOfAllFCLs[si[j]][4].rank] {
+			if crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[j]][2].Rank] {
+				if crm[sOfAllFCLs[si[i]][4].Rank] < crm[sOfAllFCLs[si[j]][4].Rank] {
 					iltj = true
 				}
 				// For different rank of 3x, kicker does not matter
 			} else {
-				if crm[sOfAllFCLs[si[i]][2].rank] < crm[sOfAllFCLs[si[j]][2].rank] {
+				if crm[sOfAllFCLs[si[i]][2].Rank] < crm[sOfAllFCLs[si[j]][2].Rank] {
 					iltj = true
 				}
 			}
@@ -3095,13 +3097,13 @@ func orderFHIndexesAsc(siPtr *[]int) (err error) {
 		// => i3x at 234 and -3x j at 012
 		case i2xAt0and1 && !j2xAt0and1:
 			// If same rank of 4x, compare kickers
-			if crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[j]][2].rank] {
-				if crm[sOfAllFCLs[si[i]][0].rank] < crm[sOfAllFCLs[si[j]][4].rank] {
+			if crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[j]][2].Rank] {
+				if crm[sOfAllFCLs[si[i]][0].Rank] < crm[sOfAllFCLs[si[j]][4].Rank] {
 					iltj = true
 				}
 				// For different rank of 3x, 2x cards do not matter
 			} else {
-				if crm[sOfAllFCLs[si[i]][2].rank] < crm[sOfAllFCLs[si[j]][2].rank] {
+				if crm[sOfAllFCLs[si[i]][2].Rank] < crm[sOfAllFCLs[si[j]][2].Rank] {
 					iltj = true
 				}
 			}
@@ -3110,20 +3112,20 @@ func orderFHIndexesAsc(siPtr *[]int) (err error) {
 		// => 3x i at 012 and 3x j at 234
 		case !i2xAt0and1 && j2xAt0and1:
 			// If same rank of 3x, compare 2x cards
-			if crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[j]][2].rank] {
-				if crm[sOfAllFCLs[si[i]][4].rank] < crm[sOfAllFCLs[si[j]][0].rank] {
+			if crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[j]][2].Rank] {
+				if crm[sOfAllFCLs[si[i]][4].Rank] < crm[sOfAllFCLs[si[j]][0].Rank] {
 					iltj = true
 				}
 				// For different rank of 3x, 2x cards do not matter
 			} else {
-				if crm[sOfAllFCLs[si[i]][2].rank] < crm[sOfAllFCLs[si[j]][2].rank] {
+				if crm[sOfAllFCLs[si[i]][2].Rank] < crm[sOfAllFCLs[si[j]][2].Rank] {
 					iltj = true
 				}
 			}
 
 		default:
 			err = errors.New("default case reached: ")
-			Info.Printf("%s\n\n", ThisFunc())
+			Info.Printf("%s\n\n", debugging.ThisFunc())
 		}
 
 		return iltj
@@ -3142,23 +3144,23 @@ func orderFlIndexesAsc(siPtr *[]int) (err error) {
 	sort.SliceStable(si, func(i, j int) bool {
 		iltj := false
 		//
-		if crm[sOfAllFCLs[si[i]][0].rank] == crm[sOfAllFCLs[si[j]][0].rank] {
-			if crm[sOfAllFCLs[si[i]][1].rank] == crm[sOfAllFCLs[si[j]][1].rank] {
-				if crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[j]][2].rank] {
-					if crm[sOfAllFCLs[si[i]][3].rank] == crm[sOfAllFCLs[si[j]][3].rank] {
-						if crm[sOfAllFCLs[si[i]][4].rank] < crm[sOfAllFCLs[si[j]][4].rank] {
+		if crm[sOfAllFCLs[si[i]][0].Rank] == crm[sOfAllFCLs[si[j]][0].Rank] {
+			if crm[sOfAllFCLs[si[i]][1].Rank] == crm[sOfAllFCLs[si[j]][1].Rank] {
+				if crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[j]][2].Rank] {
+					if crm[sOfAllFCLs[si[i]][3].Rank] == crm[sOfAllFCLs[si[j]][3].Rank] {
+						if crm[sOfAllFCLs[si[i]][4].Rank] < crm[sOfAllFCLs[si[j]][4].Rank] {
 							iltj = true
 						}
-					} else if crm[sOfAllFCLs[si[i]][3].rank] < crm[sOfAllFCLs[si[j]][3].rank] {
+					} else if crm[sOfAllFCLs[si[i]][3].Rank] < crm[sOfAllFCLs[si[j]][3].Rank] {
 						iltj = true
 					}
-				} else if crm[sOfAllFCLs[si[i]][2].rank] < crm[sOfAllFCLs[si[j]][2].rank] {
+				} else if crm[sOfAllFCLs[si[i]][2].Rank] < crm[sOfAllFCLs[si[j]][2].Rank] {
 					iltj = true
 				}
-			} else if crm[sOfAllFCLs[si[i]][1].rank] < crm[sOfAllFCLs[si[j]][1].rank] {
+			} else if crm[sOfAllFCLs[si[i]][1].Rank] < crm[sOfAllFCLs[si[j]][1].Rank] {
 				iltj = true
 			}
-		} else if crm[sOfAllFCLs[si[i]][0].rank] < crm[sOfAllFCLs[si[j]][0].rank] {
+		} else if crm[sOfAllFCLs[si[i]][0].Rank] < crm[sOfAllFCLs[si[j]][0].Rank] {
 			iltj = true
 		}
 
@@ -3186,24 +3188,24 @@ func cmpare3xHandsWithKickers(siPtr *[]int, iIdx, jIdx, ikHi, ikLi, jkHi, jkLi i
 	iltj := false
 
 	// If same rank of 3x, compare kickers
-	if crm[sOfAllFCLs[si[iIdx]][2].rank] == crm[sOfAllFCLs[si[jIdx]][2].rank] {
+	if crm[sOfAllFCLs[si[iIdx]][2].Rank] == crm[sOfAllFCLs[si[jIdx]][2].Rank] {
 
 		// If
-		if crm[sOfAllFCLs[si[iIdx]][ikHi].rank] < crm[sOfAllFCLs[si[jIdx]][jkHi].rank] {
+		if crm[sOfAllFCLs[si[iIdx]][ikHi].Rank] < crm[sOfAllFCLs[si[jIdx]][jkHi].Rank] {
 			iltj = true
 			return iltj
 		}
 
 		// If H kickers are the same, compare the L kickers.
-		if crm[sOfAllFCLs[si[iIdx]][ikHi].rank] == crm[sOfAllFCLs[si[jIdx]][jkHi].rank] {
+		if crm[sOfAllFCLs[si[iIdx]][ikHi].Rank] == crm[sOfAllFCLs[si[jIdx]][jkHi].Rank] {
 
-			if crm[sOfAllFCLs[si[iIdx]][ikLi].rank] < crm[sOfAllFCLs[si[jIdx]][jkLi].rank] {
+			if crm[sOfAllFCLs[si[iIdx]][ikLi].Rank] < crm[sOfAllFCLs[si[jIdx]][jkLi].Rank] {
 				iltj = true
 			}
 		}
 		// For different rank of 3x, kicker cards do not matter.
 	} else {
-		if crm[sOfAllFCLs[si[iIdx]][2].rank] < crm[sOfAllFCLs[si[jIdx]][2].rank] {
+		if crm[sOfAllFCLs[si[iIdx]][2].Rank] < crm[sOfAllFCLs[si[jIdx]][2].Rank] {
 			iltj = true
 		}
 	}
@@ -3231,19 +3233,19 @@ func order3xIndexesAsc(siPtr *[]int) (err error) {
 		// 9 possible scenarios
 
 		i2KickHighAt0 := false // high kicer at 3
-		if crm[sOfAllFCLs[si[i]][0].rank] != crm[sOfAllFCLs[si[i]][2].rank] {
+		if crm[sOfAllFCLs[si[i]][0].Rank] != crm[sOfAllFCLs[si[i]][2].Rank] {
 			i2KickHighAt0 = true
 		}
 		i2KickLowhAt1 := false // low kicker at 4
-		if crm[sOfAllFCLs[si[i]][1].rank] != crm[sOfAllFCLs[si[i]][2].rank] {
+		if crm[sOfAllFCLs[si[i]][1].Rank] != crm[sOfAllFCLs[si[i]][2].Rank] {
 			i2KickLowhAt1 = true
 		}
 		j2KickHighAt0 := false // high kicer at 3
-		if crm[sOfAllFCLs[si[j]][0].rank] != crm[sOfAllFCLs[si[j]][2].rank] {
+		if crm[sOfAllFCLs[si[j]][0].Rank] != crm[sOfAllFCLs[si[j]][2].Rank] {
 			j2KickHighAt0 = true
 		}
 		j2KickLowhAt1 := false // low kicker at 4
-		if crm[sOfAllFCLs[si[j]][1].rank] != crm[sOfAllFCLs[si[j]][2].rank] {
+		if crm[sOfAllFCLs[si[j]][1].Rank] != crm[sOfAllFCLs[si[j]][2].Rank] {
 			j2KickLowhAt1 = true
 		}
 
@@ -3322,7 +3324,7 @@ func order3xIndexesAsc(siPtr *[]int) (err error) {
 		// #################
 		default:
 			err = errors.New("default case reached: ")
-			Info.Printf("%s\n\n", ThisFunc())
+			Info.Printf("%s\n\n", debugging.ThisFunc())
 		}
 
 		return iltj
@@ -3350,18 +3352,18 @@ func order2x2IndexesAsc(siPtr *[]int) (err error) {
 		iKIndex := 0 // 0-5
 		jKIndex := 0 // 0-5
 
-		if crm[sOfAllFCLs[si[i]][0].rank] == crm[sOfAllFCLs[si[i]][1].rank] {
+		if crm[sOfAllFCLs[si[i]][0].Rank] == crm[sOfAllFCLs[si[i]][1].Rank] {
 			// mst be in scenatio 2 or 3
-			if crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[i]][3].rank] {
+			if crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[i]][3].Rank] {
 				// scenatio 3
 				iKIndex = 4
 			} else {
 				iKIndex = 2
 			}
 		}
-		if crm[sOfAllFCLs[si[j]][0].rank] == crm[sOfAllFCLs[si[j]][1].rank] {
+		if crm[sOfAllFCLs[si[j]][0].Rank] == crm[sOfAllFCLs[si[j]][1].Rank] {
 			// mst be in scenatio 2 or 3
-			if crm[sOfAllFCLs[si[j]][2].rank] == crm[sOfAllFCLs[si[j]][3].rank] {
+			if crm[sOfAllFCLs[si[j]][2].Rank] == crm[sOfAllFCLs[si[j]][3].Rank] {
 				// scenatio 3
 				jKIndex = 4
 			} else {
@@ -3476,16 +3478,16 @@ func cmpare2x2HandsWithKickers(siPtr *[]int, iIdx, jIdx, iA2xIdx, iB2xIdx, jA2xI
 
 	// If iA and jA are the same, and iB and jB are the same, compare kickers,
 	// otherwise the rank of A pairs decides
-	if crm[sOfAllFCLs[si[iIdx]][iA2xIdx].rank] == crm[sOfAllFCLs[si[jIdx]][jA2xIdx].rank] &&
-		crm[sOfAllFCLs[si[iIdx]][iB2xIdx].rank] == crm[sOfAllFCLs[si[jIdx]][jB2xIdx].rank] {
-		if crm[sOfAllFCLs[si[iIdx]][iKIdx].rank] < crm[sOfAllFCLs[si[jIdx]][jKIdx].rank] {
+	if crm[sOfAllFCLs[si[iIdx]][iA2xIdx].Rank] == crm[sOfAllFCLs[si[jIdx]][jA2xIdx].Rank] &&
+		crm[sOfAllFCLs[si[iIdx]][iB2xIdx].Rank] == crm[sOfAllFCLs[si[jIdx]][jB2xIdx].Rank] {
+		if crm[sOfAllFCLs[si[iIdx]][iKIdx].Rank] < crm[sOfAllFCLs[si[jIdx]][jKIdx].Rank] {
 			iltj = true
 		}
-	} else if crm[sOfAllFCLs[si[iIdx]][iA2xIdx].rank] == crm[sOfAllFCLs[si[jIdx]][jA2xIdx].rank] {
-		if crm[sOfAllFCLs[si[iIdx]][iB2xIdx].rank] < crm[sOfAllFCLs[si[jIdx]][jB2xIdx].rank] {
+	} else if crm[sOfAllFCLs[si[iIdx]][iA2xIdx].Rank] == crm[sOfAllFCLs[si[jIdx]][jA2xIdx].Rank] {
+		if crm[sOfAllFCLs[si[iIdx]][iB2xIdx].Rank] < crm[sOfAllFCLs[si[jIdx]][jB2xIdx].Rank] {
 			iltj = true
 		}
-	} else if crm[sOfAllFCLs[si[iIdx]][iA2xIdx].rank] < crm[sOfAllFCLs[si[jIdx]][jA2xIdx].rank] {
+	} else if crm[sOfAllFCLs[si[iIdx]][iA2xIdx].Rank] < crm[sOfAllFCLs[si[jIdx]][jA2xIdx].Rank] {
 		iltj = true
 	}
 
@@ -3513,22 +3515,22 @@ func order2xIndexesAsc(siPtr *[]int) (err error) {
 		var i2x_idx, j2x_idx, iK1_idx, iK2_idx, iK3_idx, jK1_idx, jK2_idx, jK3_idx int
 
 		switch {
-		case crm[sOfAllFCLs[si[i]][0].rank] == crm[sOfAllFCLs[si[i]][1].rank]:
+		case crm[sOfAllFCLs[si[i]][0].Rank] == crm[sOfAllFCLs[si[i]][1].Rank]:
 			iK1_idx = 2 // 0-5
 			iK2_idx = 3 // 0-5
 			iK3_idx = 4 // 0-5
 			i2x_idx = 0 // indexes of the first card of the pairs
-		case crm[sOfAllFCLs[si[i]][1].rank] == crm[sOfAllFCLs[si[i]][2].rank]:
+		case crm[sOfAllFCLs[si[i]][1].Rank] == crm[sOfAllFCLs[si[i]][2].Rank]:
 			iK1_idx = 0
 			iK2_idx = 3
 			iK3_idx = 4
 			i2x_idx = 1
-		case crm[sOfAllFCLs[si[i]][2].rank] == crm[sOfAllFCLs[si[i]][3].rank]:
+		case crm[sOfAllFCLs[si[i]][2].Rank] == crm[sOfAllFCLs[si[i]][3].Rank]:
 			iK1_idx = 0
 			iK2_idx = 1
 			iK3_idx = 4
 			i2x_idx = 2
-		case crm[sOfAllFCLs[si[i]][3].rank] == crm[sOfAllFCLs[si[i]][4].rank]:
+		case crm[sOfAllFCLs[si[i]][3].Rank] == crm[sOfAllFCLs[si[i]][4].Rank]:
 			iK1_idx = 0
 			iK2_idx = 1
 			iK3_idx = 2
@@ -3538,22 +3540,22 @@ func order2xIndexesAsc(siPtr *[]int) (err error) {
 		}
 
 		switch {
-		case crm[sOfAllFCLs[si[j]][0].rank] == crm[sOfAllFCLs[si[j]][1].rank]:
+		case crm[sOfAllFCLs[si[j]][0].Rank] == crm[sOfAllFCLs[si[j]][1].Rank]:
 			jK1_idx = 2 // 0-5
 			jK2_idx = 3 // 0-5
 			jK3_idx = 4 // 0-5
 			j2x_idx = 0
-		case crm[sOfAllFCLs[si[j]][1].rank] == crm[sOfAllFCLs[si[j]][2].rank]:
+		case crm[sOfAllFCLs[si[j]][1].Rank] == crm[sOfAllFCLs[si[j]][2].Rank]:
 			jK1_idx = 0
 			jK2_idx = 3
 			jK3_idx = 4
 			j2x_idx = 1
-		case crm[sOfAllFCLs[si[j]][2].rank] == crm[sOfAllFCLs[si[j]][3].rank]:
+		case crm[sOfAllFCLs[si[j]][2].Rank] == crm[sOfAllFCLs[si[j]][3].Rank]:
 			jK1_idx = 0
 			jK2_idx = 1
 			jK3_idx = 4
 			j2x_idx = 2
-		case crm[sOfAllFCLs[si[j]][3].rank] == crm[sOfAllFCLs[si[j]][4].rank]:
+		case crm[sOfAllFCLs[si[j]][3].Rank] == crm[sOfAllFCLs[si[j]][4].Rank]:
 			jK1_idx = 0
 			jK2_idx = 1
 			jK3_idx = 2
@@ -3581,21 +3583,21 @@ func cmpare2xHandsWithKickers(siPtr *[]int, iIdx, jIdx, i2x_idx, j2x_idx, iK1_id
 
 	// If i2x and j2x are the same, compare kickers,
 	// otherwise the rank of 2x decides
-	if crm[sOfAllFCLs[si[iIdx]][i2x_idx].rank] == crm[sOfAllFCLs[si[jIdx]][j2x_idx].rank] {
+	if crm[sOfAllFCLs[si[iIdx]][i2x_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][j2x_idx].Rank] {
 
-		if crm[sOfAllFCLs[si[iIdx]][iK1_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].rank] &&
-			crm[sOfAllFCLs[si[iIdx]][iK2_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK2_idx].rank] {
-			if crm[sOfAllFCLs[si[iIdx]][iK3_idx].rank] < crm[sOfAllFCLs[si[jIdx]][jK3_idx].rank] {
+		if crm[sOfAllFCLs[si[iIdx]][iK1_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].Rank] &&
+			crm[sOfAllFCLs[si[iIdx]][iK2_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK2_idx].Rank] {
+			if crm[sOfAllFCLs[si[iIdx]][iK3_idx].Rank] < crm[sOfAllFCLs[si[jIdx]][jK3_idx].Rank] {
 				iltj = true
 			}
-		} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].rank] {
-			if crm[sOfAllFCLs[si[iIdx]][iK2_idx].rank] < crm[sOfAllFCLs[si[jIdx]][jK2_idx].rank] {
+		} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].Rank] {
+			if crm[sOfAllFCLs[si[iIdx]][iK2_idx].Rank] < crm[sOfAllFCLs[si[jIdx]][jK2_idx].Rank] {
 				iltj = true
 			}
-		} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].rank] < crm[sOfAllFCLs[si[jIdx]][jK1_idx].rank] {
+		} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].Rank] < crm[sOfAllFCLs[si[jIdx]][jK1_idx].Rank] {
 			iltj = true
 		}
-	} else if crm[sOfAllFCLs[si[iIdx]][i2x_idx].rank] < crm[sOfAllFCLs[si[jIdx]][j2x_idx].rank] {
+	} else if crm[sOfAllFCLs[si[iIdx]][i2x_idx].Rank] < crm[sOfAllFCLs[si[jIdx]][j2x_idx].Rank] {
 		iltj = true
 	}
 	return iltj
@@ -3628,29 +3630,29 @@ func cmpareHCHands(siPtr *[]int, iIdx, jIdx, iK1_idx, jK1_idx, iK2_idx, jK2_idx,
 
 	iltj := false
 
-	if crm[sOfAllFCLs[si[iIdx]][iK1_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].rank] &&
-		crm[sOfAllFCLs[si[iIdx]][iK2_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK2_idx].rank] &&
-		crm[sOfAllFCLs[si[iIdx]][iK3_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK3_idx].rank] &&
-		crm[sOfAllFCLs[si[iIdx]][iK4_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK4_idx].rank] {
-		if crm[sOfAllFCLs[si[iIdx]][iK5_idx].rank] < crm[sOfAllFCLs[si[jIdx]][jK5_idx].rank] {
+	if crm[sOfAllFCLs[si[iIdx]][iK1_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].Rank] &&
+		crm[sOfAllFCLs[si[iIdx]][iK2_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK2_idx].Rank] &&
+		crm[sOfAllFCLs[si[iIdx]][iK3_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK3_idx].Rank] &&
+		crm[sOfAllFCLs[si[iIdx]][iK4_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK4_idx].Rank] {
+		if crm[sOfAllFCLs[si[iIdx]][iK5_idx].Rank] < crm[sOfAllFCLs[si[jIdx]][jK5_idx].Rank] {
 			iltj = true
 		}
-	} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].rank] &&
-		crm[sOfAllFCLs[si[iIdx]][iK2_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK2_idx].rank] &&
-		crm[sOfAllFCLs[si[iIdx]][iK3_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK3_idx].rank] {
-		if crm[sOfAllFCLs[si[iIdx]][iK4_idx].rank] < crm[sOfAllFCLs[si[jIdx]][jK4_idx].rank] {
+	} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].Rank] &&
+		crm[sOfAllFCLs[si[iIdx]][iK2_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK2_idx].Rank] &&
+		crm[sOfAllFCLs[si[iIdx]][iK3_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK3_idx].Rank] {
+		if crm[sOfAllFCLs[si[iIdx]][iK4_idx].Rank] < crm[sOfAllFCLs[si[jIdx]][jK4_idx].Rank] {
 			iltj = true
 		}
-	} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].rank] &&
-		crm[sOfAllFCLs[si[iIdx]][iK2_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK2_idx].rank] {
-		if crm[sOfAllFCLs[si[iIdx]][iK3_idx].rank] < crm[sOfAllFCLs[si[jIdx]][jK3_idx].rank] {
+	} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].Rank] &&
+		crm[sOfAllFCLs[si[iIdx]][iK2_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK2_idx].Rank] {
+		if crm[sOfAllFCLs[si[iIdx]][iK3_idx].Rank] < crm[sOfAllFCLs[si[jIdx]][jK3_idx].Rank] {
 			iltj = true
 		}
-	} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].rank] {
-		if crm[sOfAllFCLs[si[iIdx]][iK2_idx].rank] < crm[sOfAllFCLs[si[jIdx]][jK2_idx].rank] {
+	} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].Rank] == crm[sOfAllFCLs[si[jIdx]][jK1_idx].Rank] {
+		if crm[sOfAllFCLs[si[iIdx]][iK2_idx].Rank] < crm[sOfAllFCLs[si[jIdx]][jK2_idx].Rank] {
 			iltj = true
 		}
-	} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].rank] < crm[sOfAllFCLs[si[jIdx]][jK1_idx].rank] {
+	} else if crm[sOfAllFCLs[si[iIdx]][iK1_idx].Rank] < crm[sOfAllFCLs[si[jIdx]][jK1_idx].Rank] {
 		iltj = true
 	}
 
@@ -3671,11 +3673,11 @@ func genEquivalentSFHandList(siPtr *[]int) (efchlPtr *equivalentFCHList) {
 	var efch equivalentFiveCardHand
 
 	// Load up the first entry
-	efch.c1r = sOfAllFCLs[si[0]][0].rank
-	efch.c2r = sOfAllFCLs[si[0]][1].rank
-	efch.c3r = sOfAllFCLs[si[0]][2].rank
-	efch.c4r = sOfAllFCLs[si[0]][3].rank
-	efch.c5r = sOfAllFCLs[si[0]][4].rank
+	efch.c1r = sOfAllFCLs[si[0]][0].Rank
+	efch.c2r = sOfAllFCLs[si[0]][1].Rank
+	efch.c3r = sOfAllFCLs[si[0]][2].Rank
+	efch.c4r = sOfAllFCLs[si[0]][3].Rank
+	efch.c5r = sOfAllFCLs[si[0]][4].Rank
 	efch.count = 1
 	efch.info.handKind = fchkrFL.sfInfo.handKind
 	efch.info.typeRank = fchkrFL.sfInfo.typeRank
@@ -3689,21 +3691,21 @@ func genEquivalentSFHandList(siPtr *[]int) (efchlPtr *equivalentFCHList) {
 		fmt.Println("i: ", i, " iAfcl: ", iAfcl)
 
 		// Compare this han to previous. If same, just count up. If not, start next entry.
-		if sOfAllFCLs[iAfcl][0].rank == sOfAllFCLs[si[i-1]][0].rank &&
-			sOfAllFCLs[iAfcl][1].rank == sOfAllFCLs[si[i-1]][1].rank &&
-			sOfAllFCLs[iAfcl][2].rank == sOfAllFCLs[si[i-1]][2].rank &&
-			sOfAllFCLs[iAfcl][3].rank == sOfAllFCLs[si[i-1]][3].rank &&
-			sOfAllFCLs[iAfcl][4].rank == sOfAllFCLs[si[i-1]][4].rank {
+		if sOfAllFCLs[iAfcl][0].Rank == sOfAllFCLs[si[i-1]][0].Rank &&
+			sOfAllFCLs[iAfcl][1].Rank == sOfAllFCLs[si[i-1]][1].Rank &&
+			sOfAllFCLs[iAfcl][2].Rank == sOfAllFCLs[si[i-1]][2].Rank &&
+			sOfAllFCLs[iAfcl][3].Rank == sOfAllFCLs[si[i-1]][3].Rank &&
+			sOfAllFCLs[iAfcl][4].Rank == sOfAllFCLs[si[i-1]][4].Rank {
 
 			efchl[j].count++
 		} else {
 			j++
 
-			efch.c1r = sOfAllFCLs[iAfcl][0].rank
-			efch.c2r = sOfAllFCLs[iAfcl][1].rank
-			efch.c3r = sOfAllFCLs[iAfcl][2].rank
-			efch.c4r = sOfAllFCLs[iAfcl][3].rank
-			efch.c5r = sOfAllFCLs[iAfcl][4].rank
+			efch.c1r = sOfAllFCLs[iAfcl][0].Rank
+			efch.c2r = sOfAllFCLs[iAfcl][1].Rank
+			efch.c3r = sOfAllFCLs[iAfcl][2].Rank
+			efch.c4r = sOfAllFCLs[iAfcl][3].Rank
+			efch.c5r = sOfAllFCLs[iAfcl][4].Rank
 			efch.count = 1
 			efch.info.handKind = fchkrFL.sfInfo.handKind
 			efch.info.typeRank = fchkrFL.sfInfo.typeRank
@@ -3743,11 +3745,11 @@ func genEquivalent4xHandList(siPtr *[]int) (efchlPtr *equivalentFCHList) {
 	var efch equivalentFiveCardHand
 
 	// Load up the first entry
-	efch.c1r = sOfAllFCLs[si[0]][0].rank
-	efch.c2r = sOfAllFCLs[si[0]][1].rank
-	efch.c3r = sOfAllFCLs[si[0]][2].rank
-	efch.c4r = sOfAllFCLs[si[0]][3].rank
-	efch.c5r = sOfAllFCLs[si[0]][4].rank
+	efch.c1r = sOfAllFCLs[si[0]][0].Rank
+	efch.c2r = sOfAllFCLs[si[0]][1].Rank
+	efch.c3r = sOfAllFCLs[si[0]][2].Rank
+	efch.c4r = sOfAllFCLs[si[0]][3].Rank
+	efch.c5r = sOfAllFCLs[si[0]][4].Rank
 	efch.count = 1
 	efch.info.handKind = fchkrFL.x4Info.handKind
 	efch.info.typeRank = fchkrFL.x4Info.typeRank
@@ -3761,21 +3763,21 @@ func genEquivalent4xHandList(siPtr *[]int) (efchlPtr *equivalentFCHList) {
 		fmt.Println("i: ", i, " iAfcl: ", iAfcl)
 
 		// Compare this han to previous. If same, just count up. If not, start next entry.
-		if sOfAllFCLs[iAfcl][0].rank == sOfAllFCLs[si[i-1]][0].rank &&
-			sOfAllFCLs[iAfcl][1].rank == sOfAllFCLs[si[i-1]][1].rank &&
-			sOfAllFCLs[iAfcl][2].rank == sOfAllFCLs[si[i-1]][2].rank &&
-			sOfAllFCLs[iAfcl][3].rank == sOfAllFCLs[si[i-1]][3].rank &&
-			sOfAllFCLs[iAfcl][4].rank == sOfAllFCLs[si[i-1]][4].rank {
+		if sOfAllFCLs[iAfcl][0].Rank == sOfAllFCLs[si[i-1]][0].Rank &&
+			sOfAllFCLs[iAfcl][1].Rank == sOfAllFCLs[si[i-1]][1].Rank &&
+			sOfAllFCLs[iAfcl][2].Rank == sOfAllFCLs[si[i-1]][2].Rank &&
+			sOfAllFCLs[iAfcl][3].Rank == sOfAllFCLs[si[i-1]][3].Rank &&
+			sOfAllFCLs[iAfcl][4].Rank == sOfAllFCLs[si[i-1]][4].Rank {
 
 			efchl[j].count++
 		} else {
 			// j++
 
-			efch.c1r = sOfAllFCLs[iAfcl][0].rank
-			efch.c2r = sOfAllFCLs[iAfcl][1].rank
-			efch.c3r = sOfAllFCLs[iAfcl][2].rank
-			efch.c4r = sOfAllFCLs[iAfcl][3].rank
-			efch.c5r = sOfAllFCLs[iAfcl][4].rank
+			efch.c1r = sOfAllFCLs[iAfcl][0].Rank
+			efch.c2r = sOfAllFCLs[iAfcl][1].Rank
+			efch.c3r = sOfAllFCLs[iAfcl][2].Rank
+			efch.c4r = sOfAllFCLs[iAfcl][3].Rank
+			efch.c5r = sOfAllFCLs[iAfcl][4].Rank
 			efch.count = 1
 			efch.info.handKind = fchkrFL.x4Info.handKind
 			efch.info.typeRank = fchkrFL.x4Info.typeRank

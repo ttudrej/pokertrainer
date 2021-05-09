@@ -3,6 +3,8 @@ package main
 import (
 	"math/rand"
 	"time"
+
+	"github.com/ttudrej/pokertrainer/v2/debugging"
 )
 
 /*
@@ -26,7 +28,7 @@ import (
 // Take a specific deck, and return a ponter to a new and shuffled lists of pointers to cards, for that same deck.
 // func shuffleDeck(loptcPtr *listOfPtrsToCards) (shuffledLoptcPtr *listOfPtrsToCards, err error) {
 func shuffleDeck(dPtr *cardDeck) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	rPtr := rand.New(rand.NewSource(time.Now().UnixNano()))
 	// Seems we need accuracy in time greater than 1sec, so that the seed differs among consequent shuffles,
@@ -55,10 +57,10 @@ but we do receive a random list of indexes that we could access.
 // showShuffledDeck shows cards in the shuffled order.
 func showShuffledDeck(tPtr *table) error {
 
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	for i, cPtr := range tPtr.deckPtr.shuffledLoptcPtr {
-		Info.Println("card: ", i, cPtr.rank, cPtr.suit)
+		Info.Println("card: ", i, cPtr.Rank, cPtr.Suit)
 	}
 
 	return nil
@@ -68,11 +70,11 @@ func showShuffledDeck(tPtr *table) error {
 // showShuffledDeck shows cards in the shuffled order.
 func showdDeck(tPtr *table) error {
 
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	Info.Println("Un-Shuffled deck: ")
 
 	for i, cPtr := range tPtr.deckPtr.oloptcPtr {
-		Info.Println("card: ", i, cPtr.rank, cPtr.suit)
+		Info.Println("card: ", i, cPtr.Rank, cPtr.Suit)
 	}
 	return nil
 }

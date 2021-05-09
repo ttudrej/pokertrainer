@@ -1,5 +1,7 @@
 package main
 
+import "github.com/ttudrej/pokertrainer/v2/debugging"
+
 const (
 	maxAllowedTables int = 1
 )
@@ -37,7 +39,7 @@ type pokerRoom struct {
 
 // #####################################################################
 func createPokerRoom() (prPtr *pokerRoom, err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	var pr pokerRoom
 	prPtr = &pr
 
@@ -55,7 +57,7 @@ func createPokerRoom() (prPtr *pokerRoom, err error) {
 
 // #####################################################################
 func showPokerRoomTables(prPtr *pokerRoom) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	for i := range prPtr.tableList {
 		err = displayTable(prPtr.tableList[i])
 	}

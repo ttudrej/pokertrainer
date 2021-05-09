@@ -3,6 +3,9 @@ package main
 import (
 	"container/ring"
 	"errors"
+
+	"github.com/ttudrej/pokertrainer/v2/debugging"
+	"github.com/ttudrej/pokertrainer/v2/tableitems"
 )
 
 /*
@@ -25,7 +28,7 @@ import (
 
 // #####################################################################
 func advanceButton(tPtr *table) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	if tPtr.buttonPos == 0 {
 		err = errors.New("Button at seat 0, have the dealer start the have first?")
 		// err := Info.Errorf("user %q (id %d) not found", name, id)
@@ -48,7 +51,7 @@ func advanceButton(tPtr *table) (err error) {
 // so it we should package the "pitch card" function to always pitch two... future work.
 
 func pitchOneCardToAll(tPtr *table) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	if tPtr.deckPtr.topCardIndex_shuffledLoptc >= 52 {
 		err = errors.New("Error, We ran out of cards to deal")
@@ -59,16 +62,16 @@ func pitchOneCardToAll(tPtr *table) (err error) {
 		Info.Println("Dealing a card to seatNum: ", seatNum)
 		Info.Println("tPtr.deckPtr.topCardIndex_shuffledLoptc: ", tPtr.deckPtr.topCardIndex_shuffledLoptc)
 
-		if tPtr.seatList[seatNum-1].c2Ptr.rank != rX {
+		if tPtr.seatList[seatNum-1].c2Ptr.Rank != tableitems.RX {
 			err = errors.New("Error, trying to give player too many cards, already has 2")
 		}
 
-		if tPtr.seatList[seatNum-1].c1Ptr.rank == rX {
+		if tPtr.seatList[seatNum-1].c1Ptr.Rank == tableitems.RX {
 			tPtr.seatList[seatNum-1].c1Ptr = tPtr.deckPtr.shuffledLoptcPtr[tPtr.deckPtr.topCardIndex_shuffledLoptc]
-			Info.Println("dealt c1: ", tPtr.seatList[seatNum-1].c1Ptr.rank, tPtr.seatList[seatNum-1].c1Ptr.suit)
+			Info.Println("dealt c1: ", tPtr.seatList[seatNum-1].c1Ptr.Rank, tPtr.seatList[seatNum-1].c1Ptr.Suit)
 		} else {
 			tPtr.seatList[seatNum-1].c2Ptr = tPtr.deckPtr.shuffledLoptcPtr[tPtr.deckPtr.topCardIndex_shuffledLoptc]
-			Info.Println("dealt c2: ", tPtr.seatList[seatNum-1].c2Ptr.rank, tPtr.seatList[seatNum-1].c2Ptr.suit)
+			Info.Println("dealt c2: ", tPtr.seatList[seatNum-1].c2Ptr.Rank, tPtr.seatList[seatNum-1].c2Ptr.Suit)
 		}
 
 		// Advance the top card pointer
@@ -87,13 +90,13 @@ func collectAllCards(tPtr *table) (err error) {
 	Info.Println("in collectAllCards")
 
 	for _, seatPtr := range tPtr.seatList {
-		seatPtr.c1Ptr = noCardPtr
-		seatPtr.c2Ptr = noCardPtr
+		seatPtr.c1Ptr = tableitems.NoCardPtr
+		seatPtr.c2Ptr = tableitems.NoCardPtr
 	}
 
 	for _, commCardPtr := range tPtr.communityCardsList {
 		Info.Printf("%v", commCardPtr)
-		commCardPtr = noCardPtr
+		commCardPtr = tableitems.NoCardPtr
 	}
 	return nil
 }
@@ -272,7 +275,7 @@ func drawForButton(tPtr *table) (int, error) {
 // Shuffles and distributes hole cards to all participating
 func startHand(tPtr *table) (err error) {
 
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	Info.Println("#############################################")
 	Info.Println("#############################################")
 	Info.Println("#############################################")
@@ -339,7 +342,7 @@ func dealFlop(tPtr *table) (err error) {
 
 // #####################################################################
 func dealTurn(tPtr *table) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	_ = dealCommunityCard(tPtr, 3)
 	return err
@@ -347,7 +350,7 @@ func dealTurn(tPtr *table) (err error) {
 
 // #####################################################################
 func dealRiver(tPtr *table) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	_ = dealCommunityCard(tPtr, 4)
 	return err
@@ -356,7 +359,7 @@ func dealRiver(tPtr *table) (err error) {
 // #####################################################################
 // updateBlindPtrs figures out which seats will take the SB and the BB in the next hand.
 func updateBlindPtrs(tPtr *table) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	// Doing the simplest method first. Assuming full table, always (wrong)
 	// It will need to be refined !!!
@@ -418,7 +421,7 @@ func postBlinds(tPtr *table) (err error) {
 
 // #####################################################################
 func postSB(tPtr *table) error {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	// Assuming that SB is at buttonPos + 1, in the seatNumbersToBeDealtIn list
 	// Decrease seat stack by amount up to sbAmount
@@ -447,7 +450,7 @@ func postSB(tPtr *table) error {
 
 // #####################################################################
 func postBB(tPtr *table) error {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	// Assuming that BB is at buttonPos + 2, in the seatNumbersToBeDealtIn list
 	// Decrease seat stack by amount up to sbAmount
@@ -475,7 +478,7 @@ func postBB(tPtr *table) error {
 // executeHand just runs through a mock hand start to finish
 // Test
 func executeHand(tPtr *table) (err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	_ = prepTableForNextHand(tPtr)
 
@@ -514,7 +517,7 @@ func executeHand(tPtr *table) (err error) {
 // conductBettingRound makes each player take their action, when it's their
 // turn, until all the action closes on the current betting round.
 func conductBettingRound(tPtr *table, br bettingRound) error {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	// betSize := 2
 
@@ -643,7 +646,7 @@ L01:
 // #####################################################################
 // findFirstSeatToAct determines who the first player to do sometning is, on given betting round.
 func findFirstSeatToAct(tPtr *table, br bettingRound) (rPtr *ring.Ring, err error) {
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 
 	rPtr = tPtr.remainingActiveSeatsRingPtr
 
@@ -687,7 +690,7 @@ func findFirstSeatToAct(tPtr *table, br bettingRound) (rPtr *ring.Ring, err erro
 func executeNextStep(tPtr *table) error {
 
 	Info.Println("")
-	Info.Println(ThisFunc())
+	Info.Println(debugging.ThisFunc())
 	Info.Println("")
 
 	switch tPtr.hand.currentBettingRound {
