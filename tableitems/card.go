@@ -63,6 +63,8 @@ const (
 	RK CardRank = "K"
 	RA CardRank = "A"
 
+	NoCard CardString = ""
+
 	S2 CardString = "2s"
 	S3 CardString = "3s"
 	S4 CardString = "4s"
@@ -127,7 +129,7 @@ var SuitList = CardSuitList{S, C, H, D}
 
 // Used to indicate the absence of a card, instead of using an undefined or null pointer
 // By convention, we number cards in the deck from 1 to 52
-// So, there is no card 0, hence our noCard has the "sequnce" nuber assibned to 0.
+// So, there is no card 0, hence our noCard has the "sequnce" nuber assigned to 0.
 var NoCardPtr = &Card{Rank: RX, Suit: X, Community: false, DealtToPlayer: false, SeenByHero: false, SeenByVillain: false, Sequence: 0}
 
 /*
