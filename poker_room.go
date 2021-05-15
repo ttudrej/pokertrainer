@@ -1,6 +1,6 @@
 package main
 
-import "github.com/ttudrej/pokertrainer/v2/debugging"
+import "github.com/ttudrej/pokertrainer/debugging"
 
 const (
 	maxAllowedTables int = 1

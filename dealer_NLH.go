@@ -4,8 +4,8 @@ import (
 	"container/ring"
 	"errors"
 
-	"github.com/ttudrej/pokertrainer/v2/debugging"
-	"github.com/ttudrej/pokertrainer/v2/tableitems"
+	"github.com/ttudrej/pokertrainer/debugging"
+	"github.com/ttudrej/pokertrainer/tableitems"
 )
 
 /*

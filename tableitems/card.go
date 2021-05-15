@@ -4,7 +4,7 @@ package tableitems
 import (
 	"log"
 
-	"github.com/ttudrej/pokertrainer/v2/debugging"
+	"github.com/ttudrej/pokertrainer/debugging"
 )
 
 var (

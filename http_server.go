@@ -8,7 +8,7 @@ import (
 	"text/template"
 
 	"github.com/gorilla/mux"
-	"github.com/ttudrej/pokertrainer/v2/debugging"
+	"github.com/ttudrej/pokertrainer/debugging"
 )
 
 var tpl *template.Template
