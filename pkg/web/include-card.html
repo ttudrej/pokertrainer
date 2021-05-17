@@ -1,0 +1,18 @@
+{{define "card_div"}}
+
+<div class="seat">
+        <div>
+          <div class="player_username">{{ index .PUserNameList 9 }}</div>
+          <div class="stack">{{ index .StackList 9 }}</div>
+        </div>
+        <div class="card {{ index .C1ColorClass 9 }} {{ index .HoleCardsBackgroundColorClassList 9 }}">
+          <div class="card_s">{{ index .C1sSymbolList 9 }}</div>
+          <div class="card_r">{{ index .C1rList 9 }}</div>
+        </div>
+        <div class="card {{ index .C2ColorClass 9 }} {{ index .HoleCardsBackgroundColorClassList 9 }}">
+          <div class="card_s">{{ index .C2sSymbolList 9 }}</div>
+          <div class="card_r">{{ index .C2rList 9 }}</div>
+        </div>
+      </div>
+
+{{end}}
