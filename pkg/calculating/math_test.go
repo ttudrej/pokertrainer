@@ -9,7 +9,7 @@ package calculating
 import (
 	"testing"
 
-	"github.com/ttudrej/pokertrainer/tableitems"
+	"github.com/ttudrej/pokertrainer/pkg/gameobjects"
 )
 
 // ############################################################
@@ -50,25 +50,25 @@ type CalcHOTest struct {
 
 var CalcHOTests = []CalcHOTest{
 	{hopr: HandOddsPostRequest{
-		tableitems.C2, tableitems.S2,
-		tableitems.NoCard, tableitems.NoCard, tableitems.NoCard,
-		tableitems.NoCard,
-		tableitems.NoCard}, expected: 4.0},
+		gameobjects.C2, gameobjects.S2,
+		gameobjects.NoCard, gameobjects.NoCard, gameobjects.NoCard,
+		gameobjects.NoCard,
+		gameobjects.NoCard}, expected: 4.0},
 	{hopr: HandOddsPostRequest{
-		tableitems.C2, tableitems.S2,
-		tableitems.SA, tableitems.CA, tableitems.DA,
-		tableitems.NoCard,
-		tableitems.NoCard}, expected: 3.0},
+		gameobjects.C2, gameobjects.S2,
+		gameobjects.SA, gameobjects.CA, gameobjects.DA,
+		gameobjects.NoCard,
+		gameobjects.NoCard}, expected: 3.0},
 	{hopr: HandOddsPostRequest{
-		tableitems.C2, tableitems.S2,
-		tableitems.SA, tableitems.CA, tableitems.DA,
-		tableitems.SK,
-		tableitems.NoCard}, expected: 2.0},
+		gameobjects.C2, gameobjects.S2,
+		gameobjects.SA, gameobjects.CA, gameobjects.DA,
+		gameobjects.SK,
+		gameobjects.NoCard}, expected: 2.0},
 	{hopr: HandOddsPostRequest{
-		tableitems.C2, tableitems.S2,
-		tableitems.SA, tableitems.CA, tableitems.DA,
-		tableitems.SK,
-		tableitems.SQ}, expected: 1.0},
+		gameobjects.C2, gameobjects.S2,
+		gameobjects.SA, gameobjects.CA, gameobjects.DA,
+		gameobjects.SK,
+		gameobjects.SQ}, expected: 1.0},
 }
 
 func TestHandOddsCalculator(t *testing.T) {

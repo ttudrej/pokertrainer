@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/ttudrej/pokertrainer/pkg/tableitems"
+	"github.com/ttudrej/pokertrainer/pkg/gameobjects"
 )
 
 // ############################################################
@@ -38,13 +38,13 @@ func (popr PotOddsPostRequest) PotOdds() float64 {
 
 // ############################################################
 type HandOddsPostRequest struct {
-	H1 tableitems.CardString
-	H2 tableitems.CardString
-	F1 tableitems.CardString
-	F2 tableitems.CardString
-	F3 tableitems.CardString
-	FT tableitems.CardString
-	FR tableitems.CardString
+	H1 gameobjects.CardString
+	H2 gameobjects.CardString
+	F1 gameobjects.CardString
+	F2 gameobjects.CardString
+	F3 gameobjects.CardString
+	FT gameobjects.CardString
+	FR gameobjects.CardString
 }
 
 // ############################################################
