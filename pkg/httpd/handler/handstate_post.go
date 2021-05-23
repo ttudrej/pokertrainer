@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,8 +24,10 @@ func HandStatePost() gin.HandlerFunc {
 		// }
 
 		// result := values.PotOdds()
-		result := 1.0
+		fmt.Println("Received POT     value : ", requestBody.Pot)
+		fmt.Println("Received CallAmt value : ", requestBody.CallAmt)
 
+		result := 1.0
 		c.JSON(http.StatusOK, result)
 	}
 }
