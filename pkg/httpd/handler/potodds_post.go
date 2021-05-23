@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ttudrej/hand_analysis/platform/math"
+	"github.com/ttudrej/pokertrainer/pkg/calculating"
 )
 
 type PotOddsPostRequest struct {
@@ -17,7 +17,7 @@ func PotOddsPost() gin.HandlerFunc {
 		requestBody := PotOddsPostRequest{}
 		c.Bind(&requestBody) // Bind the request to PotOddsPostRequest struct
 
-		values := math.PotOddsPostRequest{
+		values := calculating.PotOddsPostRequest{
 			Pot:     requestBody.Pot,
 			CallAmt: requestBody.CallAmt,
 		}

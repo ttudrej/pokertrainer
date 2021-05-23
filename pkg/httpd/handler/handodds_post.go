@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ttudrej/hand_analysis/platform/math"
-	"github.com/ttudrej/pokertrainer/tableitems"
+	"github.com/ttudrej/pokertrainer/pkg/calculating"
+	"github.com/ttudrej/pokertrainer/pkg/tableitems"
 )
 
 // ############################################################
@@ -25,7 +25,7 @@ func HandOddsFPost() gin.HandlerFunc {
 		requestBody := HandOddsPostRequest{}
 		c.Bind(&requestBody) // Bind the request to NewsfeedPostRequest struct
 
-		values := math.HandOddsPostRequest{
+		values := calculating.HandOddsPostRequest{
 			H1: requestBody.H1,
 			H2: requestBody.H2,
 			F1: requestBody.F1,
