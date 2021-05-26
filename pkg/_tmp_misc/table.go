@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/ttudrej/pokertrainer/pkg/debugging"
-	"github.com/ttudrej/pokertrainer/pkg/gameobjects"
 )
 
 type seat struct {
@@ -15,8 +14,8 @@ type seat struct {
 	occupied      bool     // to indicate if player's chips are present
 	sittingIn     bool     // in, means player is ready and intends to play the next hand, out, player is taking a break.
 	stackSize     int
-	c1Ptr         *gameobjects.Card
-	c2Ptr         *gameobjects.Card
+	c1Ptr         *Card
+	c2Ptr         *Card
 	betAmount     int  // for keeping track of the amount of a bet/call/raise.
 	folded        bool // flag, telling the dealer if the player folded out already, and therefore should be skipped on the next betting round.
 	allIn         bool // flag, if all in, player has no actions to perform when it's his turn again.
@@ -36,8 +35,8 @@ var emptySeatPtr = &seat{
 	occupied:      false,
 	sittingIn:     false,
 	stackSize:     0,
-	c1Ptr:         gameobjects.NoCardPtr,
-	c2Ptr:         gameobjects.NoCardPtr,
+	c1Ptr:         NoCardPtr,
+	c2Ptr:         NoCardPtr,
 	betAmount:     0,
 	folded:        false,
 	allIn:         false,
@@ -73,7 +72,7 @@ type table struct {
 	// for holding the poiters to the flop cards
 	// 0,1,2 - flop cards 1,2,3
 	// 4,5 - turn and river
-	communityCardsList          [6]*gameobjects.Card
+	communityCardsList          [6]*Card
 	seatList                    [10]*seat
 	seatNumbersToBeDealtIn      []int // I think it may be easier to think about seats in terms of their actual number, vs links/refs to them.
 	paused                      bool  // flag set by the poker_rom_manager, indicating wheter the dealer can start the next hand.
@@ -113,22 +112,22 @@ type tableStateForTemplateAccess struct {
 	// No Card is achieved by no BG color, so that the underlying color
 	// of the tble or the player's seat comes through.
 
-	C1rList                    [11]gameobjects.CardRank
-	C1sList                    [11]gameobjects.CardSuit
+	C1rList                    [11]CardRank
+	C1sList                    [11]CardSuit
 	C1ColorClass               [11]string // Used to name a CSS class used with the card
 	C1ColorClassSuitSymbol     [11]string // Used to name a CSS class used with the card
 	C1sSymbolList              [11]string
 	C1BackgroundColorClassList [11]string // for use in a 4 color deck
 
-	C2rList                    [11]gameobjects.CardRank
-	C2sList                    [11]gameobjects.CardSuit
+	C2rList                    [11]CardRank
+	C2sList                    [11]CardSuit
 	C2ColorClass               [11]string
 	C2ColorClassSuitSymbol     [11]string // Used to name a CSS class used with the card
 	C2sSymbolList              [11]string
 	C2BackgroundColorClassList [11]string // for use in a 4 color deck
 
-	ComCr                            [6]gameobjects.CardRank
-	ComCs                            [6]gameobjects.CardSuit
+	ComCr                            [6]CardRank
+	ComCs                            [6]CardSuit
 	ComCColorClass                   [6]string
 	ComCColorClassSuitSymbol         [11]string // Used to name a CSS class used with the card
 	ComCSymbolList                   [6]string
@@ -216,7 +215,7 @@ func createTable(prPtr *pokerRoom, numSeats int, tID int, gt gameType) (tPtr *ta
 	tPtr.timeToPushPot = false
 
 	for i := range tPtr.communityCardsList {
-		tPtr.communityCardsList[i] = gameobjects.NoCardPtr
+		tPtr.communityCardsList[i] = NoCardPtr
 	}
 
 	for i := range tPtr.seatList {
@@ -245,12 +244,12 @@ func prepTableForNextHand(tPtr *table) (err error) {
 	Info.Println("Preparing table for next hand, table ID: ", tPtr.tableID)
 
 	for i := range tPtr.communityCardsList {
-		tPtr.communityCardsList[i] = gameobjects.NoCardPtr
+		tPtr.communityCardsList[i] = NoCardPtr
 	}
 
 	for i := range tPtr.seatList {
-		tPtr.seatList[i].c1Ptr = gameobjects.NoCardPtr
-		tPtr.seatList[i].c2Ptr = gameobjects.NoCardPtr
+		tPtr.seatList[i].c1Ptr = NoCardPtr
+		tPtr.seatList[i].c2Ptr = NoCardPtr
 		tPtr.seatList[i].amSB = false
 		tPtr.seatList[i].amBB = false
 	}
@@ -340,15 +339,15 @@ func createTableStateStruct(tPtr *table) (*tableStateForTemplateAccess, error) {
 		tss.HoleCardsBackgroundColorClassList[seatNum] = ""
 		tss.PUserNameList[seatNum] = "not set"
 
-		tss.C1rList[seatNum] = gameobjects.NoCardPtr.Rank
-		tss.C1sList[seatNum] = gameobjects.NoCardPtr.Suit
+		tss.C1rList[seatNum] = NoCardPtr.Rank
+		tss.C1sList[seatNum] = NoCardPtr.Suit
 		tss.C1ColorClass[seatNum] = "not set"
 		tss.C1sSymbolList[seatNum] = "S"
 		tss.C1BackgroundColorClassList[seatNum] = ""
 		tss.C1ColorClassSuitSymbol[seatNum] = ""
 
-		tss.C2rList[seatNum] = gameobjects.NoCardPtr.Rank
-		tss.C2sList[seatNum] = gameobjects.NoCardPtr.Suit
+		tss.C2rList[seatNum] = NoCardPtr.Rank
+		tss.C2sList[seatNum] = NoCardPtr.Suit
 		tss.C2ColorClass[seatNum] = "not set"
 		tss.C2sSymbolList[seatNum] = "S"
 		tss.C2BackgroundColorClassList[seatNum] = ""
@@ -356,8 +355,8 @@ func createTableStateStruct(tPtr *table) (*tableStateForTemplateAccess, error) {
 	}
 
 	for comCardNum := 1; comCardNum <= 5; comCardNum++ {
-		tss.ComCr[comCardNum] = gameobjects.NoCardPtr.Rank
-		tss.ComCs[comCardNum] = gameobjects.NoCardPtr.Suit
+		tss.ComCr[comCardNum] = NoCardPtr.Rank
+		tss.ComCs[comCardNum] = NoCardPtr.Suit
 		tss.ComCColorClass[comCardNum] = "not set"
 		tss.ComCSymbolList[comCardNum] = "S"
 		tss.ComCardsBackgroundColorClassList[comCardNum] = ""
@@ -402,7 +401,7 @@ func updateTableStateStruct(tPtr *table) error {
 		tPtr.tableStatePtr.C2sList[seatNum] = tPtr.seatList[seatNum-1].c2Ptr.Suit
 
 		// Clear out the Rank marking for any players noCard, so that they show up "blank" on the HTML page
-		if tPtr.tableStatePtr.C1rList[seatNum] == gameobjects.RX {
+		if tPtr.tableStatePtr.C1rList[seatNum] == RX {
 			tPtr.tableStatePtr.C1rList[seatNum] = ""
 			// We only do it for c1, since if it's true for c1, it must be true for c2. Player either has both cards or none, never just one.
 			tPtr.tableStatePtr.HoleCardsBackgroundColorClassList[seatNum] = "" // 2 COLOR deck
@@ -414,22 +413,22 @@ func updateTableStateStruct(tPtr *table) error {
 
 			// 4 COLOR
 			switch tPtr.tableStatePtr.C1sList[seatNum] {
-			case gameobjects.H:
+			case H:
 				tPtr.tableStatePtr.C1sSymbolList[seatNum] = "&hearts;"
 				tPtr.tableStatePtr.C1ColorClass[seatNum] = "suit_color_4cd_h"
 				tPtr.tableStatePtr.C1BackgroundColorClassList[seatNum] = "card_bg_face_up_4cd_h"
 				tPtr.tableStatePtr.C1ColorClassSuitSymbol[seatNum] = "suit_symbol_color_4cd_h"
-			case gameobjects.D:
+			case D:
 				tPtr.tableStatePtr.C1sSymbolList[seatNum] = "&diams;"
 				tPtr.tableStatePtr.C1ColorClass[seatNum] = "suit_color_4cd_d"
 				tPtr.tableStatePtr.C1BackgroundColorClassList[seatNum] = "card_bg_face_up_4cd_d"
 				tPtr.tableStatePtr.C1ColorClassSuitSymbol[seatNum] = "suit_symbol_color_4cd_d"
-			case gameobjects.S:
+			case S:
 				tPtr.tableStatePtr.C1sSymbolList[seatNum] = "&spades;"
 				tPtr.tableStatePtr.C1ColorClass[seatNum] = "suit_color_4cd_s"
 				tPtr.tableStatePtr.C1BackgroundColorClassList[seatNum] = "card_bg_face_up_4cd_s"
 				tPtr.tableStatePtr.C1ColorClassSuitSymbol[seatNum] = "suit_symbol_color_4cd_s"
-			case gameobjects.C:
+			case C:
 				tPtr.tableStatePtr.C1sSymbolList[seatNum] = "&clubs;"
 				tPtr.tableStatePtr.C1ColorClass[seatNum] = "suit_color_4cd_c"
 				tPtr.tableStatePtr.C1BackgroundColorClassList[seatNum] = "card_bg_face_up_4cd_c"
@@ -440,29 +439,29 @@ func updateTableStateStruct(tPtr *table) error {
 			}
 		}
 
-		if tPtr.tableStatePtr.C2rList[seatNum] == gameobjects.RX {
+		if tPtr.tableStatePtr.C2rList[seatNum] == RX {
 			tPtr.tableStatePtr.C2rList[seatNum] = ""
 			tPtr.tableStatePtr.C2BackgroundColorClassList[seatNum] = "" // 4 COLOR deck
 			tPtr.tableStatePtr.C2ColorClassSuitSymbol[seatNum] = ""
 		} else {
 
 			switch tPtr.tableStatePtr.C2sList[seatNum] {
-			case gameobjects.H:
+			case H:
 				tPtr.tableStatePtr.C2sSymbolList[seatNum] = "&hearts;"
 				tPtr.tableStatePtr.C2ColorClass[seatNum] = "suit_color_4cd_h"
 				tPtr.tableStatePtr.C2BackgroundColorClassList[seatNum] = "card_bg_face_up_4cd_h"
 				tPtr.tableStatePtr.C2ColorClassSuitSymbol[seatNum] = "suit_symbol_color_4cd_h"
-			case gameobjects.D:
+			case D:
 				tPtr.tableStatePtr.C2sSymbolList[seatNum] = "&diams;"
 				tPtr.tableStatePtr.C2ColorClass[seatNum] = "suit_color_4cd_d"
 				tPtr.tableStatePtr.C2BackgroundColorClassList[seatNum] = "card_bg_face_up_4cd_d"
 				tPtr.tableStatePtr.C2ColorClassSuitSymbol[seatNum] = "suit_symbol_color_4cd_d"
-			case gameobjects.S:
+			case S:
 				tPtr.tableStatePtr.C2sSymbolList[seatNum] = "&spades;"
 				tPtr.tableStatePtr.C2ColorClass[seatNum] = "suit_color_4cd_s"
 				tPtr.tableStatePtr.C2BackgroundColorClassList[seatNum] = "card_bg_face_up_4cd_s"
 				tPtr.tableStatePtr.C2ColorClassSuitSymbol[seatNum] = "suit_symbol_color_4cd_s"
-			case gameobjects.C:
+			case C:
 				tPtr.tableStatePtr.C2sSymbolList[seatNum] = "&clubs;"
 				tPtr.tableStatePtr.C2ColorClass[seatNum] = "suit_color_4cd_c"
 				tPtr.tableStatePtr.C2BackgroundColorClassList[seatNum] = "card_bg_face_up_4cd_c"
@@ -486,7 +485,7 @@ func updateTableStateStruct(tPtr *table) error {
 		// tPtr.tableStatePtr.ComCardsBackgroundColorClassList[comCardNum] = "card_bg_face_up"
 
 		// Clear out the Rank marking for any community noCard, so that they show up "bank" on the HTML page
-		if tPtr.tableStatePtr.ComCr[comCardNum] == gameobjects.RX {
+		if tPtr.tableStatePtr.ComCr[comCardNum] == RX {
 			tPtr.tableStatePtr.ComCr[comCardNum] = ""
 			tPtr.tableStatePtr.ComCSymbolList[comCardNum] = ""
 			tPtr.tableStatePtr.ComCardsBackgroundColorClassList[comCardNum] = ""
@@ -497,7 +496,7 @@ func updateTableStateStruct(tPtr *table) error {
 		}
 
 		// Assign appropriate CSS color class for the HTML page
-		if tPtr.communityCardsList[comCardNum-1].Suit == gameobjects.S || tPtr.communityCardsList[comCardNum-1].Suit == gameobjects.C {
+		if tPtr.communityCardsList[comCardNum-1].Suit == S || tPtr.communityCardsList[comCardNum-1].Suit == C {
 			tPtr.tableStatePtr.ComCColorClass[comCardNum] = "suit_color_black"
 		} else {
 			tPtr.tableStatePtr.ComCColorClass[comCardNum] = "suit_color_red"
@@ -505,27 +504,27 @@ func updateTableStateStruct(tPtr *table) error {
 
 		// 4 COLOR Deck:
 		switch tPtr.tableStatePtr.ComCs[comCardNum] {
-		case gameobjects.S:
+		case S:
 			tPtr.tableStatePtr.ComCs[comCardNum] = "&spades;"
 			tPtr.tableStatePtr.ComCColorClass[comCardNum] = "suit_color_4cd_s"
 			tPtr.tableStatePtr.ComCardsBackgroundColorClassList[comCardNum] = "card_bg_face_up_4cd_s"
 			tPtr.tableStatePtr.ComCColorClassSuitSymbol[comCardNum] = "suit_symbol_color_4cd_s"
-		case gameobjects.C:
+		case C:
 			tPtr.tableStatePtr.ComCs[comCardNum] = "&clubs;"
 			tPtr.tableStatePtr.ComCColorClass[comCardNum] = "suit_color_4cd_c"
 			tPtr.tableStatePtr.ComCardsBackgroundColorClassList[comCardNum] = "card_bg_face_up_4cd_c"
 			tPtr.tableStatePtr.ComCColorClassSuitSymbol[comCardNum] = "suit_symbol_color_4cd_c"
-		case gameobjects.H:
+		case H:
 			tPtr.tableStatePtr.ComCs[comCardNum] = "&hearts;"
 			tPtr.tableStatePtr.ComCColorClass[comCardNum] = "suit_color_4cd_h"
 			tPtr.tableStatePtr.ComCardsBackgroundColorClassList[comCardNum] = "card_bg_face_up_4cd_h"
 			tPtr.tableStatePtr.ComCColorClassSuitSymbol[comCardNum] = "suit_symbol_color_4cd_h"
-		case gameobjects.D:
+		case D:
 			tPtr.tableStatePtr.ComCs[comCardNum] = "&diams;"
 			tPtr.tableStatePtr.ComCColorClass[comCardNum] = "suit_color_4cd_d"
 			tPtr.tableStatePtr.ComCardsBackgroundColorClassList[comCardNum] = "card_bg_face_up_4cd_d"
 			tPtr.tableStatePtr.ComCColorClassSuitSymbol[comCardNum] = "suit_symbol_color_4cd_d"
-		case gameobjects.NoCardPtr.Suit:
+		case NoCardPtr.Suit:
 			// This card has not yet been dealt.
 			tPtr.tableStatePtr.ComCs[comCardNum] = ""
 		default:
@@ -559,12 +558,12 @@ func clearTableStateStruct(tPtr *table) error {
 		// PLAYER HOLE CARDS ############################################
 
 		// Grab the Rank and Suit for card 1 and 2 from the seats
-		tPtr.tableStatePtr.C1rList[seatNum] = gameobjects.NoCardPtr.Rank
-		tPtr.tableStatePtr.C1sList[seatNum] = gameobjects.NoCardPtr.Suit
+		tPtr.tableStatePtr.C1rList[seatNum] = NoCardPtr.Rank
+		tPtr.tableStatePtr.C1sList[seatNum] = NoCardPtr.Suit
 		tPtr.tableStatePtr.C1sSymbolList[seatNum] = ""
 
-		tPtr.tableStatePtr.C2rList[seatNum] = gameobjects.NoCardPtr.Rank
-		tPtr.tableStatePtr.C2sList[seatNum] = gameobjects.NoCardPtr.Suit
+		tPtr.tableStatePtr.C2rList[seatNum] = NoCardPtr.Rank
+		tPtr.tableStatePtr.C2sList[seatNum] = NoCardPtr.Suit
 		tPtr.tableStatePtr.C2sSymbolList[seatNum] = ""
 
 		tPtr.tableStatePtr.HoleCardsBackgroundColorClassList[seatNum] = "" // 2 COLOR deck
@@ -582,8 +581,8 @@ func clearTableStateStruct(tPtr *table) error {
 	// COMMUNITY CARDS ############################################
 
 	for comCardNum := 1; comCardNum <= 5; comCardNum++ {
-		tPtr.tableStatePtr.ComCr[comCardNum] = gameobjects.NoCardPtr.Rank
-		tPtr.tableStatePtr.ComCs[comCardNum] = gameobjects.NoCardPtr.Suit
+		tPtr.tableStatePtr.ComCr[comCardNum] = NoCardPtr.Rank
+		tPtr.tableStatePtr.ComCs[comCardNum] = NoCardPtr.Suit
 		// tPtr.tableStatePtr.ComCardsBackgroundColorClassList[comCardNum] = "card_bg_face_up"
 
 		// Clear out the Rank marking for any community noCard, so that they show up "bank" on the HTML page
@@ -620,7 +619,7 @@ func resetTable(tPtr *table) error {
 	tPtr.timeToPushPot = false
 
 	for i := range tPtr.communityCardsList {
-		tPtr.communityCardsList[i] = gameobjects.NoCardPtr
+		tPtr.communityCardsList[i] = NoCardPtr
 	}
 
 	for i := range tPtr.seatList {

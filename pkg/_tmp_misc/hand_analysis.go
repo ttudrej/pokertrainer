@@ -12,7 +12,7 @@ import (
 	"gonum.org/v1/gonum/stat/combin"
 )
 
-// sliceOfCards will server as the mapping of inetgers to card names
+// sliceOfCards will serve as the mapping of inetgers to card names
 type cardIndex []gameobjects.CardString
 
 var cardIndexS = cardIndex{gameobjects.SA, gameobjects.SK, gameobjects.SQ, gameobjects.SJ, gameobjects.ST, gameobjects.S9, gameobjects.S8, gameobjects.S7, gameobjects.S6, gameobjects.S5, gameobjects.S4, gameobjects.S3, gameobjects.S2}
@@ -38,6 +38,7 @@ var cardIndexFull = cardIndex{
 // fiveCardHandKind, Not using "fiveCardHandType", so as to NOT confuse it with "type" as a declaration directive.
 type fiveCardHandKind string
 
+// fiveCardHandKindRanking doc string
 type fiveCardHandKindRanking struct {
 	handKind fiveCardHandKind
 	typeRank int

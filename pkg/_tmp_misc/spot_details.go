@@ -1,7 +1,9 @@
-package strategy
+package handstatetracking
 
-type relativePositionPF int
-type relativePosition int // for Flop and later
+import "github.com/ttudrej/pokertrainer/pkg/gameobjects"
+
+type relativePositionPF int // PF - Pre Flop
+type relativePosition int   // for Flop and later
 
 const (
 	sb  relativePositionPF = 8 // "SB"
@@ -25,7 +27,7 @@ const (
 )
 
 // Holds record of actions a seat took during one betting cycle within a round
-type actionList [9]actionID
+type actionList [9]gameobjects.ActionId
 
 // positionStatus keeps track of relevant factors related to the player's position/sequence
 // in the current hand (characteristics of this "spot"), from the point of view
@@ -35,8 +37,8 @@ type positionStatusPF struct {
 	c1Actions  actionList // Actions recorded during cycle 1, ie, UTG(0), UTG1....BU, SB, BB(8)
 	c2Actions  actionList
 	c3Actions  actionList
-	numBehind  int      // How many players are yet to act, at the moment the action is on us
-	numLastBet actionID // Last bet number, 2bet, 3bet, 4bet, ...
+	numBehind  int                  // How many players are yet to act, at the moment the action is on us
+	numLastBet gameobjects.ActionId // Last bet number, 2bet, 3bet, 4bet, ...
 	// numCalled1Bet int // How many have limped so far
 	// numCalled2Bet int // How many called the 2 bet
 	// numCalled3Bet int // How many called the 3 bet
@@ -48,8 +50,8 @@ type positionStatus struct {
 	c1Actions  actionList // Actions recorded during cycle 1 on Flop or later, ie, SB(0), BB, UTG, UTG1....BU(8)
 	c2Actions  actionList
 	c3Actions  actionList
-	numBehind  int      // How many players are yet to act
-	numLastBet actionID // Last bet number, 2bet, 3bet, 4bet, ...
+	numBehind  int                  // How many players are yet to act
+	numLastBet gameobjects.ActionId // Last bet number, 2bet, 3bet, 4bet, ...
 }
 
 // #########################################################################

@@ -1,21 +1,6 @@
-package gameobjects
+package strategy
 
-type bettingRound string
-
-// hand refers to the hand, as in one hand played being equivalent to one hand played at the table,
-// as in one sequence of the 4 betting rounds, pf, f, t, r.
-type hand struct {
-	currentBettingRound bettingRound
-}
-
-const (
-	handStart bettingRound = "Hand Start"
-	pflop     bettingRound = "Pre-Flop"
-	flop      bettingRound = "Flop"
-	turn      bettingRound = "Turn"
-	river     bettingRound = "River"
-	handEnd   bettingRound = "Hand End"
-)
+import "github.com/ttudrej/pokertrainer/pkg/gameobjects"
 
 /*
 #########################################################################
@@ -34,3 +19,15 @@ const (
 #########################################################################
 #########################################################################
 */
+
+func determineBestAction(tPtr *gameobjects.table, br gameobjects.BettingRound) (gameobjects.ActionId, int, error) {
+
+	_ = findActionWithHighestEV()
+
+	return gameobjects.FLD, 0, nil
+}
+
+// #########################################################################
+func findActionWithHighestEV() error {
+	return nil
+}

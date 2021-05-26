@@ -2,7 +2,6 @@ package gameobjects
 
 import (
 	"github.com/ttudrej/pokertrainer/pkg/debugging"
-	"github.com/ttudrej/pokertrainer/pkg/gameobjects"
 )
 
 /*
@@ -31,7 +30,7 @@ func seatPlayer(pPtr *player, tPtr *table, seatNum int, buyinAmount int) (err er
 	i := seatNum - 1
 
 	// Change out the global emtySeat for an acutal seat
-	// var sPtr = &seat{pPtr.id, true, 300, gameobjects.NoCardPtr, gameobjects.NoCardPtr}
+	// var sPtr = &seat{pPtr.id, true, 300, NoCardPtr, NoCardPtr}
 
 	var s seat
 	sPtr := &s
@@ -43,8 +42,8 @@ func seatPlayer(pPtr *player, tPtr *table, seatNum int, buyinAmount int) (err er
 	sPtr.occupied = true
 	sPtr.sittingIn = false // The player need to intentionally request participationin the game, after being seated.
 	sPtr.stackSize = 300
-	sPtr.c1Ptr = gameobjects.NoCardPtr
-	sPtr.c2Ptr = gameobjects.NoCardPtr
+	sPtr.c1Ptr = NoCardPtr
+	sPtr.c2Ptr = NoCardPtr
 	sPtr.betAmount = 0
 	sPtr.allIn = false
 	sPtr.folded = false

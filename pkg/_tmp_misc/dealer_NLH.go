@@ -4,8 +4,7 @@ import (
 	"container/ring"
 	"errors"
 
-	"github.com/ttudrej/pokertrainer/debugging"
-	"github.com/ttudrej/pokertrainer/gameobjects"
+	"github.com/ttudrej/pokertrainer/pkg/debugging"
 )
 
 /*
@@ -62,11 +61,11 @@ func pitchOneCardToAll(tPtr *table) (err error) {
 		Info.Println("Dealing a card to seatNum: ", seatNum)
 		Info.Println("tPtr.deckPtr.topCardIndex_shuffledLoptc: ", tPtr.deckPtr.topCardIndex_shuffledLoptc)
 
-		if tPtr.seatList[seatNum-1].c2Ptr.Rank != gameobjects.RX {
+		if tPtr.seatList[seatNum-1].c2Ptr.Rank != RX {
 			err = errors.New("Error, trying to give player too many cards, already has 2")
 		}
 
-		if tPtr.seatList[seatNum-1].c1Ptr.Rank == gameobjects.RX {
+		if tPtr.seatList[seatNum-1].c1Ptr.Rank == RX {
 			tPtr.seatList[seatNum-1].c1Ptr = tPtr.deckPtr.shuffledLoptcPtr[tPtr.deckPtr.topCardIndex_shuffledLoptc]
 			Info.Println("dealt c1: ", tPtr.seatList[seatNum-1].c1Ptr.Rank, tPtr.seatList[seatNum-1].c1Ptr.Suit)
 		} else {
@@ -90,13 +89,13 @@ func collectAllCards(tPtr *table) (err error) {
 	Info.Println("in collectAllCards")
 
 	for _, seatPtr := range tPtr.seatList {
-		seatPtr.c1Ptr = gameobjects.NoCardPtr
-		seatPtr.c2Ptr = gameobjects.NoCardPtr
+		seatPtr.c1Ptr = NoCardPtr
+		seatPtr.c2Ptr = NoCardPtr
 	}
 
 	for _, commCardPtr := range tPtr.communityCardsList {
 		Info.Printf("%v", commCardPtr)
-		commCardPtr = gameobjects.NoCardPtr
+		commCardPtr = NoCardPtr
 	}
 	return nil
 }
@@ -516,7 +515,7 @@ func executeHand(tPtr *table) (err error) {
 
 // conductBettingRound makes each player take their action, when it's their
 // turn, until all the action closes on the current betting round.
-func conductBettingRound(tPtr *table, br bettingRound) error {
+func conductBettingRound(tPtr *table, br BettingRound) error {
 	Info.Println(debugging.ThisFunc())
 
 	// betSize := 2
@@ -645,7 +644,7 @@ L01:
 
 // #####################################################################
 // findFirstSeatToAct determines who the first player to do sometning is, on given betting round.
-func findFirstSeatToAct(tPtr *table, br bettingRound) (rPtr *ring.Ring, err error) {
+func findFirstSeatToAct(tPtr *table, br BettingRound) (rPtr *ring.Ring, err error) {
 	Info.Println(debugging.ThisFunc())
 
 	rPtr = tPtr.remainingActiveSeatsRingPtr

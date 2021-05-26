@@ -2,22 +2,21 @@ package gameobjects
 
 import (
 	"github.com/ttudrej/pokertrainer/pkg/debugging"
-	"github.com/ttudrej/pokertrainer/pkg/gameobjects"
 )
 
 type cdmKey struct {
-	cr gameobjects.CardRank
-	cs gameobjects.CardSuit
+	cr CardRank
+	cs CardSuit
 }
 
-type cardDeckMap map[cdmKey]*gameobjects.Card
+type cardDeckMap map[cdmKey]*Card
 
 // orderedListOfPtrsToCard
-type listOfPtrsToCards [52]*gameobjects.Card
+type listOfPtrsToCards [52]*Card
 
 // orderedListOfPtrsToCard uses 56 not 52 slots, to accomodate for the Aces in 5-A straights
 // Used for hand rank checks ONLY
-type listFullOfPtrsToCards [56]*gameobjects.Card
+type listFullOfPtrsToCards [56]*Card
 
 type cardDeck struct {
 	cdmPtr                     *cardDeckMap
@@ -86,9 +85,9 @@ func createDeck() (cdPtr *cardDeck, err error) {
 
 	sequence := 1 // bottom card in the deck, card 52 is the top of the deck.
 
-	for _, rank := range gameobjects.RankList {
-		for _, suit := range gameobjects.SuitList {
-			var c = gameobjects.Card{rank, suit, false, false, false, false, sequence}
+	for _, rank := range RankList {
+		for _, suit := range SuitList {
+			var c = Card{rank, suit, false, false, false, false, sequence}
 			cPtr := &c
 
 			cdm[cdmKey{rank, suit}] = cPtr
@@ -100,7 +99,7 @@ func createDeck() (cdPtr *cardDeck, err error) {
 
 			// Also point add Aces that fit below the duces.
 			// Needed for working out Straigh relative ranking.
-			if rank == gameobjects.RA {
+			if rank == RA {
 				olf[sequence-1+52] = cPtr
 			}
 			sequence++

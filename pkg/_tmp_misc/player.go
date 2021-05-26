@@ -96,24 +96,24 @@ type player struct {
 var noPlayerPtr = &player{"noPlayer", 0, "noBehavior defined"}
 
 type playerPtrList [9]*player
-type actionID string
+type ActionId string
 
 const (
 	// Using caps for first letter, NOT for ability to export
 	// but for better visibility/contrast in positionStatus structs
-	FLD actionID = "fold"
-	out actionID = "out, folded already" // Indicates that this seat does not act, they folded earlier.
-	CLL actionID = "call"
-	BT0 actionID = "0 bet / check - Post Flop"
-	BT1 actionID = "1 bet / pf BB"
-	BT2 actionID = "2 bet / 1st raise / raise / pf open"
-	BT3 actionID = "3 bet / 2nd raise / re-raise"
-	BT4 actionID = "4 bet / 3rd raise / re-re-raise"
-	BT5 actionID = "5 bet"
-	BT6 actionID = "6 bet"
-	CHK actionID = "check"  // post
-	NOP actionID = "no op"  // chk / we bet / call, used in positionStatus vars
-	WIN actionID = "winner" // to indicate we're the only one left in the hand
+	FLD ActionId = "fold"
+	out ActionId = "out, folded already" // Indicates that this seat does not act, they folded earlier.
+	CLL ActionId = "call"
+	BT0 ActionId = "0 bet / check - Post Flop"
+	BT1 ActionId = "1 bet / pf BB"
+	BT2 ActionId = "2 bet / 1st raise / raise / pf open"
+	BT3 ActionId = "3 bet / 2nd raise / re-raise"
+	BT4 ActionId = "4 bet / 3rd raise / re-re-raise"
+	BT5 ActionId = "5 bet"
+	BT6 ActionId = "6 bet"
+	CHK ActionId = "check"  // post
+	NOP ActionId = "no op"  // chk / we bet / call, used in positionStatus vars
+	WIN ActionId = "winner" // to indicate we're the only one left in the hand
 
 )
 
@@ -127,7 +127,7 @@ type playerInstanceState struct {
 	sPtr                         *seat
 	tPtr                         *table
 	spr                          float32     // Stack to Pot Ratio
-	possibleActionIDactionIDList [3]actionID // fold/call/raise
+	possibleActionIdActionIdList [3]ActionId // fold/call/raise
 	relPosPF                     relativePositionPF
 	relPos                       relativePosition
 	actionSeqDetail_PF           positionStatusPF
