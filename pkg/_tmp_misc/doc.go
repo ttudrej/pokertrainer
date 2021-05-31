@@ -1,8 +1,7 @@
 /*
-File: doc.go, version history:
-v0.1	2018/06/30	Tomasz Tudrej
 
 License info
+
 Copyright info
 
 First line of documentation text in the doc.go file

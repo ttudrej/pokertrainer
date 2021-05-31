@@ -1,9 +1,3 @@
-/*
-File: deck_shuffler_test.go, version history:
-v0.1	yyyy/mm/dd	Tomasz Tudrej
-
-*/
-
 package gameobjects
 
 import "testing"

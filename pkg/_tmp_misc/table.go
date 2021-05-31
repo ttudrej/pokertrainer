@@ -58,7 +58,7 @@ type seatPIDGetter interface {
 // It's the seat that "owns" the cards pitched to it, not the player.
 // The player get's to "see" the cards, and to make betting/folding decisions.
 // The player get's to choose the betting amounts, up to the stack size.
-// The dealer with a table, even in absence of players, needs to be able to progress the game.
+// The dealer at of this table, even in absence of players, needs to be able to progress the game.
 type table struct {
 	numberSeats int // 2-10, usually
 	buttonPos   int
@@ -71,7 +71,7 @@ type table struct {
 
 	// for holding the poiters to the flop cards
 	// 0,1,2 - flop cards 1,2,3
-	// 4,5 - turn and river
+	// 3,4 - turn and river, 4,5
 	communityCardsList          [6]*Card
 	seatList                    [10]*seat
 	seatNumbersToBeDealtIn      []int // I think it may be easier to think about seats in terms of their actual number, vs links/refs to them.
@@ -93,7 +93,7 @@ type table struct {
 }
 
 type tableStateForTemplateAccess struct {
-	// The vars in this struct need to be exported, so must start with a Capital letter.
+	// The vars in this struct need to be exported.
 	// text/template or html/template can't grab them otherwise.
 	TableID          int
 	PotTotal         int
@@ -104,12 +104,12 @@ type tableStateForTemplateAccess struct {
 	PidList       [11]playerID
 	PUserNameList [11]userName
 	StackList     [11]int
-	BetAmount     [11]string // We use string, so have an option of using an empty string, "".
+	BetAmount     [11]int
 	SeatNumber    [11]int
 
 	HoleCardsBackgroundColorClassList [11]string // for 2 color deck.
 	// Used to name a CSS class for the BG color, face up, face down.
-	// No Card is achieved by no BG color, so that the underlying color
+	// No Card is achieved by having no BG color set, so that the underlying color
 	// of the tble or the player's seat comes through.
 
 	C1rList                    [11]CardRank
@@ -185,7 +185,7 @@ func (sPtr *seat) getSeatPID() (playerID, error) {
 // #####################################################################
 
 // #####################################################################
-// createTable constructs a new poker table (as in a kitchen table, not a tble of numbers), with a specific # of seats, 2-10.
+// createTable constructs a new poker table (as in a "kitchen table", not a tble of numbers), with a specific # of seats, 2-10.
 // func createTable(numSeats int, tID tableId, gt gameType, gs gameSize) (tPtr *table, err error) {
 // func createTable(gPtr *game) (tPtr *table, err error) {
 func createTable(prPtr *pokerRoom, numSeats int, tID int, gt gameType) (tPtr *table, err error) {
@@ -210,7 +210,6 @@ func createTable(prPtr *pokerRoom, numSeats int, tID int, gt gameType) (tPtr *ta
 	tPtr.seatPtrSB = emptySeatPtr // easiest to id by "number == 0"
 	tPtr.seatPtrBB = emptySeatPtr
 	tPtr.potSizeThisRoundOnly = 0
-	tPtr.potSizeThisRoundOnly = 0
 	tPtr.potTotal = 0
 	tPtr.timeToPushPot = false
 
@@ -222,7 +221,7 @@ func createTable(prPtr *pokerRoom, numSeats int, tID int, gt gameType) (tPtr *ta
 		tPtr.seatList[i] = emptySeatPtr
 	}
 
-	// Point the table at the "stantdard" card deck
+	// Give the table a deck of cards to use.
 	tPtr.deckPtr, err = createDeck()
 
 	// Info.Println(deckMap[cdmKey{r2, s}])
@@ -322,7 +321,9 @@ func displayTable(tPtr *table) (err error) {
 }
 
 // #################################################################
-// createTableStateStruct creates and initializes a tableStateForTemplateAccess struct.
+
+// createTableStateStruct creates and initializes a tableStateForTemplateAccess struct. See http_server.go
+// and text/template package. Template has to do with displaing things in the UI.
 func createTableStateStruct(tPtr *table) (*tableStateForTemplateAccess, error) {
 	Info.Println(debugging.ThisFunc())
 	var tss tableStateForTemplateAccess
@@ -367,6 +368,7 @@ func createTableStateStruct(tPtr *table) (*tableStateForTemplateAccess, error) {
 }
 
 // #################################################################
+
 // updateTableStateStruct grabs a host of player and table specific var
 // that are often stored in multi-level structs, and copies them to a
 // single level struct, for ease of access with vi text/html/template

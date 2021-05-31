@@ -35,7 +35,7 @@ var cardIndexFull = cardIndex{
 	gameobjects.S3, gameobjects.H3, gameobjects.C3, gameobjects.D3,
 	gameobjects.S2, gameobjects.H2, gameobjects.C2, gameobjects.D2}
 
-// fiveCardHandKind, Not using "fiveCardHandType", so as to NOT confuse it with "type" as a declaration directive.
+// fiveCardHandKind, Not using "fiveCardHandType", so as to NOT to confuse it with "type" as a declaration directive.
 type fiveCardHandKind string
 
 // fiveCardHandKindRanking doc string
@@ -88,7 +88,7 @@ type fiveCardHandMetadata struct {
 
 var crm gameobjects.CardRankMap
 
-// Needs at most the max number of commuity cards + max num of the hole cards, so around 7 for NLH
+// fiveCardList needs at most the max number of commuity cards + max num of the hole cards, so 7 for NLH
 type fiveCardList []*gameobjects.Card
 
 type equivalentFiveCardHand struct {
@@ -102,13 +102,13 @@ type equivalentFiveCardHand struct {
 	count int // Keep track of how many equivalent hands we've found.
 }
 
-// Keep a sorted list, by hand rank, of equivalent hands with some additional info
+// equivalentFCHList keeps a sorted list, by hand rank, of equivalent hands with some additional info
 type equivalentFCHList []equivalentFiveCardHand
 
 type rankCtrMap map[gameobjects.CardRank]int
 type suitCtrMap map[gameobjects.CardSuit]int
 
-// rankCouter keeps track of counts of specific rank in a card list, and track of poker hands.
+// rankCounter keeps track of counts of specific rank in a card list, and track of poker hands.
 type rankCounter struct {
 	max         int
 	uniqeRankCt int                  // count of all unique ranks in the list
@@ -138,7 +138,7 @@ type suitCounter struct {
 // orderedListOfPtrsToCard
 type orderedListOfPtrsToCards [52]*gameobjects.Card
 
-// orderedListOfPtrsToCard uses 56 not 52 slots, to accomodate for the Aces in 5-A straights
+// orderedListFullOfPtrsToCards uses 56 not 52 slots, to accomodate for the Aces in 5-A straights
 // Used for hand rank checks ONLY
 type orderedListFullOfPtrsToCards [56]*gameobjects.Card
 
@@ -462,7 +462,7 @@ func printSIAsCardStrings(siPtr *[]int, printUpTo int) error {
 
 // #########################################################################
 
-// printSIAsCardStringsNot3x prints the hand if it's a an FH. Specially written jut to catch non 3x hands in the 3x list.
+// printSIAsCardStringsNot3x prints the hand if it's a FH. Specially written jut to catch non 3x hands in the 3x list.
 func printSIAsCardStringsNot3x(siPtr *[]int) error {
 
 	// printUpTo: if 0, print all
@@ -2695,7 +2695,7 @@ func checkForHc_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePtr
 
 // #####################################################################
 
-// createSFCL - doc line
+// createSFCL - doc line. Same def exists in card_list_setup.go
 func createSFCL() (clPtr *fiveCardList) {
 	clPtr = createClPtr()
 	cl := *clPtr
@@ -2796,7 +2796,7 @@ func createStCL() (clPtr *fiveCardList) {
 
 // #####################################################################
 
-// create3xCL - doc line
+// create3xCL - doc line. Same def exists in card_list_setup.go
 func create3xCL() (clPtr *fiveCardList) {
 	clPtr = createClPtr()
 	cl := *clPtr

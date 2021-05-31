@@ -4,6 +4,9 @@ import (
 	"fmt"
 )
 
+// #####################################################################
+// Functions for creating a full list of all possible hands.
+
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // !!! As a convention, any cardList MUST be ordered by rank, A to 2.
 // Functions that process RELY on the order being correct
@@ -103,7 +106,8 @@ func createStCL() (clPtr *cardList) {
 }
 
 // #####################################################################
-// create3xCL - doc line
+
+// create3xCL - doc line. Same def exists in hand_analysis.go
 func create3xCL() (clPtr *cardList) {
 	clPtr = createClPtr()
 

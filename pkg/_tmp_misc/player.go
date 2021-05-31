@@ -12,6 +12,7 @@ type playerID int
 
 type userName string
 
+// player doc string
 type player struct {
 	userName            userName
 	id                  playerID

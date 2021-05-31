@@ -216,8 +216,8 @@ func makeListOfSeatsToPitchCardsTo(tPtr *table) (err error) {
 
 // #####################################################################
 // Like makeListOfSeatsToPitchCardsTo, but in ring(circular list) form.
-// The role of this "ring" will be to keep track of ONLY the seats that still
-// have an active role in the hand.
+// The role of this "ring" will be to keep track of ONLY the seats that
+// are active role in the hand.
 // Every time a player folds, that seat will be removed from the ring.
 // The hand ends when there is only one element(Ring) left in the ring(circular list).
 // Meant to allow the dealer to keep track of the state of the current hand.
@@ -643,6 +643,7 @@ L01:
 }
 
 // #####################################################################
+
 // findFirstSeatToAct determines who the first player to do sometning is, on given betting round.
 func findFirstSeatToAct(tPtr *table, br BettingRound) (rPtr *ring.Ring, err error) {
 	Info.Println(debugging.ThisFunc())
@@ -686,6 +687,7 @@ func findFirstSeatToAct(tPtr *table, br BettingRound) (rPtr *ring.Ring, err erro
 }
 
 // #####################################################################
+
 func executeNextStep(tPtr *table) error {
 
 	Info.Println("")
@@ -774,9 +776,3 @@ func executeNextStep(tPtr *table) error {
 
 	return nil
 }
-
-// #####################################################################
-
-// #####################################################################
-
-// #####################################################################

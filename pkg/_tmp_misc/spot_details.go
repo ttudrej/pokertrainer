@@ -2,7 +2,7 @@ package handstatetracking
 
 import "github.com/ttudrej/pokertrainer/pkg/gameobjects"
 
-type relativePositionPF int // PF - Pre Flop
+type relativePositionPF int // PF - Pre Flop, determines order of player actions
 type relativePosition int   // for Flop and later
 
 const (
@@ -26,10 +26,10 @@ const (
 	rp9 relativePosition   = 9 // LP2 / BU / Button
 )
 
-// Holds record of actions a seat took during one betting cycle within a round
+// actionList holds record of actions a seat took during one betting cycle within a round
 type actionList [9]gameobjects.ActionId
 
-// positionStatus keeps track of relevant factors related to the player's position/sequence
+// positionStatusPF keeps track of relevant factors related to the player's position/sequence
 // in the current hand (characteristics of this "spot"), from the point of view
 // from a specific seat in a hand.
 type positionStatusPF struct {
@@ -44,7 +44,7 @@ type positionStatusPF struct {
 	// numCalled3Bet int // How many called the 3 bet
 }
 
-// for Flop and later streets
+// positionStatus for Flop and later streets
 type positionStatus struct {
 	relPos     relativePosition
 	c1Actions  actionList // Actions recorded during cycle 1 on Flop or later, ie, SB(0), BB, UTG, UTG1....BU(8)
@@ -55,6 +55,7 @@ type positionStatus struct {
 }
 
 // #########################################################################
+
 /*
 ########     ##     ##                ######     ########
 ##     ##    ##     ##               ##    ##    ##     ##
@@ -73,6 +74,11 @@ type positionStatus struct {
 ##           ##
 ##           ##
 */
+
+// The following are vars that codify the sequence of actions that could have happened in
+// in the hand thus far.
+// These are meant to help determining appropriate strategy.
+// How exactly this is to work is not yeat fully developed.
 
 var ps9hBUvSB_PF_bc = positionStatusPF{
 	relPos: bu,

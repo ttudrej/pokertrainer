@@ -24,7 +24,7 @@ type CardSuit string
 type CardString string
 
 // card struct is meant for representing a physical card in a deck of cards,
-// adn all it's properties, that will be used in a hand of a card game.
+// and all it's properties, that will be used in a hand of a card game.
 type Card struct {
 	Rank          CardRank
 	Suit          CardSuit

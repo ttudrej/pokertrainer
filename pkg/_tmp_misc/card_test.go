@@ -1,9 +1,3 @@
-/*
-File: card_test.go, version history:
-v0.1	yyyy/mm/dd	Tomasz Tudrej
-
-*/
-
 package gameobjects
 
 import "testing"
@@ -29,5 +23,3 @@ func TestCreateCardRankMap(t *testing.T) {
 		}
 	}
 }
-
-// EOF

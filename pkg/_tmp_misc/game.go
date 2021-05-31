@@ -3,7 +3,7 @@ package gameobjects
 type gameName string
 type gameType string
 
-// game size, expressed in cents ($0.01). A 1c/2c is "NL 2", a 50c/$100 is "NL 100", a $1/$2 is "NL 200", ...
+// gameSize expressed in cents ($0.01). A 1c/2c is "NL 2", a 50c/$100 is "NL 100", a $1/$2 is "NL 200", ...
 type gameSize struct {
 	blind1 int // small blind in $0.01
 	blind2 int // big blind
