@@ -69,12 +69,12 @@ import (
 	"github.com/ttudrej/pokertrainer/pkg/tableitems"
 )
 
-type CardRank string
-type CardRankMap map[CardRank]int
+// type CardRank string
+type CardRankMap map[tableitems.CardRank]int
 
 const (
-	RK CardRank = "K"
-	RA CardRank = "A"
+	RK tableitems.CardRank = "K"
+	RA tableitems.CardRank = "A"
 )
 
 // ###########################################################
@@ -103,9 +103,9 @@ func (c CardRankMapStruct) Create() (CardRankMap, error) {
 
 func main() {
 	// var m CardRankMapCreator
-	var m tableitems.CardRankMapCreator
+	var m CardRankMapCreator
 
-	m = tableitems.CardRankMapStruct{}
+	m = CardRankMapStruct{}
 	describeM(m)
 	crm, err := m.Create()
 
@@ -115,6 +115,6 @@ func main() {
 
 // ###########################################################
 
-func describeM(m tableitems.CardRankMapCreator) {
+func describeM(m CardRankMapCreator) {
 	fmt.Printf("(%v, %T)\n", m, m)
 }
