@@ -2,6 +2,7 @@
 package tableitems
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ttudrej/pokertrainer/pkg/debugging"
@@ -16,6 +17,9 @@ var (
 
 // CardRank comment
 type CardRank string
+
+// CardRankMap comment
+type CardRankMap map[CardRank]int
 
 // CardSuit comment
 type CardSuit string
@@ -35,20 +39,36 @@ type Card struct {
 	Sequence      int // assigned by our convention, just so we have another way to reference cards
 }
 
+// 3 things are needed to interfaces instead of functins directly:
+//
+// 1) One or more structs, sa, sb, sc, ... (type mystructname struct {})
+// => type CardRankMap struct
+//
+// 2) One or more methods (functins with a rceiver argument),  and same functin name,
+// 		where the reciver references one of the structs, sa, sb, sc, ....
+// 		(func (<receiver-structref>) funcname(<inputs>) (<outputs>))
+// => func (c Card) crate() (CardRankMap, error) {}
+//
+// 3) An Interface definition, which pools/ties the
+//		functions (method with reciver argument stripped)
+//		with the same name but different func signatures.
+// => type cardRankMapCreator interface
+//
+// 4) Something that uses the interface.
+//
+
 type CardRankList [13]CardRank
 type CardRankListFull [14]CardRank
 type CardSuitList [4]CardSuit
 
-type CardRankMap map[CardRank]int
-
 const (
-	X CardSuit = "Suit X"
-	S CardSuit = "s"
-	C CardSuit = "c"
-	H CardSuit = "h"
-	D CardSuit = "d"
+	X CardSuit = "Suit X" // ?? How is this used
+	S CardSuit = "s"      // Spades
+	C CardSuit = "c"      // Clubs
+	H CardSuit = "h"      // Hearts
+	D CardSuit = "d"      // Diamonds
 
-	RX CardRank = "Rank X"
+	RX CardRank = "Rank X" // ?? what is this needed for
 	R2 CardRank = "2"
 	R3 CardRank = "3"
 	R4 CardRank = "4"
@@ -122,15 +142,23 @@ const (
 	DA CardString = "Ad"
 )
 
-var RankList = CardRankList{RA, RK, RQ, RJ, RT, R9, R8, R7, R6, R5, R4, R3, R2}
-var RankListFull = CardRankListFull{RA, RK, RQ, RJ, RT, R9, R8, R7, R6, R5, R4, R3, R2, RA}
+// var RankList = CardRankList{RA, RK, RQ, RJ, RT, R9, R8, R7, R6, R5, R4, R3, R2}
+// var RankListFull = CardRankListFull{RA, RK, RQ, RJ, RT, R9, R8, R7, R6, R5, R4, R3, R2, RA}
 
-var SuitList = CardSuitList{S, C, H, D}
+// var SuitList = CardSuitList{S, C, H, D}
 
-// Used to indicate the absence of a card, instead of using an undefined or null pointer
-// By convention, we number cards in the deck from 1 to 52
-// So, there is no card 0, hence our noCard has the "sequnce" nuber assigned to 0.
-var NoCardPtr = &Card{Rank: RX, Suit: X, Community: false, DealtToPlayer: false, SeenByHero: false, SeenByVillain: false, Sequence: 0}
+// // NoCardPtr:
+// // Used to indicate the absence of a card, instead of using an undefined or null pointer
+// // By convention, we number cards in the deck from 1 to 52
+// // So, there is no card 0, hence our noCard has the "sequnce" nuber assigned to 0.
+// var NoCardPtr = &Card{Rank: RX, Suit: X, Community: false, DealtToPlayer: false, SeenByHero: false, SeenByVillain: false, Sequence: 0}
+
+var ( // "factored" into a block
+	RankList     = CardRankList{RA, RK, RQ, RJ, RT, R9, R8, R7, R6, R5, R4, R3, R2}
+	RankListFull = CardRankListFull{RA, RK, RQ, RJ, RT, R9, R8, R7, R6, R5, R4, R3, R2, RA}
+	SuitList     = CardSuitList{S, C, H, D}
+	NoCardPtr    = &Card{Rank: RX, Suit: X, Community: false, DealtToPlayer: false, SeenByHero: false, SeenByVillain: false, Sequence: 0}
+)
 
 /*
 #########################################################################
@@ -150,27 +178,62 @@ var NoCardPtr = &Card{Rank: RX, Suit: X, Community: false, DealtToPlayer: false,
 #########################################################################
 */
 
-// createCardRankMap provedes a mapping of card rank to an index.
-// Useful in carda and hand ranking comparision.
-func CreateCardRankMap() (crm CardRankMap) {
+type CardRankMapCreator interface {
+	// Create() (CardRankMap, error)
+	Create() (CardRankMap, error)
+}
+
+type CardRankMapStruct struct {
+	RankMap CardRankMap
+}
+
+func (c CardRankMapStruct) Create() (CardRankMap, error) {
+	fmt.Println("c.RankMap: ", c.RankMap)
 
 	Info.Println(debugging.ThisFunc())
-	// Info.Println("### Starting createCardRankMap ###")
-	crm = make(CardRankMap)
 
-	crm[RA] = 14
-	crm[RK] = 13
-	crm[RQ] = 12
-	crm[RJ] = 11
-	crm[RT] = 10
-	crm[R9] = 9
-	crm[R8] = 8
-	crm[R7] = 7
-	crm[R6] = 6
-	crm[R5] = 5
-	crm[R4] = 4
-	crm[R3] = 3
-	crm[R2] = 2
+	c.RankMap = make(CardRankMap)
+	c.RankMap[RA] = 14
+	c.RankMap[RK] = 13
+	// c.rankMap[RQ] = 12
+	// c.rankMap[RJ] = 11
+	// c.rankMap[RT] = 10
+	// c.rankMap[R9] = 9
+	// c.rankMap[R8] = 8
+	// c.rankMap[R7] = 7
+	// c.rankMap[R6] = 6
+	// c.rankMap[R5] = 5
+	// c.rankMap[R4] = 4
+	// c.rankMap[R3] = 3
+	// c.rankMap[R2] = 2
+	fmt.Println("c.RankMap after assignment: ", c.RankMap)
 
-	return crm
+	return c.RankMap, nil
 }
+
+// ###########################################################
+
+// createCardRankMap provides a mapping of card rank to an index.
+// Useful in card and hand ranking comparisions.
+// func CreateCardRankMap() (crm CardRankMap) {
+
+// 	Info.Println(debugging.ThisFunc())
+// 	// Info.Println("### Starting createCardRankMap ###")
+// 	crm = make(CardRankMap)
+
+// 	crm[RA] = 14
+// 	crm[RK] = 13
+// 	crm[RQ] = 12
+// 	crm[RJ] = 11
+// 	crm[RT] = 10
+// 	crm[R9] = 9
+// 	crm[R8] = 8
+// 	crm[R7] = 7
+// 	crm[R6] = 6
+// 	crm[R5] = 5
+// 	crm[R4] = 4
+// 	crm[R3] = 3
+// 	crm[R2] = 2
+
+// 	return crm
+// }
