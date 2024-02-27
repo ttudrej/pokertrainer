@@ -1,4 +1,4 @@
-package main
+package hand_analysis
 
 import (
 	"errors"
@@ -593,7 +593,7 @@ func genOrderedListOfHands() (listPtr *[2598960]fiveCardHandMetadata, err error)
 
 // #####################################################################
 
-//identifyAllSFs doc line
+// identifyAllSFs doc line
 func identifyAllSFs() error {
 
 	// Info.Printf("%s\n\n", ThisFunc())
@@ -1153,7 +1153,7 @@ func printFiveCardListAsString(fclPtr *fiveCardList) (err error) {
 // #####################################################################
 
 // sprintFiveCardListAsString takes a five card hand Ptr, and an integer (usually the hands index), and prints out the 5
-//cards, and the integer, as text.
+// cards, and the integer, as text.
 func sprintFiveCardListAsString(fclPtr *fiveCardList, index1, index2 int) (s string, err error) {
 
 	fcl := *fclPtr
@@ -1426,7 +1426,9 @@ func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *s
 
 // orderCardsOfSameSuit takes 5 to 7 cards of the same suit, and returns a 5 card ordered list of ranks, high to low.
 // The significance of "same suit" in this context is that there can be no 2 or more cards of the same rank.
-//  Checks for a 5 high straight as well,
+//
+//	Checks for a 5 high straight as well,
+//
 // to differentiate between an arbitrary A high flush and a 5 high Straight Flush, in which case it will return the A as the last card, not first.
 func orderCardsOfSameSuit(clPtr *fiveCardList, cs tableitems.CardSuit) (tableitems.CardRank, tableitems.CardRank, tableitems.CardRank, tableitems.CardRank, tableitems.CardRank) {
 	// Info.Printf("%s\n\n", ThisFunc())

@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ttudrej/hand_analysis/httpd/handler"
-	"github.com/ttudrej/hand_analysis/platform/newsfeed"
+	"github.com/ttudrej/pkg/hand_analysis/httpd/handler"
+	"github.com/ttudrej/pkg/hand_analysis/platform/newsfeed"
 )
 
 // ############################################################

@@ -69,43 +69,43 @@ import (
 	"github.com/ttudrej/pokertrainer/pkg/tableitems"
 )
 
-// type CardRank string
-type CardRankMap map[tableitems.CardRank]int
+// // type CardRank string
+// type CardRankMap map[tableitems.CardRank]int
 
-const (
-	RK tableitems.CardRank = "K"
-	RA tableitems.CardRank = "A"
-)
+// const (
+// 	RK tableitems.CardRank = "K"
+// 	RA tableitems.CardRank = "A"
+// )
 
 // ###########################################################
 
-type CardRankMapCreator interface {
-	// Create() (CardRankMap, error)
-	Create() (CardRankMap, error)
-}
+// type CardRankMapCreator interface {
+// 	// Create() (CardRankMap, error)
+// 	Create() (CardRankMap, error)
+// }
 
-type CardRankMapStruct struct {
-	RankMap CardRankMap
-}
+// type CardRankMapStruct struct {
+// 	RankMap CardRankMap
+// }
 
-func (c CardRankMapStruct) Create() (CardRankMap, error) {
-	fmt.Println("c.RankMap: ", c.RankMap)
+// func (c CardRankMapStruct) Create() (CardRankMap, error) {
+// 	fmt.Println("c.RankMap: ", c.RankMap)
 
-	c.RankMap = make(CardRankMap)
-	c.RankMap[RA] = 14
-	c.RankMap[RK] = 13
-	fmt.Println("c.RankMap after assignment: ", c.RankMap)
+// 	c.RankMap = make(CardRankMap)
+// 	c.RankMap[RA] = 14
+// 	c.RankMap[RK] = 13
+// 	fmt.Println("c.RankMap after assignment: ", c.RankMap)
 
-	return c.RankMap, nil
-}
+// 	return c.RankMap, nil
+// }
 
 // ###########################################################
 
 func main() {
 	// var m CardRankMapCreator
-	var m CardRankMapCreator
+	var m tableitems.CardRankMapCreator
 
-	m = CardRankMapStruct{}
+	m = tableitems.CardRankMapStruct{}
 	describeM(m)
 	crm, err := m.Create()
 
@@ -115,6 +115,6 @@ func main() {
 
 // ###########################################################
 
-func describeM(m CardRankMapCreator) {
+func describeM(m tableitems.CardRankMapCreator) {
 	fmt.Printf("(%v, %T)\n", m, m)
 }

@@ -4,8 +4,6 @@ package tableitems
 import (
 	"fmt"
 	"log"
-
-	"github.com/ttudrej/pokertrainer/pkg/debugging"
 )
 
 var (
@@ -190,7 +188,9 @@ type CardRankMapStruct struct {
 func (c CardRankMapStruct) Create() (CardRankMap, error) {
 	fmt.Println("c.RankMap: ", c.RankMap)
 
-	Info.Println(debugging.ThisFunc())
+	// Info.Println(debugging.ThisFunc()) # ! throws a panic, currenlty
+	// 	panic: runtime error: invalid memory address or nil pointer dereference
+	// [signal SIGSEGV: segmentation violation code=0x2 addr=0x0 pc=0x10027a460]
 
 	c.RankMap = make(CardRankMap)
 	c.RankMap[RA] = 14
@@ -210,6 +210,10 @@ func (c CardRankMapStruct) Create() (CardRankMap, error) {
 
 	return c.RankMap, nil
 }
+
+// func describeM(m CardRankMapCreator) {
+// 	fmt.Printf("(%v, %T)\n", m, m)
+// }
 
 // ###########################################################
 
