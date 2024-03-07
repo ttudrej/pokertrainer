@@ -29,7 +29,7 @@ import (
 // https://poker.readthedocs.io/en/latest/_modules/poker/hand.html#Range.to_html
 
 // #################################################################
-// drawComleteRange_HTML create an HTML table representing a full "range cart",
+// drawComleteRange_HTML create an HTML table representing a full "range chart",
 // a 13x13 grid for use in range representation.
 func drawCompleteRangeHTML() string {
 	Info.Println(debugging.ThisFunc())

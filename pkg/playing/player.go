@@ -130,6 +130,8 @@ const (
 // This will be some of the parameters that will go into making a decision by this player, and
 // by ohters, about this player.
 // We use the word "instance", since we'll allow for the same player to play at multiple tables at the same time.
+// We're assuming that a player is capable of playing different strategies at different tables
+// and against different opponents.
 type playerInstanceState struct {
 	pPtr                         *player
 	sPtr                         *seat
