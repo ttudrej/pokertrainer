@@ -1,6 +1,6 @@
 package main
 
-import "github.com/ttudrej/pokertrainer/debugging"
+import "github.com/ttudrej/pokertrainer/pkg/debugging"
 
 /*
 #########################################################################

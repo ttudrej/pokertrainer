@@ -3,9 +3,17 @@ package main
 import (
 	"container/ring"
 	"fmt"
+	"log"
 	"strconv"
 
-	"github.com/ttudrej/pokertrainer/debugging"
+	"github.com/ttudrej/pokertrainer/pkg/debugging"
+)
+
+var (
+	// Trace *log.Logger
+	Info *log.Logger
+	// Warning *log.Logger
+	// Error   *log.Logger
 )
 
 type playerID int

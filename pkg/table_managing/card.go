@@ -2,7 +2,6 @@
 package tableitems
 
 import (
-	"fmt"
 	"log"
 )
 
@@ -37,12 +36,12 @@ type Card struct {
 	Sequence      int // assigned by our convention, just so we have another way to reference cards
 }
 
-// 3 things are needed to interfaces instead of functins directly:
+// 3 things are needed to use interfaces instead of functins directly:
 //
 // 1) One or more structs, sa, sb, sc, ... (type mystructname struct {})
 // => type CardRankMap struct
 //
-// 2) One or more methods (functins with a rceiver argument),  and same functin name,
+// 2) One or more methods (functions with a rceiver argument),  and same functin name,
 // 		where the reciver references one of the structs, sa, sb, sc, ....
 // 		(func (<receiver-structref>) funcname(<inputs>) (<outputs>))
 // => func (c Card) crate() (CardRankMap, error) {}
@@ -53,6 +52,8 @@ type Card struct {
 // => type cardRankMapCreator interface
 //
 // 4) Something that uses the interface.
+// 	Note, the functin call via the interface takes the associated struct as the argument,
+// 		not and not input args directly. The inputs are fed via the struct definition.
 //
 
 type CardRankList [13]CardRank
@@ -186,58 +187,27 @@ type CardRankMapStruct struct {
 }
 
 func (c CardRankMapStruct) Create() (CardRankMap, error) {
-	fmt.Println("c.RankMap: ", c.RankMap)
+	// fmt.Println("c.RankMap: ", c.RankMap)
 
-	// Info.Println(debugging.ThisFunc()) # ! throws a panic, currenlty
+	// Info.Println(debugging.ThisFunc()) // ! throws a panic, currenlty
 	// 	panic: runtime error: invalid memory address or nil pointer dereference
 	// [signal SIGSEGV: segmentation violation code=0x2 addr=0x0 pc=0x10027a460]
 
 	c.RankMap = make(CardRankMap)
 	c.RankMap[RA] = 14
 	c.RankMap[RK] = 13
-	// c.rankMap[RQ] = 12
-	// c.rankMap[RJ] = 11
-	// c.rankMap[RT] = 10
-	// c.rankMap[R9] = 9
-	// c.rankMap[R8] = 8
-	// c.rankMap[R7] = 7
-	// c.rankMap[R6] = 6
-	// c.rankMap[R5] = 5
-	// c.rankMap[R4] = 4
-	// c.rankMap[R3] = 3
-	// c.rankMap[R2] = 2
-	fmt.Println("c.RankMap after assignment: ", c.RankMap)
+	c.RankMap[RQ] = 12
+	c.RankMap[RJ] = 11
+	c.RankMap[RT] = 10
+	c.RankMap[R9] = 9
+	c.RankMap[R8] = 8
+	c.RankMap[R7] = 7
+	c.RankMap[R6] = 6
+	c.RankMap[R5] = 5
+	c.RankMap[R4] = 4
+	c.RankMap[R3] = 3
+	c.RankMap[R2] = 2
+	// fmt.Println("c.RankMap after assignment: ", c.RankMap)
 
 	return c.RankMap, nil
 }
-
-// func describeM(m CardRankMapCreator) {
-// 	fmt.Printf("(%v, %T)\n", m, m)
-// }
-
-// ###########################################################
-
-// createCardRankMap provides a mapping of card rank to an index.
-// Useful in card and hand ranking comparisions.
-// func CreateCardRankMap() (crm CardRankMap) {
-
-// 	Info.Println(debugging.ThisFunc())
-// 	// Info.Println("### Starting createCardRankMap ###")
-// 	crm = make(CardRankMap)
-
-// 	crm[RA] = 14
-// 	crm[RK] = 13
-// 	crm[RQ] = 12
-// 	crm[RJ] = 11
-// 	crm[RT] = 10
-// 	crm[R9] = 9
-// 	crm[R8] = 8
-// 	crm[R7] = 7
-// 	crm[R6] = 6
-// 	crm[R5] = 5
-// 	crm[R4] = 4
-// 	crm[R3] = 3
-// 	crm[R2] = 2
-
-// 	return crm
-// }

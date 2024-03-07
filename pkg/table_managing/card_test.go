@@ -1,24 +1,21 @@
-/*
-File: card_test.go, version history:
-v0.1	yyyy/mm/dd	Tomasz Tudrej
+package tableitems
 
-*/
-
-package main
-
-import "testing"
+import (
+	"testing"
+	// "github.com/ttudrej/pokertrainer/pkg/tableitems"
+)
 
 func TestCreateCardRankMap(t *testing.T) {
-	Info.Println(ThisFunc())
+	// Info.Println(ThisFunc())
 
-	crm := createCardRankMap()
+	crm, _ := CardRankMapCreator.Create(CardRankMapStruct{})
 
 	cases := []struct {
-		inputProvided  cardRank
+		inputProvided  CardRank
 		outputExpected int
 	}{
-		{rA, 14},
-		{r2, 2},
+		{RA, 14},
+		{R2, 2},
 	}
 
 	for _, c := range cases {

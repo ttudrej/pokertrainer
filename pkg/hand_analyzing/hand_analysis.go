@@ -1,4 +1,4 @@
-package hand_analysis
+package hand_analyzing
 
 import (
 	"errors"
