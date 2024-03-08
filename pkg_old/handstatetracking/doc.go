@@ -1,8 +1,10 @@
 /*
 File: doc.go, version history:
-v0.1	2018/06/30	Tomasz Tudrej
+
+v0.1	2021/05/25	Tomasz Tudrej
 
 License info
+
 Copyright info
 
 First line of documentation text in the doc.go file
@@ -15,8 +17,5 @@ So, it seems that "go doc" will search the entire package directory for files co
 "package <pkg name>" declaration, and grab the commnets, if any, that prodeede those lines
 immediattely, with not empty lines, and display them as it's output.
 
-
-https://poker.readthedocs.io/en/latest/_modules/poker/hand.html#Range.to_html
-
 */
-package calculating
+package handstatetracking
