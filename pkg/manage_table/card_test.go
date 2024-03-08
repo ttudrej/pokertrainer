@@ -1,4 +1,4 @@
-package tableitems
+package manage_table
 
 import (
 	"testing"

@@ -1,26 +1,26 @@
-package main
+package manage_table
 
 import (
-	"github.com/ttudrej/pokertrainer/debugging"
-	"github.com/ttudrej/pokertrainer/tableitems"
+	"github.com/ttudrej/pokertrainer/pkg/debugging"
+	// "github.com/ttudrej/pokertrainer/tableitems"
 )
 
 type cdmKey struct {
-	cr tableitems.CardRank
-	cs tableitems.CardSuit
+	cr CardRank
+	cs CardSuit
 }
 
-type cardDeckMap map[cdmKey]*tableitems.Card
+type CardDeckMap map[cdmKey]*Card
 
 // orderedListOfPtrsToCard
-type listOfPtrsToCards [52]*tableitems.Card
+type listOfPtrsToCards [52]*Card
 
 // orderedListOfPtrsToCard uses 56 not 52 slots, to accomodate for the Aces in 5-A straights
 // Used for hand rank checks ONLY
-type listFullOfPtrsToCards [56]*tableitems.Card
+type listFullOfPtrsToCards [56]*Card
 
-type cardDeck struct {
-	cdmPtr                     *cardDeckMap
+type CardDeck struct {
+	cdmPtr                     *CardDeckMap
 	oloptcPtr                  *listOfPtrsToCards     // Ordered List of *cards
 	topCardIndex_oloptc        int                    // 0-51, For keeping track of the top card in the deck, as they get dealt
 	shuffledLoptcPtr           *listOfPtrsToCards     // For storing the shuffled version. The shuffling job belongs to the dealer
@@ -54,11 +54,12 @@ from any other deck already in place. This way no mixing of cards between decks 
 Here is where we actually create cards. It makes sense that we create whole decks of cards,
 and not cards individually.
 */
-// func createDeck() (cdmPtr *cardDeckMap, olPtr *listOfPtrsToCards, olfPtr *listFullOfPtrsToCards, err error) {
-func createDeck() (cdPtr *cardDeck, err error) {
+// func createDeck() (cdmPtr *CardDeckMap, olPtr *listOfPtrsToCards, olfPtr *listFullOfPtrsToCards, err error) {
+// func createDeck() (cdPtr *CardDeck, err error) {
+func CreateDeck() (cdPtr *CardDeck, err error) {
 	Info.Println(debugging.ThisFunc())
 	// Info.Println("### Starting createDeck ###")
-	cdm := make(cardDeckMap)
+	cdm := make(CardDeckMap)
 	cdmPtr := &cdm
 
 	// Since we're createing a brand new, and ORDERED deck, our list will be "ordered"
@@ -74,7 +75,7 @@ func createDeck() (cdPtr *cardDeck, err error) {
 	olfPtr := &olf
 
 	// collect all things realated to a deck of cards in one struct
-	var cd cardDeck
+	var cd CardDeck
 	cdPtr = &cd
 
 	cd.cdmPtr = cdmPtr
@@ -86,9 +87,9 @@ func createDeck() (cdPtr *cardDeck, err error) {
 
 	sequence := 1 // bottom card in the deck, card 52 is the top of the deck.
 
-	for _, rank := range tableitems.RankList {
-		for _, suit := range tableitems.SuitList {
-			var c = tableitems.Card{rank, suit, false, false, false, false, sequence}
+	for _, rank := range RankList {
+		for _, suit := range SuitList {
+			var c = Card{rank, suit, false, false, false, false, sequence}
 			cPtr := &c
 
 			cdm[cdmKey{rank, suit}] = cPtr
@@ -100,7 +101,7 @@ func createDeck() (cdPtr *cardDeck, err error) {
 
 			// Also point add Aces that fit below the duces.
 			// Needed for working out Straigh relative ranking.
-			if rank == tableitems.RA {
+			if rank == RA {
 				olf[sequence-1+52] = cPtr
 			}
 			sequence++

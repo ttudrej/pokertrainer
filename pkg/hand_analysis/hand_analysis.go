@@ -3,37 +3,45 @@ package hand_analyzing
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"sort"
 	"strconv"
 
-	"github.com/ttudrej/pokertrainer/debugging"
-	"github.com/ttudrej/pokertrainer/tableitems"
+	"github.com/ttudrej/pokertrainer/pkg/debugging"
+	"github.com/ttudrej/pokertrainer/pkg/manage_table"
 	"gonum.org/v1/gonum/stat/combin"
 )
 
-// sliceOfCards will server as the mapping of inetgers to card names
-type cardIndex []tableitems.CardString
+var (
+	// Trace *log.Logger
+	Info *log.Logger
+	// Warning *log.Logger
+	// Error   *log.Logger
+)
 
-var cardIndexS = cardIndex{tableitems.SA, tableitems.SK, tableitems.SQ, tableitems.SJ, tableitems.ST, tableitems.S9, tableitems.S8, tableitems.S7, tableitems.S6, tableitems.S5, tableitems.S4, tableitems.S3, tableitems.S2}
-var cardIndexC = cardIndex{tableitems.CA, tableitems.CK, tableitems.CQ, tableitems.CJ, tableitems.CT, tableitems.C9, tableitems.C8, tableitems.C7, tableitems.C6, tableitems.C5, tableitems.C4, tableitems.C3, tableitems.C2}
-var cardIndexH = cardIndex{tableitems.HA, tableitems.HK, tableitems.HQ, tableitems.HJ, tableitems.HT, tableitems.H9, tableitems.H8, tableitems.H7, tableitems.H6, tableitems.H5, tableitems.H4, tableitems.H3, tableitems.H2}
-var cardIndexD = cardIndex{tableitems.DA, tableitems.DK, tableitems.DQ, tableitems.DJ, tableitems.DT, tableitems.D9, tableitems.D8, tableitems.D7, tableitems.D6, tableitems.D5, tableitems.D4, tableitems.D3, tableitems.D2}
+// csrdIndex comment
+type cardIndex []manage_table.CardString
+
+var cardIndexS = cardIndex{manage_table.SA, manage_table.SK, manage_table.SQ, manage_table.SJ, manage_table.ST, manage_table.S9, manage_table.S8, manage_table.S7, manage_table.S6, manage_table.S5, manage_table.S4, manage_table.S3, manage_table.S2}
+var cardIndexC = cardIndex{manage_table.CA, manage_table.CK, manage_table.CQ, manage_table.CJ, manage_table.CT, manage_table.C9, manage_table.C8, manage_table.C7, manage_table.C6, manage_table.C5, manage_table.C4, manage_table.C3, manage_table.C2}
+var cardIndexH = cardIndex{manage_table.HA, manage_table.HK, manage_table.HQ, manage_table.HJ, manage_table.HT, manage_table.H9, manage_table.H8, manage_table.H7, manage_table.H6, manage_table.H5, manage_table.H4, manage_table.H3, manage_table.H2}
+var cardIndexD = cardIndex{manage_table.DA, manage_table.DK, manage_table.DQ, manage_table.DJ, manage_table.DT, manage_table.D9, manage_table.D8, manage_table.D7, manage_table.D6, manage_table.D5, manage_table.D4, manage_table.D3, manage_table.D2}
 
 var cardIndexFull = cardIndex{
-	tableitems.SA, tableitems.HA, tableitems.CA, tableitems.DA,
-	tableitems.SK, tableitems.HK, tableitems.CK, tableitems.DK,
-	tableitems.SQ, tableitems.HQ, tableitems.CQ, tableitems.DQ,
-	tableitems.SJ, tableitems.HJ, tableitems.CJ, tableitems.DJ,
-	tableitems.ST, tableitems.HT, tableitems.CT, tableitems.DT,
-	tableitems.S9, tableitems.H9, tableitems.C9, tableitems.D9,
-	tableitems.S8, tableitems.H8, tableitems.C8, tableitems.D8,
-	tableitems.S7, tableitems.H7, tableitems.C7, tableitems.D7,
-	tableitems.S6, tableitems.H6, tableitems.C6, tableitems.D6,
-	tableitems.S5, tableitems.H5, tableitems.C5, tableitems.D5,
-	tableitems.S4, tableitems.H4, tableitems.C4, tableitems.D4,
-	tableitems.S3, tableitems.H3, tableitems.C3, tableitems.D3,
-	tableitems.S2, tableitems.H2, tableitems.C2, tableitems.D2}
+	manage_table.SA, manage_table.HA, manage_table.CA, manage_table.DA,
+	manage_table.SK, manage_table.HK, manage_table.CK, manage_table.DK,
+	manage_table.SQ, manage_table.HQ, manage_table.CQ, manage_table.DQ,
+	manage_table.SJ, manage_table.HJ, manage_table.CJ, manage_table.DJ,
+	manage_table.ST, manage_table.HT, manage_table.CT, manage_table.DT,
+	manage_table.S9, manage_table.H9, manage_table.C9, manage_table.D9,
+	manage_table.S8, manage_table.H8, manage_table.C8, manage_table.D8,
+	manage_table.S7, manage_table.H7, manage_table.C7, manage_table.D7,
+	manage_table.S6, manage_table.H6, manage_table.C6, manage_table.D6,
+	manage_table.S5, manage_table.H5, manage_table.C5, manage_table.D5,
+	manage_table.S4, manage_table.H4, manage_table.C4, manage_table.D4,
+	manage_table.S3, manage_table.H3, manage_table.C3, manage_table.D3,
+	manage_table.S2, manage_table.H2, manage_table.C2, manage_table.D2}
 
 // fiveCardHandKind, Not using "fiveCardHandType", so as to NOT confuse it with "type" as a declaration directive.
 type fiveCardHandKind string
@@ -41,19 +49,6 @@ type fiveCardHandKind string
 type fiveCardHandKindRanking struct {
 	handKind fiveCardHandKind
 	typeRank int
-}
-
-// FiveCardHandKindRankingFullList is a struct containing the ranking info.
-type FiveCardHandKindRankingFullList struct { // fchkr == fiveCardHandKindRanking
-	sfInfo  fiveCardHandKindRanking
-	x4Info  fiveCardHandKindRanking
-	fhInfo  fiveCardHandKindRanking
-	flInfo  fiveCardHandKindRanking
-	stInfo  fiveCardHandKindRanking
-	x3Info  fiveCardHandKindRanking
-	x22Info fiveCardHandKindRanking
-	x2Info  fiveCardHandKindRanking
-	hcInfo  fiveCardHandKindRanking
 }
 
 const (
@@ -68,6 +63,19 @@ const (
 	hc  fiveCardHandKind = "High Card"
 )
 
+// FiveCardHandKindRankingFullList is a struct containing the ranking info. We assign integer rank to hand types. Used in comparing hand strength.
+type FiveCardHandKindRankingFullList struct { // fchkr == fiveCardHandKindRanking
+	sfInfo  fiveCardHandKindRanking
+	x4Info  fiveCardHandKindRanking
+	fhInfo  fiveCardHandKindRanking
+	flInfo  fiveCardHandKindRanking
+	stInfo  fiveCardHandKindRanking
+	x3Info  fiveCardHandKindRanking
+	x22Info fiveCardHandKindRanking
+	x2Info  fiveCardHandKindRanking
+	hcInfo  fiveCardHandKindRanking
+}
+
 /*
 // We're assuming that we'll be comparing ordered lists of cards only.
 type fiveCardHandOrderedList struct { // 0 index == highest rank; higher index == lower rank
@@ -76,7 +84,8 @@ type fiveCardHandOrderedList struct { // 0 index == highest rank; higher index =
 
 	// We now need to prepare data structures that will support "ranking" 2 or more 5 card hands.
 	// Seems that a 2 level rannking system will work well, first, compare by fiveCardHandKind, then by an ordered list of all hands of that type.
-	// This will allow us to have a "ranking scale" which avoids calculating and properly ordering all the 5 card combinations.
+	// This will allow us to have a "ranking scale" which avoids calculating and properly ordering all the 5 card combinations. We only
+	// need to order within each hand kind.
 }
 */
 
@@ -85,18 +94,18 @@ type fiveCardHandMetadata struct {
 	handKind fiveCardHandKind
 }
 
-var crm tableitems.CardRankMap
+var crm manage_table.CardRankMap
 
-// Needs at most the max number of commuity cards + max num of the hole cards, so around 7 for NLH
-type fiveCardList []*tableitems.Card
+// fiveCardList needs at most the max number of commuity cards + max num of the hole cards, so 7 for Texas NLH
+type fiveCardList []*manage_table.Card
 
 type equivalentFiveCardHand struct {
 	// This is what we'll be collapsing equivalent hands to
-	c1r   tableitems.CardRank // card 1 rank
-	c2r   tableitems.CardRank // card 2 rank
-	c3r   tableitems.CardRank
-	c4r   tableitems.CardRank
-	c5r   tableitems.CardRank
+	c1r   manage_table.CardRank // card 1 rank
+	c2r   manage_table.CardRank // card 2 rank
+	c3r   manage_table.CardRank
+	c4r   manage_table.CardRank
+	c5r   manage_table.CardRank
 	info  fiveCardHandKindRanking
 	count int // Keep track of how many equivalent hands we've found.
 }
@@ -104,62 +113,64 @@ type equivalentFiveCardHand struct {
 // Keep a sorted list, by hand rank, of equivalent hands with some additional info
 type equivalentFCHList []equivalentFiveCardHand
 
-type rankCtrMap map[tableitems.CardRank]int
-type suitCtrMap map[tableitems.CardSuit]int
+type rankCtrMap map[manage_table.CardRank]int
+type suitCtrMap map[manage_table.CardSuit]int
 
-// rankCouter keeps track of counts of specific rank in a card list, and track of poker hands.
+// rankCouter keeps track of counts of specific card ranks in a card list. This provides means for determining the
+// relative strength of a specific list of cards.
 type rankCounter struct {
 	max         int
-	uniqeRankCt int                 // count of all unique ranks in the list
-	top4x1      tableitems.CardRank // rank of the top quads
+	uniqeRankCt int                   // count of all unique ranks in the list
+	top4x1      manage_table.CardRank // rank of the top quads
 
-	top3x1 tableitems.CardRank // rank of the top trips / three of a kind
-	top3x2 tableitems.CardRank // rank of the 2nd trips / three of a kind
+	top3x1 manage_table.CardRank // rank of the top trips / three of a kind
+	top3x2 manage_table.CardRank // rank of the 2nd trips / three of a kind
 
-	top2x1 tableitems.CardRank // rank of the top pair
-	top2x2 tableitems.CardRank // rank of the second pair ...
-	top2x3 tableitems.CardRank
+	top2x1 manage_table.CardRank // rank of the top pair
+	top2x2 manage_table.CardRank // rank of the second pair ...
+	top2x3 manage_table.CardRank
 
-	top1x1 tableitems.CardRank
-	top1x2 tableitems.CardRank
-	top1x3 tableitems.CardRank
-	top1x4 tableitems.CardRank
-	top1x5 tableitems.CardRank
+	top1x1 manage_table.CardRank
+	top1x2 manage_table.CardRank
+	top1x3 manage_table.CardRank
+	top1x4 manage_table.CardRank
+	top1x5 manage_table.CardRank
 
 	rcm rankCtrMap // hold how many of each rank there are in a card list
 }
 
+// suitCounter keeps track of suit composition in a list of cards. Means for detecting flushes.
 type suitCounter struct {
 	max int
 	scm suitCtrMap
 }
 
 // orderedListOfPtrsToCard
-type orderedListOfPtrsToCards [52]*tableitems.Card
+type orderedListOfPtrsToCards [52]*manage_table.Card
 
 // orderedListOfPtrsToCard uses 56 not 52 slots, to accomodate for the Aces in 5-A straights
 // Used for hand rank checks ONLY
-type orderedListFullOfPtrsToCards [56]*tableitems.Card
+type orderedListFullOfPtrsToCards [56]*manage_table.Card
 
 var orderedList orderedListOfPtrsToCards
 var orderedListFull orderedListFullOfPtrsToCards
 
-var counterSF int
-var counter4x int
-var counterFH int
-var counterFl int
-var counterSt int
-var counter3x int
-var counter2x2 int
-var counter2x int
-var counterHc int
+var counterSF int  // Straight Flush
+var counter4x int  // 4 of a kind / quads
+var counterFH int  // Full House
+var counterFl int  // Flush
+var counterSt int  // Straight
+var counter3x int  // 3 of a kind / trips / set
+var counter2x2 int // 2x 2 of a kind / 2 pair
+var counter2x int  // 2 of a kind / pair
+var counterHC int  // High card
 
 // var scl []fiveCardList
 var sOfAllFCLs []fiveCardList
 
 // For use by the sorting fuctions
 // type fclByRank [5]*card
-// type sfIndexByFirsttableitems.CardRank []int
+// type sfIndexByFirstmanage_table.CardRank []int
 
 var fchkrFL FiveCardHandKindRankingFullList
 
@@ -187,8 +198,9 @@ var fchkrFL FiveCardHandKindRankingFullList
 func prepareHandAnalysisTools() error {
 
 	// Info.Printf("%s\n\n", ThisFunc())
-	// Give ourselves a private deck to work with
-	deckPtr, _ := createDeck()
+	// Give ourselves a private/unique deck to work with
+	// deckPtr, _ := createDeck()
+	deckPtr, _ := manage_table.CreateDeck()
 
 	// Generate an integer representation of 52 choose 5 combos, so a list of all possible 5 card hands
 	// We will later create a mapping, which will translate the integers to proper card representation.
@@ -196,7 +208,8 @@ func prepareHandAnalysisTools() error {
 
 	// Create a map for rank value look up, since constant structs are not supported, so we could
 	// not have a rank struct with indexes, as a constant.
-	crm = tableitems.CreateCardRankMap()
+	// crm = manage_table.CreateCardRankMap()
+	// crm, _ := manage_table.CardRankMapCreator.Create(manage_table.CardRankMapStruct{})
 
 	// ###############################
 
@@ -226,7 +239,7 @@ func prepareHandAnalysisTools() error {
 
 	fmt.Println(fchkrFL.sfInfo)
 
-	fmt.Printf("map len: %v\n", len(*deckPtr.cdmPtr))
+	// fmt.Printf("map len: %v\n", len(*deckPtr.cdmPtr))
 
 	// _ = identifyAllSFs()
 
@@ -371,7 +384,7 @@ func generateAll5CardIntegerCombos(cardSetSize, chooseThisMany int) (ssiPtr *[][
 // #########################################################################
 
 // getCardStringByIndex returns the card value as string, like "As", based on index in an ordered deck. The Ascdh are 0,1,2,3 respectively.
-func getCardStringByIndex(i int) (card tableitems.CardString, err error) {
+func getCardStringByIndex(i int) (card manage_table.CardString, err error) {
 	// Info.Printf("%s\n\n", ThisFunc())
 
 	if i >= 0 && i <= 51 {
@@ -517,7 +530,8 @@ func printAllHandsInList() error {
 
 // genSCLfromSSI generate a Slice of fiveCardList, from Slice of Sices of Integers.
 // Map integrs in 5 integer slices, to cards, in 5 card slices.
-func genSCLfromSSI(ssiPtr *[][]int, dPtr *cardDeck) (sfclPtr *[]fiveCardList, err error) {
+// func genSCLfromSSI(ssiPtr *[][]int, dPtr *cardDeck) (sfclPtr *[]fiveCardList, err error) {
+func genSCLfromSSI(ssiPtr *[][]int, dPtr *manage_table.CardDeck) (sfclPtr *[]fiveCardList, err error) {
 
 	// Info.Printf("%s\n\n", ThisFunc())
 	// fmt.Println("len of ssi: ", len(*ssiPtr))
@@ -535,7 +549,7 @@ func genSCLfromSSI(ssiPtr *[][]int, dPtr *cardDeck) (sfclPtr *[]fiveCardList, er
 	for comboNum := range ssi {
 		// fmt.Println("comboNum: ", comboNum)
 
-		var cl = fiveCardList{tableitems.NoCardPtr, tableitems.NoCardPtr, tableitems.NoCardPtr, tableitems.NoCardPtr, tableitems.NoCardPtr}
+		var cl = fiveCardList{manage_table.NoCardPtr, manage_table.NoCardPtr, manage_table.NoCardPtr, manage_table.NoCardPtr, manage_table.NoCardPtr}
 		sfcl[comboNum] = cl
 
 		for cardIndex, cNum := range ssi[comboNum] {
@@ -878,7 +892,7 @@ func genListsOfHandType() (
 			sOfHCIndexes = append(sOfHCIndexes, i)
 			// fmt.Println("Foudn a ############################################# HC")
 			// fmt.Println("added to NO-TYPE list")
-			counterHc++
+			counterHC++
 
 			// if writeFiles {
 			// 	s, _ := sprintFiveCardListAsString(fclPtr, i)
@@ -889,7 +903,7 @@ func genListsOfHandType() (
 
 		/*
 			// Quit based on count
-			if counterHc == 1500000 {
+			if counterHC == 1500000 {
 				// 1.3M
 				os.Exit(0)
 			}
@@ -912,7 +926,7 @@ func genListsOfHandType() (
 	fmt.Println()
 	fmt.Println()
 	// Total up all the hand counts, so we can make sure we got them all
-	countsTotal := counterSF + counter4x + counterFH + counterFl + counterSt + counter3x + counter2x2 + counter2x + counterHc
+	countsTotal := counterSF + counter4x + counterFH + counterFl + counterSt + counter3x + counter2x2 + counter2x + counterHC
 
 	fmt.Printf("count SF : %v\n", counterSF)
 	fmt.Printf("count 4x : %v\n", counter4x)
@@ -922,7 +936,7 @@ func genListsOfHandType() (
 	fmt.Printf("count 3x : %v\n", counter3x)
 	fmt.Printf("count 2x2: %v\n", counter2x2)
 	fmt.Printf("count 2x : %v\n", counter2x)
-	fmt.Printf("count Hc : %v\n", counterHc)
+	fmt.Printf("count Hc : %v\n", counterHC)
 	fmt.Println("")
 
 	fmt.Printf("len sOfSfInsdexe    : %v\t%.3f %%\n", len(sOfSFIndexes), percentOfTotal(len(sOfSFIndexes), total))
@@ -1270,17 +1284,17 @@ func countRanksInfiveCardList(clPtr *fiveCardList) (rcPtr *rankCounter) {
 
 	// We don't calculate these values here, as it would be wasteful, since not all will be needed all the time,
 	// but, some will be needed sometimes.
-	rc.top1x1 = tableitems.RX // give it initial "unset" value
-	rc.top1x2 = tableitems.RX
-	rc.top1x3 = tableitems.RX
-	rc.top1x4 = tableitems.RX
-	rc.top1x5 = tableitems.RX
-	rc.top2x1 = tableitems.RX
-	rc.top2x2 = tableitems.RX
-	rc.top2x3 = tableitems.RX
-	rc.top3x1 = tableitems.RX
-	rc.top3x2 = tableitems.RX
-	rc.top4x1 = tableitems.RX
+	rc.top1x1 = manage_table.RX // give it initial "unset" value
+	rc.top1x2 = manage_table.RX
+	rc.top1x3 = manage_table.RX
+	rc.top1x4 = manage_table.RX
+	rc.top1x5 = manage_table.RX
+	rc.top2x1 = manage_table.RX
+	rc.top2x2 = manage_table.RX
+	rc.top2x3 = manage_table.RX
+	rc.top3x1 = manage_table.RX
+	rc.top3x2 = manage_table.RX
+	rc.top4x1 = manage_table.RX
 
 	for _, cPtr := range cl {
 
@@ -1299,7 +1313,7 @@ func countRanksInfiveCardList(clPtr *fiveCardList) (rcPtr *rankCounter) {
 	}
 
 	// Count up how many different unique ranks there are in the list
-	for _, rank := range tableitems.RankList {
+	for _, rank := range manage_table.RankList {
 		if rcPtr.rcm[rank] > 0 {
 			rcPtr.uniqeRankCt++
 		}
@@ -1371,7 +1385,7 @@ func createClPtr() (clPtr *fiveCardList) {
 // find5OrMoreOfSameSuitInfiveCardList takes a card list and returns true, if there were
 // 5 or more cards of any one suit in it, and the list of cards of that suit.
 // Otherwise assigns creates an error.
-func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *suitCounter) (resultingFclPtr *fiveCardList, topSuit tableitems.CardSuit, err error) {
+func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *suitCounter) (resultingFclPtr *fiveCardList, topSuit manage_table.CardSuit, err error) {
 	// Info.Printf("%s\n\n", ThisFunc())
 
 	fcl := *fclPtr
@@ -1385,12 +1399,12 @@ func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *s
 	// Run prelim checks
 	if scPtr.max < 5 || cll < 5 {
 		err = errors.New("Failed prelim checks, returning emtpy resultingFclPtr")
-		return resultingFclPtr, tableitems.X, err
+		return resultingFclPtr, manage_table.X, err
 	}
 
 	// Figure out which suit is most common in the list.
-	topSuit = tableitems.X
-	for _, cs := range tableitems.SuitList {
+	topSuit = manage_table.X
+	for _, cs := range manage_table.SuitList {
 		// fmt.Println("in find5OrMoreOfSameSuitInfiveCardList; cs: ", cs)
 		// Info.Printf("%s; cs: %v\n\n", ThisFunc(), cs)
 		if scPtr.scm[cs] > 4 {
@@ -1430,21 +1444,21 @@ func find5OrMoreOfSameSuitInfiveCardList(fclPtr *fiveCardList, cll int, scPtr *s
 //	Checks for a 5 high straight as well,
 //
 // to differentiate between an arbitrary A high flush and a 5 high Straight Flush, in which case it will return the A as the last card, not first.
-func orderCardsOfSameSuit(clPtr *fiveCardList, cs tableitems.CardSuit) (tableitems.CardRank, tableitems.CardRank, tableitems.CardRank, tableitems.CardRank, tableitems.CardRank) {
+func orderCardsOfSameSuit(clPtr *fiveCardList, cs manage_table.CardSuit) (manage_table.CardRank, manage_table.CardRank, manage_table.CardRank, manage_table.CardRank, manage_table.CardRank) {
 	// Info.Printf("%s\n\n", ThisFunc())
 
 	cl := *clPtr
 
-	var c tableitems.Card
+	var c manage_table.Card
 
-	var myFlCard1, myFlCard2, myFlCard3, myFlCard4, myFlCard5, myFlCard6, myFlCard7 tableitems.Card
-	myFlCard1 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard2 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard3 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard4 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard5 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard6 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard7 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	var myFlCard1, myFlCard2, myFlCard3, myFlCard4, myFlCard5, myFlCard6, myFlCard7 manage_table.Card
+	myFlCard1 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard2 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard3 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard4 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard5 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard6 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard7 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
 
 	for _, cPtr := range cl {
 
@@ -1452,10 +1466,10 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs tableitems.CardSuit) (tableite
 
 		if c.Suit == cs { // if we found a card of requested suit...
 
-			if myFlCard1.Rank == tableitems.RX { // 1st card in the suit of the Fl
+			if myFlCard1.Rank == manage_table.RX { // 1st card in the suit of the Fl
 				myFlCard1 = *cPtr
 
-			} else if myFlCard2.Rank == tableitems.RX { // 2nd card in the suit of the Fl
+			} else if myFlCard2.Rank == manage_table.RX { // 2nd card in the suit of the Fl
 				if crm[c.Rank] > crm[myFlCard1.Rank] { // if new card is higher than the the first
 					myFlCard2 = myFlCard1 // move the first to the second position
 					myFlCard1 = c         // Set the first/top pos to c
@@ -1463,7 +1477,7 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs tableitems.CardSuit) (tableite
 					myFlCard2 = c
 				}
 
-			} else if myFlCard3.Rank == tableitems.RX { // 3rd card in the suit of the Fl
+			} else if myFlCard3.Rank == manage_table.RX { // 3rd card in the suit of the Fl
 				if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 2
 					myFlCard3 = myFlCard2
 					myFlCard2 = myFlCard1
@@ -1475,7 +1489,7 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs tableitems.CardSuit) (tableite
 					myFlCard3 = c
 				}
 
-			} else if myFlCard4.Rank == tableitems.RX {
+			} else if myFlCard4.Rank == manage_table.RX {
 				if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 3
 					myFlCard4 = myFlCard3
 					myFlCard3 = myFlCard2
@@ -1492,7 +1506,7 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs tableitems.CardSuit) (tableite
 					myFlCard4 = c
 				}
 
-			} else if myFlCard5.Rank == tableitems.RX {
+			} else if myFlCard5.Rank == manage_table.RX {
 				if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 4
 					myFlCard5 = myFlCard4
 					myFlCard4 = myFlCard3
@@ -1515,7 +1529,7 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs tableitems.CardSuit) (tableite
 					myFlCard5 = c
 				}
 
-			} else if myFlCard6.Rank == tableitems.RX {
+			} else if myFlCard6.Rank == manage_table.RX {
 				if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 5
 					myFlCard6 = myFlCard5
 					myFlCard5 = myFlCard4
@@ -1545,7 +1559,7 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs tableitems.CardSuit) (tableite
 					myFlCard6 = c
 				}
 
-			} else if myFlCard7.Rank == tableitems.RX {
+			} else if myFlCard7.Rank == manage_table.RX {
 				if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 6
 					myFlCard7 = myFlCard6
 					myFlCard6 = myFlCard5
@@ -1595,8 +1609,8 @@ func orderCardsOfSameSuit(clPtr *fiveCardList, cs tableitems.CardSuit) (tableite
 //
 // Checks for a 5 high straight as well,
 // to differentiate between an arbitrary A high flush and a 5 high Straight Flush, in which case it will return the
-// A as the last tableitems.Card, not first.
-func orderCardsOfSameSuit2(clPtr *fiveCardList, cs tableitems.CardSuit) (resultingClPtr *fiveCardList, err error) {
+// A as the last manage_table.Card, not first.
+func orderCardsOfSameSuit2(clPtr *fiveCardList, cs manage_table.CardSuit) (resultingClPtr *fiveCardList, err error) {
 	// Info.Printf("%s\n\n", ThisFunc())
 
 	cl := *clPtr
@@ -1606,16 +1620,16 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs tableitems.CardSuit) (resulti
 	resultingClPtr = createClPtr()
 	resultingCl := *resultingClPtr
 
-	var c tableitems.Card
+	var c manage_table.Card
 
-	var myFlCard1, myFlCard2, myFlCard3, myFlCard4, myFlCard5, myFlCard6, myFlCard7 tableitems.Card
-	myFlCard1 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard2 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard3 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard4 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard5 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard6 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myFlCard7 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	var myFlCard1, myFlCard2, myFlCard3, myFlCard4, myFlCard5, myFlCard6, myFlCard7 manage_table.Card
+	myFlCard1 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard2 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard3 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard4 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard5 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard6 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myFlCard7 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
 
 	myFlCard1Ptr := &myFlCard1
 	myFlCard2Ptr := &myFlCard2
@@ -1629,14 +1643,14 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs tableitems.CardSuit) (resulti
 
 		if cPtr != nil {
 			c = *cPtr
-			// fmt.Println("in orderCardsOfSameSuit2, tableitems.Card from range: ", c)
+			// fmt.Println("in orderCardsOfSameSuit2, manage_table.Card from range: ", c)
 
 			if c.Suit == cs { // if we found a card of requested suit...
 
-				if myFlCard1.Rank == tableitems.RX { // 1st card in the suit of the Fl
+				if myFlCard1.Rank == manage_table.RX { // 1st card in the suit of the Fl
 					myFlCard1 = *cPtr
 
-				} else if myFlCard2.Rank == tableitems.RX { // 2nd card in the suit of the Fl
+				} else if myFlCard2.Rank == manage_table.RX { // 2nd card in the suit of the Fl
 					if crm[c.Rank] > crm[myFlCard1.Rank] { // if new card is higher than the the first
 						myFlCard2 = myFlCard1 // move the first to the second position
 						myFlCard1 = c         // Set the first/top pos to c
@@ -1644,7 +1658,7 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs tableitems.CardSuit) (resulti
 						myFlCard2 = c
 					}
 
-				} else if myFlCard3.Rank == tableitems.RX { // 3rd card in the suit of the Fl
+				} else if myFlCard3.Rank == manage_table.RX { // 3rd card in the suit of the Fl
 					if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 2
 						myFlCard3 = myFlCard2
 						myFlCard2 = myFlCard1
@@ -1656,7 +1670,7 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs tableitems.CardSuit) (resulti
 						myFlCard3 = c
 					}
 
-				} else if myFlCard4.Rank == tableitems.RX {
+				} else if myFlCard4.Rank == manage_table.RX {
 					if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 3
 						myFlCard4 = myFlCard3
 						myFlCard3 = myFlCard2
@@ -1673,7 +1687,7 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs tableitems.CardSuit) (resulti
 						myFlCard4 = c
 					}
 
-				} else if myFlCard5.Rank == tableitems.RX {
+				} else if myFlCard5.Rank == manage_table.RX {
 					if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 4
 						myFlCard5 = myFlCard4
 						myFlCard4 = myFlCard3
@@ -1696,7 +1710,7 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs tableitems.CardSuit) (resulti
 						myFlCard5 = c
 					}
 
-				} else if myFlCard6.Rank == tableitems.RX {
+				} else if myFlCard6.Rank == manage_table.RX {
 					if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 5
 						myFlCard6 = myFlCard5
 						myFlCard5 = myFlCard4
@@ -1726,7 +1740,7 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs tableitems.CardSuit) (resulti
 						myFlCard6 = c
 					}
 
-				} else if myFlCard7.Rank == tableitems.RX {
+				} else if myFlCard7.Rank == manage_table.RX {
 					if crm[c.Rank] > crm[myFlCard1.Rank] { // higher than the other 6
 						myFlCard7 = myFlCard6
 						myFlCard6 = myFlCard5
@@ -1775,9 +1789,9 @@ func orderCardsOfSameSuit2(clPtr *fiveCardList, cs tableitems.CardSuit) (resulti
 	resultingCl[4] = myFlCard5Ptr
 
 	// switch {
-	// case myFlCard6.Rank != tableitems.RX:
+	// case myFlCard6.Rank != manage_table.RX:
 	// 	resultingClPtr[5] = myFlCard6Ptr
-	// case myFlCard7.Rank != tableitems.RX:
+	// case myFlCard7.Rank != manage_table.RX:
 	// 	resultingClPtr[6] = myFlCard7Ptr
 	// }
 
@@ -1808,17 +1822,17 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 	resultingClPtr = createClPtr()
 	resultingCl := *resultingClPtr
 
-	var c tableitems.Card
+	var c manage_table.Card
 
-	// var myCard1, myCard2, myCard3, myCard4, myCard5, myCard6, myCard7 tableitems.Card
-	var myCard1, myCard2, myCard3, myCard4, myCard5 tableitems.Card
-	myCard1 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myCard2 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myCard3 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myCard4 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	myCard5 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	// myCard6 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
-	// myCard7 = tableitems.Card{tableitems.RX, tableitems.X, false, false, false, false, 0}
+	// var myCard1, myCard2, myCard3, myCard4, myCard5, myCard6, myCard7 manage_table.Card
+	var myCard1, myCard2, myCard3, myCard4, myCard5 manage_table.Card
+	myCard1 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myCard2 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myCard3 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myCard4 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	myCard5 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	// myCard6 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
+	// myCard7 = manage_table.Card{manage_table.RX, manage_table.X, false, false, false, false, 0}
 
 	myCard1Ptr := &myCard1
 	myCard2Ptr := &myCard2
@@ -1832,12 +1846,12 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 
 		if cPtr != nil {
 			c = *cPtr
-			// fmt.Println("in orderCardsOfMixedSuit, tableitems.Card from range: ", c)
+			// fmt.Println("in orderCardsOfMixedSuit, manage_table.Card from range: ", c)
 
-			if myCard1.Rank == tableitems.RX { // 1st card in the suit of the Fl
+			if myCard1.Rank == manage_table.RX { // 1st card in the suit of the Fl
 				myCard1 = *cPtr
 
-			} else if myCard2.Rank == tableitems.RX { // 2nd card in the suit of the Fl
+			} else if myCard2.Rank == manage_table.RX { // 2nd card in the suit of the Fl
 				if crm[c.Rank] > crm[myCard1.Rank] { // if new card is higher than the the first
 					myCard2 = myCard1 // move the first to the second position
 					myCard1 = c       // Set the first/top pos to c
@@ -1845,7 +1859,7 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 					myCard2 = c
 				}
 
-			} else if myCard3.Rank == tableitems.RX { // 3rd card in the suit of the Fl
+			} else if myCard3.Rank == manage_table.RX { // 3rd card in the suit of the Fl
 				if crm[c.Rank] > crm[myCard1.Rank] { // higher than the other 2
 					myCard3 = myCard2
 					myCard2 = myCard1
@@ -1857,7 +1871,7 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 					myCard3 = c
 				}
 
-			} else if myCard4.Rank == tableitems.RX {
+			} else if myCard4.Rank == manage_table.RX {
 				if crm[c.Rank] > crm[myCard1.Rank] { // higher than the other 3
 					myCard4 = myCard3
 					myCard3 = myCard2
@@ -1874,7 +1888,7 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 					myCard4 = c
 				}
 
-			} else if myCard5.Rank == tableitems.RX {
+			} else if myCard5.Rank == manage_table.RX {
 				if crm[c.Rank] > crm[myCard1.Rank] { // higher than the other 4
 					myCard5 = myCard4
 					myCard4 = myCard3
@@ -1898,7 +1912,7 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 				}
 
 				/*
-					} else if myCard6.Rank == tableitems.RX {
+					} else if myCard6.Rank == manage_table.RX {
 						if crm[c.Rank] > crm[myCard1.Rank] { // higher than the other 5
 							myCard6 = myCard5
 							myCard5 = myCard4
@@ -1928,7 +1942,7 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 							myCard6 = c
 						}
 
-					} else if myCard7.Rank == tableitems.RX {
+					} else if myCard7.Rank == manage_table.RX {
 						if crm[c.Rank] > crm[myCard1.Rank] { // higher than the other 6
 							myCard7 = myCard6
 							myCard6 = myCard5
@@ -1978,9 +1992,9 @@ func orderCardsOfMixedSuit(clPtr *fiveCardList) (resultingClPtr *fiveCardList, e
 	resultingCl[4] = myCard5Ptr
 
 	// switch {
-	// case myCard6.Rank != tableitems.RX:
+	// case myCard6.Rank != manage_table.RX:
 	// 	resultingClPtr[5] = myCard6Ptr
-	// case myCard7.Rank != tableitems.RX:
+	// case myCard7.Rank != manage_table.RX:
 	// 	resultingClPtr[6] = myCard7Ptr
 	// }
 
@@ -2097,7 +2111,7 @@ func find4xInList(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suitC
 	}
 
 L01:
-	for _, rank := range tableitems.RankList {
+	for _, rank := range manage_table.RankList {
 		if rcPtr.rcm[rank] == 4 {
 			rcPtr.top4x1 = rank
 			break L01
@@ -2201,7 +2215,7 @@ func checkFor4x_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 	}
 
 L01:
-	for _, rank := range tableitems.RankList {
+	for _, rank := range manage_table.RankList {
 		if rcPtr.rcm[rank] == 4 {
 			rcPtr.top4x1 = rank
 			break L01
@@ -2239,7 +2253,7 @@ func checkFor3x_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePtr
 	}
 
 L03:
-	for _, rank := range tableitems.RankList {
+	for _, rank := range manage_table.RankList {
 		if rcPtr.rcm[rank] == 3 {
 			rcPtr.top3x1 = rank
 			break L03
@@ -2305,7 +2319,7 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 		ct3x := 0
 		ct2x := 0
 
-		for _, rank := range tableitems.RankList {
+		for _, rank := range manage_table.RankList {
 
 			switch {
 			case rcPtr.rcm[rank] == 3: // found a 3x
@@ -2333,7 +2347,7 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 			default:
 			} // End switch
 
-		} // Since tableitems.RankList is arranged from highest to lowest rank, the top3x1 and top3x2, ..., are properly set.
+		} // Since manage_table.RankList is arranged from highest to lowest rank, the top3x1 and top3x2, ..., are properly set.
 
 		/*
 			fmt.Println()
@@ -2350,17 +2364,17 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 			switch { // Considering 5 card hands only !!!
 			// Only for 6+ cards:
 			// case 3x, 3x, with 7 cards, there can't be a 2x here
-			// case rcPtr.top3x2 != tableitems.RX:
+			// case rcPtr.top3x2 != manage_table.RX:
 			// 	*handNamePtr = "FH, " + string(rcPtr.top3x1) + "s full of " + string(rcPtr.top3x2) + "s."
 			// 	// case 3x, 2x, 2x OR 3x, 2x, 1x, 1x
 			// 	fmt.Println("Found FH ############## A")
 
-			case rcPtr.top3x1 != tableitems.RX:
+			case rcPtr.top3x1 != manage_table.RX:
 				*handNamePtr = "FH, " + string(rcPtr.top3x1) + "s full of " + string(rcPtr.top3x2) + "s."
 				// case 3x, 2x
 				fmt.Println("Found FH ############## A")
 
-			case rcPtr.top2x1 != tableitems.RX:
+			case rcPtr.top2x1 != manage_table.RX:
 				*handNamePtr = "FH, " + string(rcPtr.top3x1) + "s full of " + string(rcPtr.top2x1) + "s."
 				fmt.Println("Found FH ############## B")
 
@@ -2371,7 +2385,7 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 
 		*/
 
-		if rcPtr.top2x1 != tableitems.RX {
+		if rcPtr.top2x1 != manage_table.RX {
 			*handNamePtr = "FH, " + string(rcPtr.top3x1) + "s full of " + string(rcPtr.top2x1) + "s."
 			// case 3x, 2x
 			// fmt.Println("Found FH ############## A")
@@ -2396,14 +2410,14 @@ func checkForFH_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 func checkForFl_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suitCounter, handNamePtr *string) (err error) {
 	// Info.Printf("%s\n\n", ThisFunc())
 
-	var mySuit tableitems.CardSuit
+	var mySuit manage_table.CardSuit
 
-	var cr1, cr2, cr3, cr4, cr5 tableitems.CardRank
-	cr1 = tableitems.RX
-	cr2 = tableitems.RX
-	cr3 = tableitems.RX
-	cr4 = tableitems.RX
-	cr5 = tableitems.RX
+	var cr1, cr2, cr3, cr4, cr5 manage_table.CardRank
+	cr1 = manage_table.RX
+	cr2 = manage_table.RX
+	cr3 = manage_table.RX
+	cr4 = manage_table.RX
+	cr5 = manage_table.RX
 
 	// fmt.Println("### Looking for a Flush #######")
 	// fmt.Println("card list len, cll: ", cll)
@@ -2417,14 +2431,14 @@ func checkForFl_5c(fclPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *sui
 	}
 
 	switch {
-	case scPtr.scm[tableitems.S] >= 5:
-		mySuit = tableitems.S
-	case scPtr.scm[tableitems.C] >= 5:
-		mySuit = tableitems.C
-	case scPtr.scm[tableitems.H] >= 5:
-		mySuit = tableitems.H
-	case scPtr.scm[tableitems.D] >= 5:
-		mySuit = tableitems.D
+	case scPtr.scm[manage_table.S] >= 5:
+		mySuit = manage_table.S
+	case scPtr.scm[manage_table.C] >= 5:
+		mySuit = manage_table.C
+	case scPtr.scm[manage_table.H] >= 5:
+		mySuit = manage_table.H
+	case scPtr.scm[manage_table.D] >= 5:
+		mySuit = manage_table.D
 	default:
 		*handNamePtr = "did not find a Flush"
 		err = errors.New("Did not find a Fl")
@@ -2484,25 +2498,25 @@ func checkForSt_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, scPtr *suit
 L02:
 	for i := 0; i <= 9; i++ {
 		// fmt.Println("i: ", i)
-		// fmt.Printf("in checkForSt_5c tableitems.RankListFull of i is: %v\n\n", tableitems.RankListFull[i])
+		// fmt.Printf("in checkForSt_5c manage_table.RankListFull of i is: %v\n\n", manage_table.RankListFull[i])
 		// fmt.Printf("clPtr 0 : %v; 1: %v; 2: %v; 3: %v; 4: %v; 5: %v; 6: %v\n", clPtr[0].Rank, clPtr[1], clPtr[2], clPtr[3], clPtr[4], clPtr[5], clPtr[6])
-		// fmt.Printf("rankLFi : %v;+1: %v;+2: %v;+3: %v;+4: %v\n\n", tableitems.RankListFull[i], tableitems.RankListFull[i+1], tableitems.RankListFull[i+2], tableitems.RankListFull[i+3], tableitems.RankListFull[i+4])
+		// fmt.Printf("rankLFi : %v;+1: %v;+2: %v;+3: %v;+4: %v\n\n", manage_table.RankListFull[i], manage_table.RankListFull[i+1], manage_table.RankListFull[i+2], manage_table.RankListFull[i+3], manage_table.RankListFull[i+4])
 
-		// if (clPtr[0].Rank == tableitems.RankListFull[i] || clPtr[1].Rank == tableitems.RankListFull[i] || clPtr[2].Rank == tableitems.RankListFull[i] || clPtr[3].Rank == tableitems.RankListFull[i] || clPtr[4].Rank == tableitems.RankListFull[i] || clPtr[5].Rank == tableitems.RankListFull[i] || clPtr[6].Rank == tableitems.RankListFull[i]) &&
-		// 	(clPtr[0].Rank == tableitems.RankListFull[i+1] || clPtr[1].Rank == tableitems.RankListFull[i+1] || clPtr[2].Rank == tableitems.RankListFull[i+1] || clPtr[3].Rank == tableitems.RankListFull[i+1] || clPtr[4].Rank == tableitems.RankListFull[i+1] || clPtr[5].Rank == tableitems.RankListFull[i+1] || clPtr[6].Rank == tableitems.RankListFull[i+1]) &&
-		// 	(clPtr[0].Rank == tableitems.RankListFull[i+2] || clPtr[1].Rank == tableitems.RankListFull[i+2] || clPtr[2].Rank == tableitems.RankListFull[i+2] || clPtr[3].Rank == tableitems.RankListFull[i+2] || clPtr[4].Rank == tableitems.RankListFull[i+2] || clPtr[5].Rank == tableitems.RankListFull[i+2] || clPtr[6].Rank == tableitems.RankListFull[i+2]) &&
-		// 	(clPtr[0].Rank == tableitems.RankListFull[i+3] || clPtr[1].Rank == tableitems.RankListFull[i+3] || clPtr[2].Rank == tableitems.RankListFull[i+3] || clPtr[3].Rank == tableitems.RankListFull[i+3] || clPtr[4].Rank == tableitems.RankListFull[i+3] || clPtr[5].Rank == tableitems.RankListFull[i+3] || clPtr[6].Rank == tableitems.RankListFull[i+3]) &&
-		// 	(clPtr[0].Rank == tableitems.RankListFull[i+4] || clPtr[1].Rank == tableitems.RankListFull[i+4] || clPtr[2].Rank == tableitems.RankListFull[i+4] || clPtr[3].Rank == tableitems.RankListFull[i+4] || clPtr[4].Rank == tableitems.RankListFull[i+4] || clPtr[5].Rank == tableitems.RankListFull[i+4] || clPtr[6].Rank == tableitems.RankListFull[i+4]) {
+		// if (clPtr[0].Rank == manage_table.RankListFull[i] || clPtr[1].Rank == manage_table.RankListFull[i] || clPtr[2].Rank == manage_table.RankListFull[i] || clPtr[3].Rank == manage_table.RankListFull[i] || clPtr[4].Rank == manage_table.RankListFull[i] || clPtr[5].Rank == manage_table.RankListFull[i] || clPtr[6].Rank == manage_table.RankListFull[i]) &&
+		// 	(clPtr[0].Rank == manage_table.RankListFull[i+1] || clPtr[1].Rank == manage_table.RankListFull[i+1] || clPtr[2].Rank == manage_table.RankListFull[i+1] || clPtr[3].Rank == manage_table.RankListFull[i+1] || clPtr[4].Rank == manage_table.RankListFull[i+1] || clPtr[5].Rank == manage_table.RankListFull[i+1] || clPtr[6].Rank == manage_table.RankListFull[i+1]) &&
+		// 	(clPtr[0].Rank == manage_table.RankListFull[i+2] || clPtr[1].Rank == manage_table.RankListFull[i+2] || clPtr[2].Rank == manage_table.RankListFull[i+2] || clPtr[3].Rank == manage_table.RankListFull[i+2] || clPtr[4].Rank == manage_table.RankListFull[i+2] || clPtr[5].Rank == manage_table.RankListFull[i+2] || clPtr[6].Rank == manage_table.RankListFull[i+2]) &&
+		// 	(clPtr[0].Rank == manage_table.RankListFull[i+3] || clPtr[1].Rank == manage_table.RankListFull[i+3] || clPtr[2].Rank == manage_table.RankListFull[i+3] || clPtr[3].Rank == manage_table.RankListFull[i+3] || clPtr[4].Rank == manage_table.RankListFull[i+3] || clPtr[5].Rank == manage_table.RankListFull[i+3] || clPtr[6].Rank == manage_table.RankListFull[i+3]) &&
+		// 	(clPtr[0].Rank == manage_table.RankListFull[i+4] || clPtr[1].Rank == manage_table.RankListFull[i+4] || clPtr[2].Rank == manage_table.RankListFull[i+4] || clPtr[3].Rank == manage_table.RankListFull[i+4] || clPtr[4].Rank == manage_table.RankListFull[i+4] || clPtr[5].Rank == manage_table.RankListFull[i+4] || clPtr[6].Rank == manage_table.RankListFull[i+4]) {
 
-		if (cl[0].Rank == tableitems.RankListFull[i] || cl[1].Rank == tableitems.RankListFull[i] || cl[2].Rank == tableitems.RankListFull[i] || cl[3].Rank == tableitems.RankListFull[i] || cl[4].Rank == tableitems.RankListFull[i]) &&
-			(cl[0].Rank == tableitems.RankListFull[i+1] || cl[1].Rank == tableitems.RankListFull[i+1] || cl[2].Rank == tableitems.RankListFull[i+1] || cl[3].Rank == tableitems.RankListFull[i+1] || cl[4].Rank == tableitems.RankListFull[i+1]) &&
-			(cl[0].Rank == tableitems.RankListFull[i+2] || cl[1].Rank == tableitems.RankListFull[i+2] || cl[2].Rank == tableitems.RankListFull[i+2] || cl[3].Rank == tableitems.RankListFull[i+2] || cl[4].Rank == tableitems.RankListFull[i+2]) &&
-			(cl[0].Rank == tableitems.RankListFull[i+3] || cl[1].Rank == tableitems.RankListFull[i+3] || cl[2].Rank == tableitems.RankListFull[i+3] || cl[3].Rank == tableitems.RankListFull[i+3] || cl[4].Rank == tableitems.RankListFull[i+3]) &&
-			(cl[0].Rank == tableitems.RankListFull[i+4] || cl[1].Rank == tableitems.RankListFull[i+4] || cl[2].Rank == tableitems.RankListFull[i+4] || cl[3].Rank == tableitems.RankListFull[i+4] || cl[4].Rank == tableitems.RankListFull[i+4]) {
+		if (cl[0].Rank == manage_table.RankListFull[i] || cl[1].Rank == manage_table.RankListFull[i] || cl[2].Rank == manage_table.RankListFull[i] || cl[3].Rank == manage_table.RankListFull[i] || cl[4].Rank == manage_table.RankListFull[i]) &&
+			(cl[0].Rank == manage_table.RankListFull[i+1] || cl[1].Rank == manage_table.RankListFull[i+1] || cl[2].Rank == manage_table.RankListFull[i+1] || cl[3].Rank == manage_table.RankListFull[i+1] || cl[4].Rank == manage_table.RankListFull[i+1]) &&
+			(cl[0].Rank == manage_table.RankListFull[i+2] || cl[1].Rank == manage_table.RankListFull[i+2] || cl[2].Rank == manage_table.RankListFull[i+2] || cl[3].Rank == manage_table.RankListFull[i+2] || cl[4].Rank == manage_table.RankListFull[i+2]) &&
+			(cl[0].Rank == manage_table.RankListFull[i+3] || cl[1].Rank == manage_table.RankListFull[i+3] || cl[2].Rank == manage_table.RankListFull[i+3] || cl[3].Rank == manage_table.RankListFull[i+3] || cl[4].Rank == manage_table.RankListFull[i+3]) &&
+			(cl[0].Rank == manage_table.RankListFull[i+4] || cl[1].Rank == manage_table.RankListFull[i+4] || cl[2].Rank == manage_table.RankListFull[i+4] || cl[3].Rank == manage_table.RankListFull[i+4] || cl[4].Rank == manage_table.RankListFull[i+4]) {
 
-			// fmt.Printf("in checkForSt_5c inside IF\n%v %v %v %v %v\n", tableitems.RankListFull[i], tableitems.RankListFull[i+1], tableitems.RankListFull[i+2], tableitems.RankListFull[i+3], tableitems.RankListFull[i+4])
+			// fmt.Printf("in checkForSt_5c inside IF\n%v %v %v %v %v\n", manage_table.RankListFull[i], manage_table.RankListFull[i+1], manage_table.RankListFull[i+2], manage_table.RankListFull[i+3], manage_table.RankListFull[i+4])
 
-			*handNamePtr = string(tableitems.RankListFull[i]) + " high Straight"
+			*handNamePtr = string(manage_table.RankListFull[i]) + " high Straight"
 			err = nil // since it could have been set to "not nil"
 			break L02
 		}
@@ -2536,7 +2550,7 @@ func checkFor2x2_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePt
 
 			pair_count++
 
-			if rcPtr.top2x1 == tableitems.RX {
+			if rcPtr.top2x1 == manage_table.RX {
 				rcPtr.top2x1 = cr
 			} else {
 				if crm[cr] > crm[rcPtr.top2x1] {
@@ -2554,7 +2568,7 @@ func checkFor2x2_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePt
 	// orderedClPtr, err := orderCardsOfMixedSuit(clPtr)
 	// err04 := findPairs(orderedClPtr, cll, rcPtr) // Assigns the 2x var values in the rcPtr
 
-	// if err04 == nil && rcPtr.top2x2 != tableitems.RX {
+	// if err04 == nil && rcPtr.top2x2 != manage_table.RX {
 	if pair_count == 2 {
 		*handNamePtr = "Two pair, " + string(rcPtr.top2x1) + "s and " + string(rcPtr.top2x2) + "s, " + string(rcPtr.top1x1) + " kicker"
 	} else {
@@ -2586,25 +2600,25 @@ func findPairs(clPtr *fiveCardList, cll int, rcPtr *rankCounter) (err error) {
 		// fmt.Println("clPtr[i]: ", clPtr[i], "clPtr[i+1]: ", clPtr[i+1], "rcPtr.top2x1: ", rcPtr.top2x1)
 
 		if cl[i].Rank == cl[i+1].Rank {
-			if rcPtr.top2x1 == tableitems.RX {
+			if rcPtr.top2x1 == manage_table.RX {
 				// fmt.Println("in findPairs, inside IF, found a pair")
 				rcPtr.top2x1 = cl[i].Rank
-			} else if rcPtr.top2x2 == tableitems.RX {
+			} else if rcPtr.top2x2 == manage_table.RX {
 				// fmt.Println("in findPairs, inside IF, found 2nd pair")
 				rcPtr.top2x2 = cl[i].Rank
 			}
 			i = i + 1 // if we encountered the first card in a pair, then skip the second
 		} else {
 			switch {
-			case rcPtr.top1x1 == tableitems.RX:
+			case rcPtr.top1x1 == manage_table.RX:
 				rcPtr.top1x1 = cl[i].Rank
-			case rcPtr.top1x2 == tableitems.RX:
+			case rcPtr.top1x2 == manage_table.RX:
 				rcPtr.top1x2 = cl[i].Rank
-			case rcPtr.top1x3 == tableitems.RX:
+			case rcPtr.top1x3 == manage_table.RX:
 				rcPtr.top1x3 = cl[i].Rank
-			case rcPtr.top1x4 == tableitems.RX:
+			case rcPtr.top1x4 == manage_table.RX:
 				rcPtr.top1x4 = cl[i].Rank
-			case rcPtr.top1x5 == tableitems.RX:
+			case rcPtr.top1x5 == manage_table.RX:
 				rcPtr.top1x5 = cl[i].Rank
 			default:
 				fmt.Println("reached default case in findPairs; i: ", i)
@@ -2612,7 +2626,7 @@ func findPairs(clPtr *fiveCardList, cll int, rcPtr *rankCounter) (err error) {
 		}
 	}
 
-	if rcPtr.top2x1 == tableitems.RX {
+	if rcPtr.top2x1 == manage_table.RX {
 		err = errors.New("did not find any pairs")
 		// fmt.Println("did not find any pairs; err: ", err)
 	}
@@ -2636,7 +2650,7 @@ func checkFor2x1_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePt
 	// orderedClPtr, err := orderCardsOfMixedSuit(clPtr)
 	// err05 := findPairs(orderedClPtr, cll, rcPtr) // Assigns the 2x var values in the rcPtr
 
-	if rcPtr.top2x1 != tableitems.RX {
+	if rcPtr.top2x1 != manage_table.RX {
 		*handNamePtr = "Pair, " + string(rcPtr.top2x1) + "s, " + string(rcPtr.top1x1) + string(rcPtr.top1x2) + string(rcPtr.top1x3) + " kicker."
 	} else {
 		err = errors.New("did not find any pairs")
@@ -2663,7 +2677,7 @@ func checkForHc_5c(clPtr *fiveCardList, cll int, rcPtr *rankCounter, handNamePtr
 	// fmt.Println("card list len, cll: ", cll)
 	// fmt.Println("rcPtrmax: ", rcPtr.max)
 
-	if rcPtr.top2x1 == tableitems.RX {
+	if rcPtr.top2x1 == manage_table.RX {
 		*handNamePtr = "High card: " + string(rcPtr.top1x1) + ", " + string(rcPtr.top1x2) + string(rcPtr.top1x3) + string(rcPtr.top1x4) + string(rcPtr.top1x5) + " kicker."
 	} else {
 		err = errors.New("did not find any pairs")
@@ -2877,7 +2891,7 @@ func createHcCL() (clPtr *fiveCardList) {
 }
 
 // #####################################################################
-func getRankOfNthCardForGivenIndexOfscl(i int, n int) tableitems.CardRank {
+func getRankOfNthCardForGivenIndexOfscl(i int, n int) manage_table.CardRank {
 	// func getRankOfNthCardForGivenIndexOfscl(i int, n int) int {
 
 	return sOfAllFCLs[i][n].Rank
@@ -2909,9 +2923,9 @@ func orderSFIndexesAsc(siPtr *[]int) (err error) {
 		iltj := false
 		// If our fcl starts with A5, then we have a wheel straight, the lowest straight, so
 		// this index must end up at the opposite end from the AK hands.
-		if sOfAllFCLs[si[i]][0].Rank == tableitems.RA && sOfAllFCLs[si[i]][1].Rank == tableitems.R5 {
+		if sOfAllFCLs[si[i]][0].Rank == manage_table.RA && sOfAllFCLs[si[i]][1].Rank == manage_table.R5 {
 			iltj = true
-		} else if sOfAllFCLs[si[j]][0].Rank == tableitems.RA && sOfAllFCLs[si[j]][1].Rank == tableitems.R5 {
+		} else if sOfAllFCLs[si[j]][0].Rank == manage_table.RA && sOfAllFCLs[si[j]][1].Rank == manage_table.R5 {
 			iltj = false
 		} else if crm[sOfAllFCLs[si[i]][0].Rank] < crm[sOfAllFCLs[si[j]][0].Rank] {
 			iltj = true
@@ -2933,9 +2947,9 @@ func orderSFIndexesDes(siPtr *[]int) (err error) {
 		iltj := false
 		// If our fcl starts with A5, then we have a wheel straight, the lowest straight, so
 		// this index must end up at the opposite end from the AK hands.
-		if sOfAllFCLs[si[i]][0].Rank == tableitems.RA && sOfAllFCLs[si[i]][1].Rank == tableitems.R5 {
+		if sOfAllFCLs[si[i]][0].Rank == manage_table.RA && sOfAllFCLs[si[i]][1].Rank == manage_table.R5 {
 			iltj = false
-		} else if sOfAllFCLs[si[j]][0].Rank == tableitems.RA && sOfAllFCLs[si[j]][1].Rank == tableitems.R5 {
+		} else if sOfAllFCLs[si[j]][0].Rank == manage_table.RA && sOfAllFCLs[si[j]][1].Rank == manage_table.R5 {
 			iltj = true
 		} else if crm[sOfAllFCLs[si[i]][0].Rank] > crm[sOfAllFCLs[si[j]][0].Rank] {
 			iltj = true

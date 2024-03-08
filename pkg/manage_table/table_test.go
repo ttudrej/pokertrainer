@@ -1,10 +1,4 @@
-/*
-File: deck_shuffler_test.go, version history:
-v0.1	yyyy/mm/dd	Tomasz Tudrej
-
-*/
-
-package main
+package manage_table
 
 import "testing"
 

@@ -1,4 +1,4 @@
-package main
+package hand_analyzing
 
 type relativePositionPF int
 type relativePosition int // for Flop and later

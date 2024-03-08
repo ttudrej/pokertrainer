@@ -1,4 +1,4 @@
-package main
+package manage_table
 
 import (
 	"container/ring"
