@@ -1,5 +1,7 @@
 
 
+# Commenting and documentin your code
+https://go.dev/doc/comment
 
 https://go.dev/doc/effective_go
 

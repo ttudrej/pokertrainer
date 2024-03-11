@@ -1,4 +1,4 @@
-package main
+package dealing
 
 import "github.com/ttudrej/pokertrainer/pkg/debugging"
 
