@@ -1,4 +1,4 @@
-package main
+package hand_recording
 
 type bettingRound string
 

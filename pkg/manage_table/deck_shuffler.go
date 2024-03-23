@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/ttudrej/pokertrainer/debugging"
+	"github.com/ttudrej/pokertrainer/pkg/debugging"
 )
 
 /*

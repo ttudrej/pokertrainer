@@ -1,4 +1,4 @@
-package hand_analyzing
+package hand_analysis
 
 import (
 	"errors"
@@ -529,7 +529,7 @@ func printAllHandsInList() error {
 // #########################################################################
 
 // genSCLfromSSI generate a Slice of fiveCardList, from Slice of Sices of Integers.
-// Map integrs in 5 integer slices, to cards, in 5 card slices.
+// Map integers in 5 integer slices, to cards, in 5 card slices.
 // func genSCLfromSSI(ssiPtr *[][]int, dPtr *cardDeck) (sfclPtr *[]fiveCardList, err error) {
 func genSCLfromSSI(ssiPtr *[][]int, dPtr *manage_table.CardDeck) (sfclPtr *[]fiveCardList, err error) {
 
@@ -760,7 +760,7 @@ func genListsOfHandType() (
 
 	// XXXX
 
-	// Flag for making new files, since this operation can be resouce/time consiming.
+	// Flag for making new files, since this operation can be resouce/time consuming.
 	writeFiles := false
 
 	// Give ourselves "buckets" to catch the different types of hands into.

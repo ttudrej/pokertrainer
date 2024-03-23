@@ -1,4 +1,4 @@
-package main
+package manage_room
 
 import (
 	"github.com/ttudrej/pokertrainer/debugging"

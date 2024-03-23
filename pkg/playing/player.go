@@ -1,4 +1,4 @@
-package main
+package playing
 
 import (
 	"container/ring"
@@ -16,13 +16,13 @@ var (
 	// Error   *log.Logger
 )
 
-type playerID int
+type PlayerID int
 
 type userName string
 
 type player struct {
 	userName            userName
-	id                  playerID
+	id                  PlayerID
 	behaviorDescription string
 
 	// Starting ranges; sr9h = starting range 9 handed
@@ -134,7 +134,7 @@ const (
 // and against different opponents.
 type playerInstanceState struct {
 	pPtr                         *player
-	sPtr                         *seat
+	sPtr                         *Seat
 	tPtr                         *table
 	spr                          float32     // Stack to Pot Ratio
 	possibleActionIDactionIDList [3]actionID // fold/call/raise
@@ -182,7 +182,7 @@ type playerInstanceState struct {
 */
 
 // ##################################################
-func createPlayer(un userName, pid playerID) (pPtr *player, err error) {
+func createPlayer(un userName, pid PlayerID) (pPtr *player, err error) {
 	Info.Println(debugging.ThisFunc())
 	var p player
 	pPtr = &p
@@ -261,7 +261,7 @@ func createPlayerPtrListPtr(p1Ptr, p2Ptr, p3Ptr, p4Ptr, p5Ptr, p6Ptr, p7Ptr, p8P
 // ##################################################
 // performAction is where the player get's to apply their game strategy, in response
 // to the current state and progress of the hand.
-func performAction(sPtr *seat, rPtr *ring.Ring, tPtr *table) error {
+func performAction(sPtr *Seat, rPtr *ring.Ring, tPtr *table) error {
 
 	Info.Println("Wroking on seat num / PID:", sPtr.number, sPtr.assignedToPID)
 
@@ -315,7 +315,7 @@ func performAction(sPtr *seat, rPtr *ring.Ring, tPtr *table) error {
 }
 
 // ##################################################
-func fold(tPtr *table, sPtr *seat) error {
+func fold(tPtr *table, sPtr *Seat) error {
 
 	return nil
 }
