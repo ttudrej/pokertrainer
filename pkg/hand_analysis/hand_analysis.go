@@ -64,7 +64,7 @@ const (
 )
 
 // FiveCardHandKindRankingFullList is a struct containing the ranking info. We assign integer rank to hand types. Used in comparing hand strength.
-type FiveCardHandKindRankingFullList struct { // fchkr == fiveCardHandKindRanking
+type FiveCardHandKindRankingFullList struct {
 	SfInfo  fiveCardHandKindRanking
 	X4Info  fiveCardHandKindRanking
 	FhInfo  fiveCardHandKindRanking
@@ -74,6 +74,26 @@ type FiveCardHandKindRankingFullList struct { // fchkr == fiveCardHandKindRankin
 	X22Info fiveCardHandKindRanking
 	X2Info  fiveCardHandKindRanking
 	HcInfo  fiveCardHandKindRanking
+}
+
+// FchkrFL maps a major hand type to an integer, representing
+// the relative strength of that type, 1 being the best/highest.
+// This will allow us to split the comparison and sorting of 5 card hands into 2 sub-tasks,
+//  1. figure out the type of hand A and hand B. This will be enough, most often, to know which hand is better.
+//  2. If hand 1 and 2 are of the same type, then we must compare/sort within that type to decide which
+//     is better/wins.
+//
+// Give ourselves a way to compare 5 card hands by indexing.
+var FchkrFL = FiveCardHandKindRankingFullList{
+	SfInfo:  fiveCardHandKindRanking{sf, 1},
+	X4Info:  fiveCardHandKindRanking{x4, 2},
+	FhInfo:  fiveCardHandKindRanking{fh, 3},
+	FlInfo:  fiveCardHandKindRanking{fl, 4},
+	StInfo:  fiveCardHandKindRanking{st, 5},
+	X3Info:  fiveCardHandKindRanking{x3, 6},
+	X22Info: fiveCardHandKindRanking{x22, 7},
+	X2Info:  fiveCardHandKindRanking{x2, 8},
+	HcInfo:  fiveCardHandKindRanking{hc, 9},
 }
 
 // /*
@@ -172,7 +192,7 @@ type FiveCardHandKindRankingFullList struct { // fchkr == fiveCardHandKindRankin
 // // type fclByRank [5]*card
 // // type sfIndexByFirstmanage_table.CardRank []int
 
-// var fchkrFL FiveCardHandKindRankingFullList
+// var FchkrFL FiveCardHandKindRankingFullList
 
 // /*
 // #########################################################################
@@ -234,10 +254,10 @@ type FiveCardHandKindRankingFullList struct { // fchkr == fiveCardHandKindRankin
 // 	// _ = printAllHandsInList(sscpPtr)
 // 	// _ = printAllHandsInList()
 
-// 	fchkrFL, _ = CreateFiveCardHandKindRankings()
-// 	// fmt.Println(fchkrFL.SfInfo, fchkrFL.X4Info, FhInfo, FlInfo, StInfo, X3Info, X22Info, X2Info, HcInfo)
+// 	FchkrFL, _ = CreateFiveCardHandKindRankings()
+// 	// fmt.Println(FchkrFL.SfInfo, FchkrFL.X4Info, FhInfo, FlInfo, StInfo, X3Info, X22Info, X2Info, HcInfo)
 
-// 	fmt.Println(fchkrFL.SfInfo)
+// 	fmt.Println(FchkrFL.SfInfo)
 
 // 	// fmt.Printf("map len: %v\n", len(*deckPtr.cdmPtr))
 
@@ -566,30 +586,30 @@ type FiveCardHandKindRankingFullList struct { // fchkr == fiveCardHandKindRankin
 // // 	return sfclPtr, nil
 // // }
 
-// #########################################################################
+// // #########################################################################
 
-// CreateFiveCardHandKindRankings maps a major hand type to an integer, representing
-// the relative strength of that type, 1 being the best/highest.
-// This will allow us to split the comparison and sorting of 5 card hands into 2 sub-tasks,
-// 1) figure out the type of hand 1 and hand 2. This will be enough, most often, to know which hand is better.
-// 2) If hand 1 and 2 are of the same type, then we must compare/sort within that type.
-func CreateFiveCardHandKindRankings() (fchkrFL FiveCardHandKindRankingFullList, err error) {
+// // CreateFiveCardHandKindRankings maps a major hand type to an integer, representing
+// // the relative strength of that type, 1 being the best/highest.
+// // This will allow us to split the comparison and sorting of 5 card hands into 2 sub-tasks,
+// // 1) figure out the type of hand 1 and hand 2. This will be enough, most often, to know which hand is better.
+// // 2) If hand 1 and 2 are of the same type, then we must compare/sort within that type.
+// func CreateFiveCardHandKindRankings() (FchkrFL FiveCardHandKindRankingFullList, err error) {
 
-	// Info.Printf("%s\n\n", ThisFunc())
+// 	// Info.Printf("%s\n\n", ThisFunc())
 
-	// Give ourselves a way to compare 5 card hands, with just integer values for type.
-	fchkrFL.SfInfo = fiveCardHandKindRanking{sf, 1}
-	fchkrFL.X4Info = fiveCardHandKindRanking{x4, 2}
-	fchkrFL.FhInfo = fiveCardHandKindRanking{fh, 3}
-	fchkrFL.FlInfo = fiveCardHandKindRanking{fl, 4}
-	fchkrFL.StInfo = fiveCardHandKindRanking{st, 5}
-	fchkrFL.X3Info = fiveCardHandKindRanking{x3, 6}
-	fchkrFL.X22Info = fiveCardHandKindRanking{x22, 7}
-	fchkrFL.X2Info = fiveCardHandKindRanking{x2, 8}
-	fchkrFL.HcInfo = fiveCardHandKindRanking{hc, 9}
+// 	// Give ourselves a way to compare 5 card hands, with just integer values for type.
+// 	FchkrFL.SfInfo = fiveCardHandKindRanking{sf, 1}
+// 	FchkrFL.X4Info = fiveCardHandKindRanking{x4, 2}
+// 	FchkrFL.FhInfo = fiveCardHandKindRanking{fh, 3}
+// 	FchkrFL.FlInfo = fiveCardHandKindRanking{fl, 4}
+// 	FchkrFL.StInfo = fiveCardHandKindRanking{st, 5}
+// 	FchkrFL.X3Info = fiveCardHandKindRanking{x3, 6}
+// 	FchkrFL.X22Info = fiveCardHandKindRanking{x22, 7}
+// 	FchkrFL.X2Info = fiveCardHandKindRanking{x2, 8}
+// 	FchkrFL.HcInfo = fiveCardHandKindRanking{hc, 9}
 
-	return fchkrFL, err
-}
+// 	return FchkrFL, err
+// }
 
 // // #########################################################################
 
@@ -3695,8 +3715,8 @@ func CreateFiveCardHandKindRankings() (fchkrFL FiveCardHandKindRankingFullList, 
 // 	efch.c4r = sOfAllFCLs[si[0]][3].Rank
 // 	efch.c5r = sOfAllFCLs[si[0]][4].Rank
 // 	efch.count = 1
-// 	efch.info.handKind = fchkrFL.SfInfo.handKind
-// 	efch.info.typeRank = fchkrFL.SfInfo.typeRank
+// 	efch.info.handKind = FchkrFL.SfInfo.handKind
+// 	efch.info.typeRank = FchkrFL.SfInfo.typeRank
 
 // 	// var efchl[j] equivalentFiveCardHand
 // 	efchl[j] = efch
@@ -3723,8 +3743,8 @@ func CreateFiveCardHandKindRankings() (fchkrFL FiveCardHandKindRankingFullList, 
 // 			efch.c4r = sOfAllFCLs[iAfcl][3].Rank
 // 			efch.c5r = sOfAllFCLs[iAfcl][4].Rank
 // 			efch.count = 1
-// 			efch.info.handKind = fchkrFL.SfInfo.handKind
-// 			efch.info.typeRank = fchkrFL.SfInfo.typeRank
+// 			efch.info.handKind = FchkrFL.SfInfo.handKind
+// 			efch.info.typeRank = FchkrFL.SfInfo.typeRank
 
 // 			efchl[j] = efch
 // 		}
@@ -3767,8 +3787,8 @@ func CreateFiveCardHandKindRankings() (fchkrFL FiveCardHandKindRankingFullList, 
 // 	efch.c4r = sOfAllFCLs[si[0]][3].Rank
 // 	efch.c5r = sOfAllFCLs[si[0]][4].Rank
 // 	efch.count = 1
-// 	efch.info.handKind = fchkrFL.X4Info.handKind
-// 	efch.info.typeRank = fchkrFL.X4Info.typeRank
+// 	efch.info.handKind = FchkrFL.X4Info.handKind
+// 	efch.info.typeRank = FchkrFL.X4Info.typeRank
 
 // 	// var efchl[j] equivalentFiveCardHand
 // 	efchl[j] = efch
@@ -3795,8 +3815,8 @@ func CreateFiveCardHandKindRankings() (fchkrFL FiveCardHandKindRankingFullList, 
 // 			efch.c4r = sOfAllFCLs[iAfcl][3].Rank
 // 			efch.c5r = sOfAllFCLs[iAfcl][4].Rank
 // 			efch.count = 1
-// 			efch.info.handKind = fchkrFL.X4Info.handKind
-// 			efch.info.typeRank = fchkrFL.X4Info.typeRank
+// 			efch.info.handKind = FchkrFL.X4Info.handKind
+// 			efch.info.typeRank = FchkrFL.X4Info.typeRank
 
 // 			// efchl[j] = efch
 // 			efchl = append(efchl, efch)

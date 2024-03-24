@@ -4,12 +4,12 @@ import (
 	"github.com/ttudrej/pokertrainer/pkg/debugging"
 )
 
-type cdmKey struct {
-	cr CardRank
-	cs CardSuit
+type CdmKey struct {
+	Cr CardRank
+	Cs CardSuit
 }
 
-type CardDeckMap map[cdmKey]*Card
+type CardDeckMap map[CdmKey]*Card
 
 // orderedListOfPtrsToCard
 type listOfPtrsToCards [52]*Card
@@ -55,22 +55,22 @@ type CardDeck struct {
 */
 
 // #########################################################################################
-/* createDeck makes us a brand new deck, and also gives an ordered list of the cards in it.
+/* CreateDeck makes us a brand new deck, and also gives an ordered list of the cards in it.
 The new deck means that we now have a one more set of virtual cards, completely separte
 from any other deck already in place. This way no mixing of cards between decks can occur.
 
-Here is where we actually create cards. It makes sense that we create whole decks of cards,
+Here is where we actually Create cards. It makes sense that we Create whole decks of cards,
 and not cards individually.
 */
-// func createDeck() (CdmPtr *CardDeckMap, olPtr *listOfPtrsToCards, olfPtr *listFullOfPtrsToCards, err error) {
-// func createDeck() (cdPtr *CardDeck, err error) {
+// func CreateDeck() (CdmPtr *CardDeckMap, olPtr *listOfPtrsToCards, olfPtr *listFullOfPtrsToCards, err error) {
+// func CreateDeck() (cdPtr *CardDeck, err error) {
 func CreateDeck() (cdPtr *CardDeck, err error) {
-	// Info.Println(debugging.ThisFunc()) # This panics currently
-	// Info.Println("### Starting createDeck ###")
+	// Info.Println(debugging.ThisFunc()) # This paniCs currently
+	// Info.Println("### Starting CreateDeck ###")
 	cdm := make(CardDeckMap)
 	CdmPtr := &cdm
 
-	// Since we're createing a brand new, and ORDERED deck, our list will be "ordered"
+	// Since we're Createing a brand new, and ORDERED deck, our list will be "ordered"
 	// ol = Ordered List
 	var ol listOfPtrsToCards
 	olPtr := &ol
@@ -100,12 +100,12 @@ func CreateDeck() (cdPtr *CardDeck, err error) {
 			var c = Card{rank, suit, false, false, false, false, sequence}
 			cPtr := &c
 
-			cdm[cdmKey{rank, suit}] = cPtr
+			cdm[CdmKey{rank, suit}] = cPtr
 			ol[sequence-1] = cPtr
 			olf[sequence-1] = cPtr
 			shuffledL[sequence-1] = cPtr
 			// The dealer needs to perform a shuffle for this list to be actully shuffled.
-			// It is ordered, when the deck is first created.
+			// It is ordered, when the deck is first Created.
 
 			// Also point add Aces that fit below the duces.
 			// Needed for working out Straigh relative ranking.

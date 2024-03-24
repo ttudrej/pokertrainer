@@ -177,7 +177,6 @@ var ( // "factored" into a block
 */
 
 type CardRankMapCreator interface {
-	// Create() (CardRankMap, error)
 	Create() (CardRankMap, error)
 }
 
