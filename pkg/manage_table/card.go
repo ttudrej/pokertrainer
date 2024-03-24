@@ -1,4 +1,3 @@
-// Package manage_table comment string
 package manage_table
 
 import (

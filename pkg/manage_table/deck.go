@@ -2,7 +2,6 @@ package manage_table
 
 import (
 	"github.com/ttudrej/pokertrainer/pkg/debugging"
-	// "github.com/ttudrej/pokertrainer/tableitems"
 )
 
 type cdmKey struct {
@@ -19,13 +18,22 @@ type listOfPtrsToCards [52]*Card
 // Used for hand rank checks ONLY
 type listFullOfPtrsToCards [56]*Card
 
+// type CardDeck struct {
+// 	CdmPtr                     *CardDeckMap
+// 	OloptcPtr                  *listOfPtrsToCards     // Ordered List of *cards
+// 	TopCardIndex_oloptc        int                    // 0-51, For keeping track of the top card in the deck, as they get dealt
+// 	ShuffledLoptcPtr           *listOfPtrsToCards     // For storing the shuffled version. The shuffling job belongs to the dealer
+// 	TopCardIndex_shuffledLoptc int                    // 0-51, For keeping track of the top card as they get dealt out.
+// 	OloptcFPtr                 *listFullOfPtrsToCards // Ordered List, Full, of *cards
+// }
+
 type CardDeck struct {
-	cdmPtr                     *CardDeckMap
-	oloptcPtr                  *listOfPtrsToCards     // Ordered List of *cards
-	topCardIndex_oloptc        int                    // 0-51, For keeping track of the top card in the deck, as they get dealt
-	shuffledLoptcPtr           *listOfPtrsToCards     // For storing the shuffled version. The shuffling job belongs to the dealer
-	topCardIndex_shuffledLoptc int                    // 0-51, For keeping track of the top card as they get dealt out.
-	oloptcFPtr                 *listFullOfPtrsToCards // Ordered List, Full, of *cards
+	CdmPtr                     *CardDeckMap
+	OloptcPtr                  *listOfPtrsToCards     // Ordered List of *cards
+	TopCardIndex_oloptc        int                    // 0-51, For keeping track of the top card in the deck, as they get dealt
+	ShuffledLoptcPtr           *listOfPtrsToCards     // For storing the shuffled version. The shuffling job belongs to the dealer
+	TopCardIndex_shuffledLoptc int                    // 0-51, For keeping track of the top card as they get dealt out.
+	OloptcFPtr                 *listFullOfPtrsToCards // Ordered List, Full, of *cards
 }
 
 /*
@@ -54,13 +62,13 @@ from any other deck already in place. This way no mixing of cards between decks 
 Here is where we actually create cards. It makes sense that we create whole decks of cards,
 and not cards individually.
 */
-// func createDeck() (cdmPtr *CardDeckMap, olPtr *listOfPtrsToCards, olfPtr *listFullOfPtrsToCards, err error) {
+// func createDeck() (CdmPtr *CardDeckMap, olPtr *listOfPtrsToCards, olfPtr *listFullOfPtrsToCards, err error) {
 // func createDeck() (cdPtr *CardDeck, err error) {
 func CreateDeck() (cdPtr *CardDeck, err error) {
-	Info.Println(debugging.ThisFunc())
+	// Info.Println(debugging.ThisFunc()) # This panics currently
 	// Info.Println("### Starting createDeck ###")
 	cdm := make(CardDeckMap)
-	cdmPtr := &cdm
+	CdmPtr := &cdm
 
 	// Since we're createing a brand new, and ORDERED deck, our list will be "ordered"
 	// ol = Ordered List
@@ -78,12 +86,12 @@ func CreateDeck() (cdPtr *CardDeck, err error) {
 	var cd CardDeck
 	cdPtr = &cd
 
-	cd.cdmPtr = cdmPtr
-	cd.oloptcPtr = olPtr
-	cd.shuffledLoptcPtr = slPtr
-	cd.oloptcFPtr = olfPtr
-	cd.topCardIndex_oloptc = 0
-	cd.topCardIndex_shuffledLoptc = 0
+	cd.CdmPtr = CdmPtr
+	cd.OloptcPtr = olPtr
+	cd.ShuffledLoptcPtr = slPtr
+	cd.OloptcFPtr = olfPtr
+	cd.TopCardIndex_oloptc = 0
+	cd.TopCardIndex_shuffledLoptc = 0
 
 	sequence := 1 // bottom card in the deck, card 52 is the top of the deck.
 
@@ -108,7 +116,7 @@ func CreateDeck() (cdPtr *CardDeck, err error) {
 		}
 	}
 	// Return the card deck map, the Ordered List, and the Ordered List Full
-	// return cdmPtr, olPtr, olfPtr, err
+	// return CdmPtr, olPtr, olfPtr, err
 	return cdPtr, err
 }
 
